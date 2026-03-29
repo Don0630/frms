@@ -1,0 +1,10 @@
+@import "leaflet/dist/leaflet.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Remove the black focus outline (square/rectangle) when features are clicked */
+.leaflet-interactive:focus {
+  outline: none !important;
+}
+
