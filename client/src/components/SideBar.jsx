@@ -65,8 +65,8 @@ export default function Sidebar({ collapsed, mobile = false }) {
       collapsed ? "justify-center p-3" : "gap-4 p-4"
     } ${
       isActive
-        ? "bg-blue-500 text-white visited:text-white hover:bg-blue-600 hover:text-white font-semibold shadow-md"
-        : "text-gray-600 dark:text-gray-400 hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white dark:hover:text-white"
+        ? "bg-green-500 text-white visited:text-white hover:bg-green-600 hover:text-white font-semibold shadow-md"
+        : "text-gray-600 dark:text-gray-400 hover:bg-green-600 dark:hover:bg-green-600 hover:text-white dark:hover:text-white"
     }`
   }
 >

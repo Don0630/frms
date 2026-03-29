@@ -55,7 +55,7 @@ export default function Farmers() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL CROPS</h2>
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm shadow">
+          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
             <Plus className="w-4 h-4" /> Add New Crops
           </button>
         </div>
