@@ -10,7 +10,8 @@ import {
   PhilippinePeso,
   Tag,
   Calendar,
-  Users
+  Users,
+  Circle
 } from "lucide-react";
 
 import { programsData } from "../data/programsData";
@@ -197,34 +198,35 @@ export default function Programs() {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Tag size={14} /> Description
+                  <Tag size={14} className="text-green-500" /> Description
                 </span>
                 {modalData.description}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Calendar size={14} /> Duration
+                  <Calendar size={14} className="text-yellow-500" /> Duration
                 </span>
                 {modalData.startDate} → {modalData.endDate}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <PhilippinePeso size={14} /> Budget
+                  <PhilippinePeso size={14} className="text-purple-500" /> Budget
                 </span>
                 ₱ {modalData.budget.toLocaleString()}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Users size={14} /> Beneficiaries
+                  <Users size={14} className="text-blue-500" /> Beneficiaries
                 </span>
                 {modalData.targetBeneficiaries}
               </div>
 
               <div className="flex justify-between">
-                <span>Status</span>
+                <span className="flex items-center gap-1">
+                  <Circle size={14} className="text-red-500" />Status</span>
                 {modalData.status}
               </div>
             </div>

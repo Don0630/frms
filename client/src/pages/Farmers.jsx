@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Minus, Save, Plus, Mars, Venus, CheckCircle , Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, Activity, MapPinned, Ruler, Expand } from "lucide-react";
+import { Search, Save, Plus, Mars, Venus, CheckCircle , Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, FileText, MapPinned, Ruler, Expand } from "lucide-react";
 import { farmersData } from "../data/farmersData";
 
 export default function Farmers() {
@@ -221,7 +221,7 @@ export default function Farmers() {
               </span> {modalData.email}</div>
               <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><User size={16} className="text-orange-500" /><strong>Gender:</strong>
               </span> {modalData.gender}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><Activity size={16} className="text-yellow-500" /><strong>Program Status:</strong>
+              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><FileText size={16} className="text-yellow-500" /><strong>Program Status:</strong>
               </span> {modalData.status}</div>
               <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><MapPinned size={16} className="text-green-500" /><strong>Farm Location:</strong>
               </span> {modalData.farmLocation}</div>

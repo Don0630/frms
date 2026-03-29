@@ -178,21 +178,21 @@ export default function Livestock() {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Tag size={14} /> Type
+                  <Tag size={16} className="text-red-500" /> Type
                 </span>
                 {modalData.type}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <BarChart3 size={14} /> Average Production
+                  <BarChart3 size={16} className="text-green-500"/> Average Production
                 </span>
                 {modalData.averageProduction}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <PhilippinePeso size={14} /> Price
+                  <PhilippinePeso size={16} className="text-purple-500"/> Price
                 </span>
                 ₱ {modalData.marketPrice}
               </div>

@@ -4,12 +4,12 @@ import {
   BarChart2,
   Map,
   Users,
-  Bus,
-  Droplet,
-  Zap,
+  Sprout,
+  Activity,
+  FileText,
   Building,
   Briefcase,
-  Shield,
+  Clipboard,
 } from "lucide-react";
 
 import logo from "../assets/logo.png"; // ✅ replace with your own logo
@@ -17,10 +17,12 @@ import logo from "../assets/logo.png"; // ✅ replace with your own logo
 const menuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/" },
   { name: "Farmers", icon: <Users size={20} />, path: "/farmers" },
-  { name: "Crops", icon: <BarChart2 size={20} />, path: "/crops" },
-  { name: "Livestock", icon: <BarChart2 size={20} />, path: "/livestock" },
-  { name: "Programs", icon: <BarChart2 size={20} />, path: "/programs" },
-  { name: "Staffs", icon: <BarChart2 size={20} />, path: "/staffs" },
+  { name: "Crops", icon: <Sprout size={20} />, path: "/crops" },
+  { name: "Livestock", icon: <Activity size={20} />, path: "/livestock" },
+  { name: "Programs", icon: <FileText size={20} />, path: "/programs" },
+  { name: "Agriculutural Staffs", icon: <Users size={20} />, path: "/staffs" },
+  { name: "Subsidy Distribution", icon: <Briefcase size={20} />, path: "/subsidy" },
+  { name: "Reports and Monitoring", icon: <Clipboard size={20} />, path: "/monitoring" },
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {
@@ -74,7 +76,7 @@ export default function Sidebar({ collapsed, mobile = false }) {
 
 
       {/* Divider after "Business Locator Maps" */}
-      {item.name === "Programs" && (
+      {item.name === "Livestock" && (
         <div className="my-2 border-t border-gray-300 dark:border-gray-700" />
       )}
     </div>

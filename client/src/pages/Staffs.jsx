@@ -199,28 +199,28 @@ export default function Staff() {
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Briefcase size={14} /> Position
+                  <Briefcase size={14} className="text-purple-500" /> Position
                 </span>
                 {modalData.position}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Building2 size={14} /> Department
+                  <Building2 size={14} className="text-yellow-500" /> Department
                 </span>
                 {modalData.department}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Phone size={14} /> Contact
+                  <Phone size={14} className="text-red-500" /> Contact
                 </span>
                 {modalData.contactNumber}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <Mail size={14} /> Email
+                  <Mail size={14} className="text-blue-500" /> Email
                 </span>
                 {modalData.email}
               </div>

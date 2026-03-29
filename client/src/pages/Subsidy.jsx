@@ -1,51 +1,42 @@
 import { useState, useEffect } from "react";
-import { Search, Minus, Save, Plus, Mars, Venus, Check, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, Activity, MapPinned, Ruler, Expand } from "lucide-react";
-import { farmersData } from "../data/farmersData";
+import {
+  Search,
+  Plus,
+  SlidersHorizontal,
+  Settings,
+  Info,
+  X,
+  PhilippinePeso,
+  Calendar,
+  FileText
+} from "lucide-react";
 
-export default function Farmers() {
+import { subsidyData } from "../data/subsidyData";
+
+export default function Subsidy() {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [modalData, setModalData] = useState(null); // For modal
+  const [modalData, setModalData] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Filter & Search
-  const filtered = farmersData.filter((item) => {
-    const matchSearch =
-      item.firstName.toLowerCase().includes(search.toLowerCase()) ||
-      item.lastName.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "All" || item.status === filter;
-    return matchSearch && matchFilter;
+  const filtered = subsidyData.filter((item) => {
+    return (
+      item.FarmerID.toString().includes(search) ||
+      item.ProgramID.toString().includes(search)
+    );
   });
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, filter]);
+  }, [search]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-
-  // Status badge colors
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Active": return "bg-green-600 text-white";
-      case "Completed": return "bg-blue-900 text-white";
-      case "Dropped": return "bg-red-600 text-white";
-      case "Pending": return "bg-yellow-500 text-white";
-      default: return "bg-gray-500 text-white";
-    }
-  };
-
-  // Gender icon helper
-  const getGenderIcon = (gender) => {
-    if (gender.toLowerCase() === "male") return <Venus className="w-4 h-4 text-blue-500" />;
-    if (gender.toLowerCase() === "female") return <Mars className="w-4 h-4 text-pink-500" />;
-    return <Users className="w-4 h-4 text-gray-500" />;
-  };
 
   return (
     <div className="w-full h-full p-4">
@@ -53,9 +44,9 @@ export default function Farmers() {
 
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">ALL FARMERS</h2>
+          <h2 className="text-xl font-semibold text-gray-700">SUBSIDY RECORDS</h2>
           <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add New Farmer
+            <Plus className="w-4 h-4" /> Add Subsidy
           </button>
         </div>
 
@@ -65,7 +56,7 @@ export default function Farmers() {
             <Search className="w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search name..."
+              placeholder="Search Farmer or Program ID..."
               className="ml-2 outline-none text-sm w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -81,110 +72,56 @@ export default function Farmers() {
           </button>
         </div>
 
-        {/* Filter */}
-        <div className="flex gap-4 text-sm mb-4">
-          {["All", "Active", "Completed", "Dropped", "Pending"].map((item) => (
-            <label key={item} className="flex items-center gap-1 cursor-pointer">
-              <input
-                type="radio"
-                checked={filter === item}
-                onChange={() => setFilter(item)}
-              />
-              {item}
-            </label>
-          ))}
-        </div>
-
         {/* Table */}
-      <div className="w-full border rounded-lg">
-          <table className="w-full table-fixed text-xs sm:text-sm">
-   <thead className="bg-gray-100 text-gray-600">
-  <tr>
-    <th className="py-3 px-2 text-left">Name</th>
-    <th className="py-3 px-2 text-left">Farm Size</th>
-    <th className="py-3 px-2 text-left">Farm Location</th>
-    <th className="py-3 px-2 text-left">Status</th>
-      
-    <th className="py-3 px-2 text-center w-20">
-      <Settings className="text-gray-600 w-5 h-5 mx-auto" />
-    </th>
-  </tr>
-</thead>
+        <div className="w-full border rounded-lg overflow-x-auto">
+          <table className="w-full text-xs sm:text-sm">
+            <thead className="bg-gray-100 text-gray-600">
+              <tr>
+                <th className="py-3 px-2 text-left">Farmer ID</th>
+                <th className="py-3 px-2 text-left">Program ID</th>
+                <th className="py-3 px-2 text-left">Amount</th>
+                <th className="py-3 px-2 text-left">Date</th>
+                <th className="py-3 px-2 text-center">
+                  <Settings className="w-5 h-5 mx-auto" />
+                </th>
+              </tr>
+            </thead>
 
-<tbody>
-  {currentItems.map((item, i) => (
-    <tr key={i} className="border-t">
+            <tbody>
+              {currentItems.map((item, i) => (
+                <tr key={i} className="border-t">
+                  <td className="py-2 px-2">{item.FarmerID}</td>
+                  <td className="py-2 px-2">{item.ProgramID}</td>
+                  <td className="py-2 px-2">
+                    ₱ {item.Amount.toLocaleString()}
+                  </td>
+                  <td className="py-2 px-2">{item.DistributionDate}</td>
 
-      <td className="py-2 px-2 flex items-center gap-1">
-        {getGenderIcon(item.gender)}
-        {item.firstName} {item.lastName}
-              {/* Info button */}
-        <button className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-          onClick={() => setModalData(item)}
-        >
-          <Info className="w-4 h-4 text-blue-500" />
-        </button>
-      </td>
-
-      <td>{item.farmSize} ha</td>
-      <td>{item.farmLocation}</td>
-      <td>
-        <span className={`inline-flex justify-center items-center w-20 py-2 rounded-xl text-xs ${getStatusColor(item.status)}`}>
-  {item.status}
-</span>
-      </td>
-
- 
-
-      <td className="py-2 px-2 flex items-center justify-center gap-1">
-
-        {/* Action buttons based on status */}
-        {item.status === "Active" && (
-          <>
-
-            <button className="flex bg-blue-500 text-white items-center gap-1 px-2 py-1 hover:bg-blue-700 rounded">
-              <Save className="w-3 h-3 text-white-500" />
-            </button>
-            <button className="flex bg-red-500 text-white items-center gap-1 px-2 py-1 hover:bg-red-700 rounded">
-              <X className="w-3 h-3 text-white-500" />
-            </button>
-          </>
-        )}
-        {(item.status === "Dropped" || item.status === "Pending") && (
-          <button className="flex bg-green-600 text-white items-center gap-1 px-2 py-1 hover:bg-green-700 rounded">
-            <Check className="w-3 h-3 text-white-500" />
-          </button>
-        )}
-        {item.status === "Completed" && (
-          <>
-            <button className="flex bg-green-600 text-white items-center gap-1 px-2 py-1 hover:bg-green-700 rounded">
-              <Check className="w-3 h-3 text-white-500" />
-            </button>
-            <button className="flex bg-red-500 text-white items-center gap-1 px-2 py-1 hover:bg-red-700 rounded">
-              <X className="w-3 h-3 text-white-500" />
-            </button>
-          </>
-        )}
-
-      </td>
-
-    </tr>
-  ))}
-</tbody>
+                  <td className="py-2 px-2 flex justify-center">
+                    <button
+                      onClick={() => setModalData(item)}
+                      className="hover:bg-gray-200 p-1 rounded"
+                    >
+                      <Info className="w-4 h-4 text-blue-500" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
 
         {/* Footer */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
           <span>
-            Showing {currentItems.length} of {filtered.length} farmers
+            Showing {currentItems.length} of {filtered.length} records
           </span>
 
           <div className="flex gap-2">
             <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-3 py-1 bg-gray-200 rounded"
             >
               Prev
             </button>
@@ -193,16 +130,20 @@ export default function Farmers() {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
               >
                 {i + 1}
               </button>
             ))}
 
             <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
               disabled={currentPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-3 py-1 bg-gray-200 rounded"
             >
               Next
             </button>
@@ -212,34 +153,55 @@ export default function Farmers() {
 
       {/* Modal */}
       {modalData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6 relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-lg p-6 w-96 relative">
+
             <button
-              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+              className="absolute top-3 right-3"
               onClick={() => setModalData(null)}
             >
-              <X className="w-5 h-5" />
+              <X />
             </button>
 
-            <h3 className="text-lg font-semibold mb-4">{modalData.firstName} {modalData.lastName}</h3>
-            <div className="w-full h-px bg-gray-300 my-2"></div>
-            <div className="grid grid-cols-1 gap-2 text-gray-700 text-xs">
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><Calendar size={16} className="text-green-500" /><strong>Date of Birth:</strong>
-              </span> {modalData.dateOfBirth}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><MapPin size={16} className="text-blue-500" /><strong>Address:</strong>
-              </span> {modalData.address}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><Phone size={16} className="text-red-500" /><strong>Contact No.:</strong>
-              </span> {modalData.contactNumber}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><Mail size={16} className="text-purple-500" /><strong>Email:</strong>
-              </span> {modalData.email}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><User size={16} className="text-orange-500" /><strong>Gender:</strong>
-              </span> {modalData.gender}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><Activity size={16} className="text-yellow-500" /><strong>Status:</strong>
-              </span> {modalData.status}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><MapPinned size={16} className="text-green-500" /><strong>Farm Location:</strong>
-              </span> {modalData.farmLocation}</div>
-              <div className="flex justify-between items-center mb-2"><span className="flex items-center gap-1"><Ruler size={16} className="text-cyan-500" /><strong>Farm Size:</strong>
-              </span> {modalData.farmSize} ha</div>
+            <h3 className="font-semibold text-lg mb-2">
+              Subsidy Details
+            </h3>
+
+            <div className="h-px bg-gray-300 my-2"></div>
+
+            <div className="space-y-2 text-xs">
+
+              <div className="flex justify-between">
+                <span>Farmer ID</span>
+                {modalData.FarmerID}
+              </div>
+
+              <div className="flex justify-between">
+                <span>Program ID</span>
+                {modalData.ProgramID}
+              </div>
+
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <PhilippinePeso size={14} /> Amount
+                </span>
+                ₱ {modalData.Amount.toLocaleString()}
+              </div>
+
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <Calendar size={14} /> Date
+                </span>
+                {modalData.DistributionDate}
+              </div>
+
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <FileText size={14} /> Remarks
+                </span>
+                {modalData.Remarks}
+              </div>
+
             </div>
           </div>
         </div>

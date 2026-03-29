@@ -9,6 +9,8 @@ import Crops from "./pages/Crops";
 import Livestock from "./pages/Livestock";
 import Programs from "./pages/Programs"; 
 import Staffs from "./pages/Staffs";
+import Subsidy from "./pages/Subsidy";
+import Monitoring from "./pages/Monitoring";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false); // mobile drawer
@@ -54,7 +56,9 @@ function App() {
               <Route path="/crops" element={<Crops />} /> 
               <Route path="/livestock" element={<Livestock />} />
               <Route path="/programs" element={<Programs />} />
-              <Route path="/staffs" element={<Staffs />} />  
+              <Route path="/staffs" element={<Staffs />} />
+              <Route path="/subsidy" element={<Subsidy />} />
+              <Route path="/monitoring" element={<Monitoring />} /> 
             </Routes>
           </div>
         </div>

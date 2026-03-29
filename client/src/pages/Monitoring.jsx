@@ -1,52 +1,44 @@
 import { useState, useEffect } from "react";
-import {   Search,
+import {
+  Search,
   Plus,
   SlidersHorizontal,
   Settings,
   Info,
   X,
-  Edit,
-  CheckCircle,
-  Leaf,
-  Apple,
-  Carrot,
-  Tag,
-  CloudSun,
-  BarChart3,
-  Wheat,
-  PhilippinePeso} from "lucide-react";
-import { cropsData } from "../data/cropsData";
+  Calendar,
+  Activity,
+  AlertTriangle,
+  FileText
+} from "lucide-react";
 
-export default function Farmers() {
+import { monitoringData } from "../data/monitoringData";
+
+export default function Monitoring() {
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [modalData, setModalData] = useState(null); // For modal
+  const [modalData, setModalData] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Filter & Search
-  const filtered = cropsData.filter((item) => {
-    const matchSearch =
-      item.cropName.toLowerCase().includes(search.toLowerCase());
-
-    const matchFilter =
-      filter === "All" || item.category === filter;
-
-    return matchSearch && matchFilter;
+  const filtered = monitoringData.filter((item) => {
+    return (
+      item.FarmerID.toString().includes(search) ||
+      (item.CropID && item.CropID.toString().includes(search)) ||
+      (item.LivestockID && item.LivestockID.toString().includes(search))
+    );
   });
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, filter]);
+  }, [search]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-
- 
 
   return (
     <div className="w-full h-full p-4">
@@ -54,9 +46,11 @@ export default function Farmers() {
 
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">ALL CROPS</h2>
+          <h2 className="text-xl font-semibold text-gray-700">
+            MONITORING RECORDS
+          </h2>
           <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add New Crops
+            <Plus className="w-4 h-4" /> Add Record
           </button>
         </div>
 
@@ -66,7 +60,7 @@ export default function Farmers() {
             <Search className="w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search name..."
+              placeholder="Search Farmer / Crop / Livestock ID..."
               className="ml-2 outline-none text-sm w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -82,81 +76,56 @@ export default function Farmers() {
           </button>
         </div>
 
-        {/* Filter */}
-        <div className="flex gap-4 text-sm mb-4">
-          {["All", "Grains", "Fruits", "Vegetables"].map((item) => (
-            <label key={item} className="flex items-center gap-1 cursor-pointer">
-              <input
-                type="radio"
-                checked={filter === item}
-                onChange={() => setFilter(item)}
-              />
-              {item}
-            </label>
-          ))}
-        </div>
-
         {/* Table */}
-      <div className="w-full border rounded-lg">
+        <div className="w-full border rounded-lg overflow-x-auto">
           <table className="w-full text-xs sm:text-sm">
-   <thead className="bg-gray-100 text-gray-600">
-  <tr>
-    <th className="py-3 px-2 text-left">Crop Name</th> 
-    <th className="py-3 px-2 text-left">Category</th>
-    <th className="py-3 px-2 text-left">Season</th>
-    <th className="py-3 px-2 text-left">Yield (ha)</th>
-    <th className="py-3 px-2 text-left">Price</th>
-    <th className="py-3 px-2 text-center">
-      <Settings className="text-gray-600 w-5 h-5 mx-auto" />
-    </th> 
-  </tr>
-</thead>
+            <thead className="bg-gray-100 text-gray-600">
+              <tr>
+                <th className="py-3 px-2 text-left">Farmer ID</th>
+                <th className="py-3 px-2 text-left">Crop</th>
+                <th className="py-3 px-2 text-left">Livestock</th>
+                <th className="py-3 px-2 text-left">Production</th>
+                <th className="py-3 px-2 text-left">Date</th>
+                <th className="py-3 px-2 text-center">
+                  <Settings className="w-5 h-5 mx-auto" />
+                </th>
+              </tr>
+            </thead>
 
-<tbody>
-  {currentItems.map((item, i) => (
-    <tr key={i} className="border-t">
+            <tbody>
+              {currentItems.map((item, i) => (
+                <tr key={i} className="border-t">
+                  <td className="py-2 px-2">{item.FarmerID}</td>
+                  <td className="py-2 px-2">{item.CropID || "-"}</td>
+                  <td className="py-2 px-2">{item.LivestockID || "-"}</td>
+                  <td className="py-2 px-2">{item.ProductionVolume}</td>
+                  <td className="py-2 px-2">{item.ReportDate}</td>
 
-        <td className="py-2 px-2 flex items-center gap-1"> 
-        {item.cropName} 
-              {/* Info button */}
-        <button className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-          onClick={() => setModalData(item)}
-        >
-          <Info className="w-4 h-4 text-blue-500" />
-        </button>
-      </td>     
- <td>{item.category}</td>
-                  <td>{item.season}</td>
-                  <td>{item.averageYieldPerHectare}</td>
-                  <td>₱ {item.marketPrice}</td>
-
- <td className="py-2 px-2 flex items-center justify-center gap-1">
-
-  {/* Edit button */}
-  <button className="flex bg-blue-600 text-white items-center px-2 py-1 hover:bg-blue-700 rounded">
-    <Edit className="w-3 h-3" />
-  </button>
- 
-</td>
-
-
-    </tr>
-  ))}
-</tbody>
+                  <td className="py-2 px-2 flex justify-center">
+                    <button
+                      onClick={() => setModalData(item)}
+                      className="hover:bg-gray-200 p-1 rounded"
+                    >
+                      <Info className="w-4 h-4 text-blue-500" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
 
         {/* Footer */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
           <span>
-            Showing {currentItems.length} of {filtered.length} farmers
+            Showing {currentItems.length} of {filtered.length} records
           </span>
 
           <div className="flex gap-2">
             <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage(prev => prev - 1)}
+              className="px-3 py-1 bg-gray-200 rounded"
             >
               Prev
             </button>
@@ -165,16 +134,20 @@ export default function Farmers() {
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
               >
                 {i + 1}
               </button>
             ))}
 
             <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
               disabled={currentPage === totalPages || totalPages === 0}
               onClick={() => setCurrentPage(prev => prev + 1)}
+              className="px-3 py-1 bg-gray-200 rounded"
             >
               Next
             </button>
@@ -195,7 +168,7 @@ export default function Farmers() {
             </button>
 
             <h3 className="font-semibold text-lg mb-2">
-              {modalData.cropName} 
+              Monitoring Details
             </h3>
 
             <div className="h-px bg-gray-300 my-2"></div>
@@ -203,31 +176,46 @@ export default function Farmers() {
             <div className="space-y-2 text-xs">
 
               <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Tag size={16} className="text-red-500" /> Category
-                </span>
-                {modalData.category}
+                <span>Farmer ID</span>
+                {modalData.FarmerID}
+              </div>
+
+              <div className="flex justify-between">
+                <span>Crop</span>
+                {modalData.CropID || "-"}
+              </div>
+
+              <div className="flex justify-between">
+                <span>Livestock</span>
+                {modalData.LivestockID || "-"}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <CloudSun size={16} className="text-blue-500" /> Season
+                  <Activity size={14} /> Production
                 </span>
-                {modalData.season}
+                {modalData.ProductionVolume}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <BarChart3 size={16} className="text-green-500" /> Yield
+                  <Calendar size={14} /> Date
                 </span>
-                {modalData.averageYieldPerHectare}
+                {modalData.ReportDate}
               </div>
 
               <div className="flex justify-between">
                 <span className="flex items-center gap-1">
-                  <PhilippinePeso size={16} className="text-purple-500" /> Price
+                  <AlertTriangle size={14} /> Issues
                 </span>
-                ₱ {modalData.marketPrice}
+                {modalData.Issues}
+              </div>
+
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <FileText size={14} /> Remarks
+                </span>
+                {modalData.Remarks}
               </div>
 
             </div>
