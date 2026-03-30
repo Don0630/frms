@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useState } from "react";
 import useDarkMode from "./hooks/useDarkMode";
 import Sidebar from "./components/SideBar";
-import Navbar from "./components/NavBar"; 
+import Navbar from "./components/NavBar";
+import Login from "./pages/Auth/Login"; 
 import Dashboard from "./pages/Dashboard";
 import Farmers from "./pages/Farmers";
 import Crops from "./pages/Crops";
@@ -51,7 +52,7 @@ function App() {
           />
           <div className="flex-1 overflow-y-auto p-4">
             <Routes> 
-              <Route path="/" element={<Dashboard />} /> 
+              <Route path="/" element={<Login />} />
               <Route path="/farmers" element={<Farmers />} />
               <Route path="/crops" element={<Crops />} /> 
               <Route path="/livestock" element={<Livestock />} />
