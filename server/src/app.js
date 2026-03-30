@@ -1,36 +1,28 @@
 // src/app.js
 import express from "express";
 import cors from "cors";
-import { db } from "./config/db.js";
+import authRoutes from "./routes/authRoutes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+
 
 const app = express();
 
-app.use(cors()); // allow frontend to access API
+app.use(cors({
+  origin: "http://localhost:5173", // Vite dev server
+  credentials: true,               // allow cookies & auth headers
+}));
+ 
 app.use(express.json());
 
-// =====================
-// Example API routes
-// =====================
 
-// Get all monitoring records
-app.get("/api/monitoring", (req, res) => {
-  const sql = "SELECT * FROM monitoring";
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
-});
+// --- Routes ---
+app.use("/auth", authRoutes); 
 
-// Get all subsidy records
-app.get("/api/subsidy", (req, res) => {
-  const sql = "SELECT * FROM subsidy";
-  db.query(sql, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(results);
-  });
-});
+// --- Error handler ---
+app.use(errorHandler);
 
-// You can add similar routes for staff, crops, livestock
-// e.g., /api/staff, /api/crops, /api/livestock
 
 export default app;
+
+
+
