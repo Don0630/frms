@@ -9,7 +9,7 @@
 -- 9. USERS (linked to Farmers and Staff)
 -- =========================
 CREATE TABLE IF NOT EXISTS tblUsers (
-  UserID INT AUTO_INCREMENT PRIMARY KEY,
+  ID INT AUTO_INCREMENT PRIMARY KEY,
   Username VARCHAR(50) NOT NULL UNIQUE,
   PasswordHash VARCHAR(255) NOT NULL,
   Email VARCHAR(100) UNIQUE,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS tblUsers (
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
   Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active'
-
+ *
    
 );
 
@@ -109,10 +109,12 @@ CREATE TABLE tblAgriculturalStaff (
   StaffID INT AUTO_INCREMENT PRIMARY KEY,
   FirstName VARCHAR(50),
   LastName VARCHAR(50),
+  Gender ENUM('Male', 'Female'),
   Position VARCHAR(50),
   Department VARCHAR(50),
   ContactNumber VARCHAR(20),
-  Email VARCHAR(100)
+  Email VARCHAR(100),
+  IsUser TINYINT(1) DEFAULT 0
 );
 
 -- =========================

@@ -1,4 +1,3 @@
-// src/pages/Staff.jsx
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -6,43 +5,37 @@ import {
   SlidersHorizontal,
   Settings,
   Info,
+  X,
   Edit,
+  User,
+  Phone,
+  Mail,
   Briefcase,
-  Venus,
-  Mars,
-  Users,
-  UserCog
+  Building2
 } from "lucide-react";
-import { useStaff } from "../context/StaffContext.jsx";
-import ViewStaffModal from "../components/modals/ViewStaffModal";
-import RegisterUserModal from "../components/modals/RegisterUserModal";
+
+import { staffData } from "../data/staffsData";
 
 export default function Staff() {
-  const { staff, loading, error, loadStaff } = useStaff(); // use context
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null);
-  const [userModal, setUserModal] = useState(null);
+  const [modalData, setModalData] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Fetch staff on mount
-  useEffect(() => {
-    loadStaff();
-  }, []);
-
   // Filter & Search
-const filtered = staff.filter((item) => {
-  const matchSearch =
-    item.FirstName.toLowerCase().includes(search.toLowerCase()) ||
-    item.LastName.toLowerCase().includes(search.toLowerCase());
+  const filtered = staffData.filter((item) => {
+    const matchSearch =
+      item.firstName.toLowerCase().includes(search.toLowerCase()) ||
+      item.lastName.toLowerCase().includes(search.toLowerCase());
 
-  const matchFilter = filter === "All" || item.Department === filter;
+    const matchFilter =
+      filter === "All" || item.department === filter;
 
-  return matchSearch && matchFilter;
-});
+    return matchSearch && matchFilter;
+  });
 
   useEffect(() => {
     setCurrentPage(1);
@@ -53,26 +46,15 @@ const filtered = staff.filter((item) => {
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  if (loading) return <p className="p-4">Loading staff...</p>;
-  if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
-
-
-    // Gender icon helper
-  const getGenderIcon = (gender) => {
-    if (gender.toLowerCase() === "male") return <Venus className="w-4 h-4 text-blue-500 shrink-0" />;
-    if (gender.toLowerCase() === "female") return <Mars className="w-4 h-4 text-pink-500 shrink-0" />;
-    return <Users className="w-4 h-4 text-gray-500" />;
-  };
-
-
   return (
     <div className="w-full h-full p-4">
       <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
+
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">ALL STAFF</h2>
+          <h2 className="text-xl font-semibold text-gray-700">ALL USERS</h2>
           <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add Staff
+            <Plus className="w-4 h-4" /> Add User
           </button>
         </div>
 
@@ -100,7 +82,7 @@ const filtered = staff.filter((item) => {
 
         {/* Filter */}
         <div className="flex gap-4 text-sm mb-4">
-          {["All", "Male", "Female"].map((item) => (
+          {["All", "Field", "Finance", "HR"].map((item) => (
             <label key={item} className="flex items-center gap-1 cursor-pointer">
               <input
                 type="radio"
@@ -130,42 +112,26 @@ const filtered = staff.filter((item) => {
             <tbody>
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t">
-
-
-
-
                   <td className="py-2 px-2 flex items-center gap-1">
-                    {getGenderIcon(item.Gender)}
-                    {item.FirstName} {item.LastName}
+                    <User className="w-4 h-4 text-blue-500" />
+                    {item.firstName} {item.lastName}
 
                     <button
-                      onClick={() => setViewModal(item)}
+                      onClick={() => setModalData(item)}
                       className="hover:bg-gray-200 p-1 rounded"
                     >
                       <Info className="w-4 h-4 text-blue-500" />
                     </button>
                   </td>
 
-                  <td className="py-2 px-2">{item.Position}</td>
-                  <td className="py-2 px-2">{item.Department}</td>
-                  <td className="py-2 px-2">{item.ContactNumber}</td>
+                  <td className="py-2 px-2">{item.position}</td>
+                  <td className="py-2 px-2">{item.department}</td>
+                  <td className="py-2 px-2">{item.contactNumber}</td>
 
-                   <td className="py-2 px-2 flex items-center justify-center gap-1">
-                    <button className="flex bg-blue-500 text-white items-center px-2 py-1 hover:bg-blue-600 rounded">
+                  <td className="py-2 px-2 flex justify-center">
+                    <button className="bg-blue-600 text-white px-2 py-1 rounded">
                       <Edit className="w-3 h-3" />
                     </button>
-
-                  {/* Apply button */}
-<button
-  disabled={item.IsUser === 1 }
-  onClick={() => setUserModal(item)} // ✅ Open the modal
-  className="flex bg-green-600 text-white items-center px-2 py-1 rounded 
-             hover:bg-green-700 
-             disabled:opacity-50 disabled:cursor-not-allowed"
->
-  <UserCog className="w-3 h-3" />
-</button>
-
                   </td>
                 </tr>
               ))}
@@ -213,19 +179,55 @@ const filtered = staff.filter((item) => {
         </div>
       </div>
 
+      {/* Modal */}
+      {modalData && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-white rounded-lg p-6 w-96 relative">
+            <button
+              className="absolute top-3 right-3"
+              onClick={() => setModalData(null)}
+            >
+              <X />
+            </button>
 
-<ViewStaffModal 
-  data={viewModal} 
-  onClose={() => setViewModal(null)} 
-/>
+            <h3 className="font-semibold text-lg mb-2">
+              {modalData.firstName} {modalData.lastName}
+            </h3>
 
-<RegisterUserModal
-  data={userModal}
-  onClose={() => setUserModal(null)}
-  onSuccess={loadStaff}
-/>
+            <div className="h-px bg-gray-300 my-2"></div>
 
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <Briefcase size={14} className="text-purple-500" /> Position
+                </span>
+                {modalData.position}
+              </div>
 
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <Building2 size={14} className="text-yellow-500" /> Department
+                </span>
+                {modalData.department}
+              </div>
+
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <Phone size={14} className="text-red-500" /> Contact
+                </span>
+                {modalData.contactNumber}
+              </div>
+
+              <div className="flex justify-between">
+                <span className="flex items-center gap-1">
+                  <Mail size={14} className="text-blue-500" /> Email
+                </span>
+                {modalData.email}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

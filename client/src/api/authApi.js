@@ -21,7 +21,7 @@ export async function login({ identifier, password }) {
     }
 
     // Extract values from data.data safely
-    const { user = null, token = null, locationId = null } = data.data || {};
+    const { user = null, token = null } = data.data || {};
 
     return {
       success: true,

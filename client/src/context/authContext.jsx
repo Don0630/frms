@@ -65,5 +65,5 @@ function useProvideAuth() {
     localStorage.removeItem("token");
   };
 
-  return { user, token, loading, error, register, login, logout, setUser, setToken };
+  return { user, token, loading, error, login, logout, setUser, setToken };
 }

@@ -3,6 +3,7 @@ import {
   Home,
   BarChart2,
   Map,
+  UserCog,
   Users,
   Sprout,
   Activity,
@@ -15,7 +16,7 @@ import {
 import logo from "../assets/logo.png"; // ✅ replace with your own logo
 
 const menuItems = [
-  { name: "Dashboard", icon: <Home size={20} />, path: "/" },
+  { name: "Dashboard", icon: <Home size={20} />, path: "/dashboard" },
   { name: "Farmers", icon: <Users size={20} />, path: "/farmers" },
   { name: "Crops", icon: <Sprout size={20} />, path: "/crops" },
   { name: "Livestock", icon: <Activity size={20} />, path: "/livestock" },
@@ -23,6 +24,7 @@ const menuItems = [
   { name: "Agriculutural Staffs", icon: <Users size={20} />, path: "/staffs" },
   { name: "Subsidy Distribution", icon: <Briefcase size={20} />, path: "/subsidy" },
   { name: "Reports and Monitoring", icon: <Clipboard size={20} />, path: "/monitoring" },
+  { name: "System Users", icon: <UserCog size={20} />, path: "/users" },
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {

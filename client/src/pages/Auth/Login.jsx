@@ -1,9 +1,9 @@
-// src/pages/Auth/LoginPage.jsx
+// src/pages/Auth/Login.jsx
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
+export default function Login() {
   const { login, loading, error } = useAuth();
   const [form, setForm] = useState({ identifier: "", password: "" });
   const [formError, setFormError] = useState("");
@@ -19,19 +19,17 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { success, message, locationId } = await login(form);
+    const { success, message } = await login(form);
 
     if (success) {
       setSuccessMessage("Login successful! Redirecting...");
       setForm({ identifier: "", password: "" });
 
       setTimeout(() => {
-        if (locationId === 1) navigate("/setup");
-        else if (locationId === 2) navigate("/starter");
-        else if (locationId === 3) navigate("/lobby");
-        else navigate("/lobby"); // fallback
+        navigate("/dashboard");
       }, 1500);
     } else {
+      navigate("/lobby"); // fallback
       setFormError(message || "Login failed");
     }
   };
