@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import { login as loginApi } from "../api/authApi.js";
+import * as loginApi  from "../api/authApi.js";
 
 const AuthContext = createContext();
 
@@ -37,7 +37,7 @@ function useProvideAuth() {
 
     try {
      
-      const { success, message, user: loggedInUser, token } = await loginApi(formData);
+      const { success, message, user: loggedInUser, token } = await loginApi.login(formData);
 
       if (success) {
         setUser(loggedInUser);
@@ -47,8 +47,7 @@ function useProvideAuth() {
         localStorage.setItem("token", token);
       }
 
-      // ✅ Return locationId so frontend can redirect
-      return { success, message, locationId };
+      return { success, message, user };
     } catch (err) {
       setError(err.message);
       return { success: false, message: err.message };

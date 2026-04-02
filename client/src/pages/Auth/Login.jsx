@@ -29,7 +29,7 @@ export default function Login() {
         navigate("/dashboard");
       }, 1500);
     } else {
-      navigate("/lobby"); // fallback
+      navigate("/"); // fallback
       setFormError(message || "Login failed");
     }
   };

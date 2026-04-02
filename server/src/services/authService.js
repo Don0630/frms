@@ -1,12 +1,7 @@
 // server/src/services/authService.js
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import {
-  createAccount,
-  findByEmail,
-  findByUsername,
-  findByUsernameOrEmail,
-} from "../models/authModel.js";
+import * as authModel from "../models/authModel.js";
 
 const {
   JWT_ACCESS_SECRET,
@@ -20,6 +15,7 @@ const loginAttempts = new Map();
 const MAX_ATTEMPTS = 5;
 const LOCK_TIME = 5 * 60 * 1000; // 5 minutes
 
+
 // --------- LOGIN ---------
 export async function loginUser({ identifier, password }) {
   const attempts = loginAttempts.get(identifier) || { count: 0, lastAttempt: null };
@@ -30,7 +26,7 @@ export async function loginUser({ identifier, password }) {
   }
 
   // Find user by username or email
-  const user = await findByUsernameOrEmail(identifier);
+  const user = await authModel.findByUsernameOrEmail(identifier);
 
   if (!user) {
     loginAttempts.set(identifier, { count: attempts.count + 1, lastAttempt: Date.now() });
@@ -48,7 +44,7 @@ export async function loginUser({ identifier, password }) {
   loginAttempts.delete(identifier);
 
   // Token payload
-  const payload = { id: user.id };
+  const payload = { id: user.UserID };
 
   const accessToken = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
   const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
@@ -59,20 +55,3 @@ export async function loginUser({ identifier, password }) {
   return { userSafe, accessToken, refreshToken };
 }
 
-// --------- REGISTER ---------
-export async function registerUser({ username, email, password }) {
-  // Check if username/email already exists
-  const existingUser = await findByUsernameOrEmail(username) || await findByEmail(email);
-  if (existingUser) {
-    throw Object.assign(new Error("Username or email already exists"), { statusCode: 409 });
-  }
-
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Create account in DB
-  const user = await createAccount({ username, email, password: hashedPassword });
-
-  // Remove password for safety
-  return { ...user };
-}
