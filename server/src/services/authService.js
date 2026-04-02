@@ -44,13 +44,13 @@ export async function loginUser({ identifier, password }) {
   loginAttempts.delete(identifier);
 
   // Token payload
-  const payload = { id: user.UserID };
+  const payload = { id: user.UserID, role: user.Role };
 
   const accessToken = jwt.sign(payload, JWT_ACCESS_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRES_IN });
   const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRES_IN });
 
   // Remove password before returning
-  const { password: _, ...userSafe } = user;
+  const { PasswordHash, ...userSafe } = user;
 
   return { userSafe, accessToken, refreshToken };
 }

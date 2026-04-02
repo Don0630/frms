@@ -2,8 +2,6 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
  
  
- 
- 
 // ------ LOGIN (username OR email) ------
 export async function login({ identifier, password }) {
   try {
@@ -33,3 +31,23 @@ export async function login({ identifier, password }) {
     throw new Error(err.message || "Network error");
   }
 } 
+
+
+
+// ------ LOGOUT ------
+export async function logout() {
+  try {
+    // Call backend to clear refresh token (if you store it in httpOnly cookie)
+    await fetch(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include", // important to clear cookie
+    });
+
+    // Clear local storage token
+    localStorage.removeItem("token");
+    return { success: true };
+  } catch (err) {
+    console.error("Logout failed:", err);
+    return { success: false, message: err.message };
+  }
+}

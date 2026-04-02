@@ -18,7 +18,8 @@ export function authenticateToken(req, res, next) {
 
     // 🔹 Attach only safe/needed data
     req.user = {
-      id: decoded.id,           // UserID 
+      id: decoded.id,
+      role:decoded.role, 
     };
 
     next();

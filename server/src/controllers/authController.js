@@ -3,6 +3,8 @@ import { loginUser } from "../services/authService.js";
 import { validateLoginInput } from "../utils/validators.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
+
+// LOGIN
 export async function login(req, res, next) {
   const { identifier, password } = req.body;
 
@@ -36,4 +38,19 @@ export async function login(req, res, next) {
   } catch (err) {
     next(err); // delegate to error handling middleware
   }
+}
+
+
+
+
+// LOGOUT
+export async function logout(req, res) {
+  // Clear refresh token cookie
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
+
+  return res.json({ success: true, message: "Logged out successfully" });
 }

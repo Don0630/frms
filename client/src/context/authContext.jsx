@@ -1,6 +1,5 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import * as loginApi  from "../api/authApi.js";
+import * as authApi from "../api/authApi.js";
 
 const AuthContext = createContext();
 
@@ -16,7 +15,7 @@ export function useAuth() {
 function useProvideAuth() {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ start as loading
   const [error, setError] = useState(null);
 
   // Load user + token from localStorage on startup
@@ -28,16 +27,16 @@ function useProvideAuth() {
       setUser(JSON.parse(storedUser));
       setToken(storedToken);
     }
+    setLoading(false); // ✅ finished loading
   }, []);
- 
+
   // ------ LOGIN ------
   const login = async (formData) => {
     setLoading(true);
     setError(null);
 
     try {
-     
-      const { success, message, user: loggedInUser, token } = await loginApi.login(formData);
+      const { success, message, user: loggedInUser, token } = await authApi.login(formData);
 
       if (success) {
         setUser(loggedInUser);
@@ -47,7 +46,7 @@ function useProvideAuth() {
         localStorage.setItem("token", token);
       }
 
-      return { success, message, user };
+      return { success, message, user: loggedInUser };
     } catch (err) {
       setError(err.message);
       return { success: false, message: err.message };
@@ -57,7 +56,8 @@ function useProvideAuth() {
   };
 
   // ------ LOGOUT ------
-  const logout = () => {
+  const logout = async () => {
+    await authApi.logout();
     setUser(null);
     setToken(null);
     localStorage.removeItem("user");

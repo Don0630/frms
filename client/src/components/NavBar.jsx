@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Menu, Sun, Moon, Maximize, User } from "lucide-react";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Navbar({
   setSidebarOpen,
@@ -9,15 +10,15 @@ export default function Navbar({
   darkMode,
   setDarkMode,
 }) {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState(false);
   const menuRef = useRef();
-
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const buttonClasses =
     "p-2 bg-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none cursor-pointer";
 
-  // ✅ Fullscreen toggle
+  // Fullscreen toggle
   const toggleFullScreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -26,28 +27,29 @@ export default function Navbar({
     }
   };
 
-  // ✅ Close dropdown when clicking outside
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpenMenu(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ✅ Logout handler
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/login";
+  // Logout handler using context
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
   };
 
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-white dark:bg-gray-900 shadow">
-      
       {/* LEFT */}
       <div className="flex items-center gap-2">
         <button
@@ -66,7 +68,6 @@ export default function Navbar({
 
       {/* RIGHT */}
       <div className="flex items-center gap-4">
-        
         {/* Fullscreen */}
         <button onClick={toggleFullScreen} className={buttonClasses}>
           <Maximize size={20} />
@@ -96,7 +97,7 @@ export default function Navbar({
           >
             {/* User Info */}
             <div className="px-4 py-2 border-b text-xs text-gray-500 dark:text-gray-400">
-              {user?.username || "Guest"}
+              {user?.Username || "Guest"} • {user?.Role || "No role"}
             </div>
 
             {/* Menu Items */}
@@ -116,6 +117,27 @@ export default function Navbar({
               Settings
             </Link>
 
+            {/* Role-specific links */}
+            {user?.Role === "admin" && (
+              <Link
+                to="/users"
+                onClick={() => setOpenMenu(false)}
+                className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Users
+              </Link>
+            )}
+
+            {(user?.Role === "staff" || user?.Role === "admin") && (
+              <Link
+                to="/staffs"
+                onClick={() => setOpenMenu(false)}
+                className="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Staffs
+              </Link>
+            )}
+
             <button
               onClick={handleLogout}
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -124,7 +146,6 @@ export default function Navbar({
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );
