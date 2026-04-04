@@ -13,16 +13,20 @@ import {
 } from "lucide-react";
 
 import { useStaff } from "../context/StaffContext.jsx";
+import AddStaffModal from "../components/modals/AddStaffModal";
 import ViewStaffModal from "../components/modals/ViewStaffModal";
 import RegisterUserModal from "../components/modals/RegisterUserModal";
+import EditStaffModal from "../components/modals/EditStaffModal";
 
 export default function Staff() {
   const { staff, loading, error, loadStaff } = useStaff();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
+  const [addModal, setAddModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
   const [userModal, setUserModal] = useState(null);
+  const [editModal, setEditModal] = useState(null); 
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -72,9 +76,12 @@ export default function Staff() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL STAFF</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add Staff 
-          </button>
+<button
+  onClick={() => setAddModal(true)}
+  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+>
+  <Plus className="w-4 h-4" /> Add Staff
+</button>
         </div>
 
         {/* Controls */}
@@ -149,15 +156,15 @@ export default function Staff() {
                   <td className="py-2 px-2">{item.ContactNumber}</td>
 
                   <td className="py-2 px-2 flex justify-center gap-1">
-                    <button className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+                    <button onClick={() => setEditModal(item)} // set the staff to edit
+                      className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
                       <Edit className="w-3 h-3" />
                     </button>
 
                     <button
                       disabled={item.IsUser === 1}
                       onClick={() => setUserModal(item)}
-                      className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50"
-                    >
+                      className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50">
                       <UserCog className="w-3 h-3" />
                     </button>
                   </td>
@@ -219,6 +226,22 @@ export default function Staff() {
         onClose={() => setUserModal(null)}
         onSuccess={loadStaff}
       />
+
+  {addModal && (
+    <AddStaffModal
+      onClose={() => setAddModal(false)}
+      onSuccess={loadStaff}
+    />
+  )}
+
+  {editModal && (
+    <EditStaffModal
+      data={editModal}
+      onClose={() => setEditModal(null)}
+      onSuccess={loadStaff}
+    />
+  )}
+
     </div>
   );
 }

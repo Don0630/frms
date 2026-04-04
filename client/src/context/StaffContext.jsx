@@ -1,6 +1,5 @@
-// src/context/StaffContext.jsx
 import { createContext, useContext, useState } from "react";
-import { fetchAllStaff as fetchAllStaffApi } from "../api/staffApi.js";
+import * as staffApi from "../api/staffApi.js";
 
 const StaffContext = createContext();
 
@@ -21,30 +20,74 @@ function useProvideStaff() {
 
   
 
+  // ------ LOAD STAFF ------
+  const loadStaff = async () => {
+    setLoading(true);
+    setError(null);
 
-// ------ STAFF ------
-const loadStaff = async () => {
-  setLoading(true);
-  setError(null);
+    try {
+      const { success, data: staffData } = await staffApi.fetchAllStaff();
 
-  try {
-    const { success, data: staffData } = await fetchAllStaffApi();
+      console.log("👨‍🌾 Staff fetched from API:", staffData);
 
-    console.log("👨‍🌾 Staff fetched from API:", staffData);
-
-    if (success) {
-      setStaff(staffData);
-    } else {
-      setError("Failed to fetch staff");
+      if (success) {
+        setStaff(staffData);
+      } else {
+        setError("Failed to fetch staff");
+      }
+    } catch (err) {
+      console.error("⚠️ Error fetching staff:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+  };
 
-  } catch (err) {
-    console.error("⚠️ Error fetching staff:", err);
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  // ------ ADD STAFF ------
+  const addStaff = async (staffData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newStaff = await staffApi.addStaff(staffData);
+      console.log("✅ New staff added:", newStaff);
+
+      // update local state instantly
+      setStaff((prev) => [...prev, newStaff]);
+
+      return newStaff;
+    } catch (err) {
+      console.error("⚠️ Error adding staff:", err);
+      setError(err.message);
+      throw err; // rethrow so modal can catch
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ------ UPDATE STAFF ------
+  const updateStaff = async (staffData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updatedStaff = await staffApi.updateStaff(staffData);
+
+      setStaff((prev) =>
+        prev.map((s) => (s.StaffID === updatedStaff.StaffID ? updatedStaff : s))
+      );
+
+      return updatedStaff;
+    } catch (err) {
+      console.error("⚠️ Error updating staff:", err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   // Optional: clear staff data
   const clearStaff = () => {
@@ -56,8 +99,8 @@ const loadStaff = async () => {
     error,
     staff,
     loadStaff,
+    addStaff,
+    updateStaff,
     clearStaff,
   };
 }
-
- 
