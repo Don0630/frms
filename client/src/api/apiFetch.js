@@ -1,0 +1,30 @@
+// src/api/fetchHelper.js
+const API_BASE = "http://localhost:5000";
+
+export async function apiFetch(endpoint, options = {}) {
+  const token = localStorage.getItem("token");
+
+  // Add headers
+  options.headers = {
+    ...options.headers,
+    Authorization: token ? `Bearer ${token}` : "",
+    "Content-Type": "application/json",
+  };
+
+  const res = await fetch(`${API_BASE}${endpoint}`, options);
+
+  // ✅ Check for expired token
+  if (res.status === 401) {
+    // Token expired or invalid
+    localStorage.removeItem("token"); // optional: clear token
+    window.location.href = "/login";   // redirect to login
+    throw new Error("Session expired. Please log in again.");
+  }
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || "API request failed");
+  }
+
+  return res.json();
+}

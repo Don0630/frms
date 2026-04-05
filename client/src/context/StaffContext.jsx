@@ -1,3 +1,4 @@
+// src/context/StaffContext.jsx
 import { createContext, useContext, useState } from "react";
 import * as staffApi from "../api/staffApi.js";
 
@@ -18,16 +19,13 @@ function useProvideStaff() {
   const [error, setError] = useState(null);
   const [staff, setStaff] = useState([]);
 
-  
-
-  // ------ LOAD STAFF ------
+  // ------ LOAD ALL STAFF ------
   const loadStaff = async () => {
     setLoading(true);
     setError(null);
 
     try {
       const { success, data: staffData } = await staffApi.fetchAllStaff();
-
       console.log("👨‍🌾 Staff fetched from API:", staffData);
 
       if (success) {
@@ -43,6 +41,29 @@ function useProvideStaff() {
     }
   };
 
+  // ------ LOAD AVAILABLE STAFF (for modals/dropdowns) ------
+  const loadAvailableStaff = async (search = "") => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { success, data: availableStaff } = await staffApi.fetchAvailableStaff(search);
+      if (success) {
+        return availableStaff;
+      } else {
+        setError("Failed to fetch available staff");
+        return [];
+      }
+    } catch (err) {
+      console.error("⚠️ Error fetching available staff:", err);
+      setError(err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   // ------ ADD STAFF ------
   const addStaff = async (staffData) => {
     setLoading(true);
@@ -52,14 +73,12 @@ function useProvideStaff() {
       const newStaff = await staffApi.addStaff(staffData);
       console.log("✅ New staff added:", newStaff);
 
-      // update local state instantly
       setStaff((prev) => [...prev, newStaff]);
-
       return newStaff;
     } catch (err) {
       console.error("⚠️ Error adding staff:", err);
       setError(err.message);
-      throw err; // rethrow so modal can catch
+      throw err; // rethrow so modal can catch it
     } finally {
       setLoading(false);
     }
@@ -87,18 +106,15 @@ function useProvideStaff() {
     }
   };
 
-
-
-  // Optional: clear staff data
-  const clearStaff = () => {
-    setStaff([]);
-  };
+  // ------ CLEAR STAFF STATE ------
+  const clearStaff = () => setStaff([]);
 
   return {
     loading,
     error,
     staff,
     loadStaff,
+    loadAvailableStaff,
     addStaff,
     updateStaff,
     clearStaff,

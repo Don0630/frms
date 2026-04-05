@@ -42,3 +42,22 @@ export async function updateStaff(req, res) {
     return errorResponse(res, err.message, 500);
   }
 }
+
+
+
+// ------------- GET AVAILABLE STAFF (not yet users) -------------
+export async function getAvailableStaff(req, res, next) {
+  try {
+    const search = req.query.search || "";
+    const availableStaff = await staffService.fetchAvailableStaff(search);
+
+    if (!availableStaff || availableStaff.length === 0) {
+      return errorResponse(res, "No available staff found", 404);
+    }
+
+    return successResponse(res, "Available staff fetched successfully", availableStaff, 200);
+  } catch (err) {
+    console.error("Error fetching available staff:", err);
+    next(err);
+  }
+}

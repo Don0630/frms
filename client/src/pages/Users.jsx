@@ -1,3 +1,4 @@
+// src/pages/Users.jsx
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -14,32 +15,37 @@ import {
   Building2
 } from "lucide-react";
 
-import { staffData } from "../data/staffsData";
+import { useUser } from "../context/UserContext.jsx";
+import ViewUserModal from "../components/modals/ViewUserModal.jsx";
+import AddUserModal from "../components/modals/AddUserModal.jsx";
 
-export default function Staff() {
+export default function Users() {
+  const { users, loadUsers, loading, error } = useUser();
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [modalData, setModalData] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Filter & Search
-  const filtered = staffData.filter((item) => {
-    const matchSearch =
-      item.firstName.toLowerCase().includes(search.toLowerCase()) ||
-      item.lastName.toLowerCase().includes(search.toLowerCase());
+  // Load users on mount
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-    const matchFilter =
-      filter === "All" || item.department === filter;
+  // Filter & Search
+  const filtered = users.filter((item) => {
+    const fullName = `${item.FirstName} ${item.LastName}`.toLowerCase();
+    const matchSearch = fullName.includes(search.toLowerCase());
+    const matchFilter = filter === "All" || item.Role === filter;
 
     return matchSearch && matchFilter;
   });
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, filter]);
+  useEffect(() => setCurrentPage(1), [search, filter]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -49,14 +55,15 @@ export default function Staff() {
   return (
     <div className="w-full h-full p-4">
       <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
-
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL USERS</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add User
-          </button>
-        </div>
+<button
+  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+  onClick={() => setAddModalOpen(true)}
+>
+  <Plus className="w-4 h-4" /> Add User
+</button>        </div>
 
         {/* Controls */}
         <div className="flex flex-wrap gap-2 items-center mb-3">
@@ -64,7 +71,7 @@ export default function Staff() {
             <Search className="w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search staff..."
+              placeholder="Search users..."
               className="ml-2 outline-none text-sm w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -82,7 +89,7 @@ export default function Staff() {
 
         {/* Filter */}
         <div className="flex gap-4 text-sm mb-4">
-          {["All", "Field", "Finance", "HR"].map((item) => (
+          {["All", "Admin", "Staff"].map((item) => (
             <label key={item} className="flex items-center gap-1 cursor-pointer">
               <input
                 type="radio"
@@ -96,53 +103,61 @@ export default function Staff() {
 
         {/* Table */}
         <div className="w-full border rounded-lg overflow-x-auto">
-          <table className="w-full text-xs sm:text-sm">
-            <thead className="bg-gray-100 text-gray-600">
-              <tr>
-                <th className="py-3 px-2 text-left">Name</th>
-                <th className="py-3 px-2 text-left">Position</th>
-                <th className="py-3 px-2 text-left">Department</th>
-                <th className="py-3 px-2 text-left">Contact</th>
-                <th className="py-3 px-2 text-center">
-                  <Settings className="w-5 h-5 mx-auto" />
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {currentItems.map((item, i) => (
-                <tr key={i} className="border-t">
-                  <td className="py-2 px-2 flex items-center gap-1">
-                    <User className="w-4 h-4 text-blue-500" />
-                    {item.firstName} {item.lastName}
-
-                    <button
-                      onClick={() => setModalData(item)}
-                      className="hover:bg-gray-200 p-1 rounded"
-                    >
-                      <Info className="w-4 h-4 text-blue-500" />
-                    </button>
-                  </td>
-
-                  <td className="py-2 px-2">{item.position}</td>
-                  <td className="py-2 px-2">{item.department}</td>
-                  <td className="py-2 px-2">{item.contactNumber}</td>
-
-                  <td className="py-2 px-2 flex justify-center">
-                    <button className="bg-blue-600 text-white px-2 py-1 rounded">
-                      <Edit className="w-3 h-3" />
-                    </button>
-                  </td>
+          {loading ? (
+            <p className="p-4">Loading users...</p>
+          ) : error ? (
+            <p className="p-4 text-red-500">Error: {error}</p>
+          ) : (
+            <table className="w-full text-xs sm:text-sm">
+              <thead className="bg-gray-100 text-gray-600">
+                <tr>
+                  <th className="py-3 px-2 text-left">Name</th>
+                  <th className="py-3 px-2 text-left">Username</th>
+                  <th className="py-3 px-2 text-left">Role</th>
+                  <th className="py-3 px-2 text-left">Contact</th>
+                  <th className="py-3 px-2 text-left">Email</th>
+                  <th className="py-3 px-2 text-center">
+                    <Settings className="w-5 h-5 mx-auto" />
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {currentItems.map((item, i) => (
+                  <tr key={i} className="border-t">
+                    <td className="py-2 px-2 flex items-center gap-1">
+                      <User className="w-4 h-4 text-blue-500" />
+                      {item.FirstName} {item.LastName}
+
+                      <button
+                        onClick={() => setModalData(item)}
+                        className="hover:bg-gray-200 p-1 rounded"
+                      >
+                        <Info className="w-4 h-4 text-blue-500" />
+                      </button>
+                    </td>
+
+                    <td className="py-2 px-2">{item.Username}</td>
+                    <td className="py-2 px-2">{item.Role}</td>
+                    <td className="py-2 px-2">{item.ContactNumber}</td>
+                    <td className="py-2 px-2">{item.Email}</td>
+
+                    <td className="py-2 px-2 flex justify-center gap-1">
+                      <button className="bg-blue-600 text-white px-2 py-1 rounded">
+                        <Edit className="w-3 h-3" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Footer */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
           <span>
-            Showing {currentItems.length} of {filtered.length} staff
+            Showing {currentItems.length} of {filtered.length} users
           </span>
 
           <div className="flex gap-2">
@@ -179,55 +194,17 @@ export default function Staff() {
         </div>
       </div>
 
-      {/* Modal */}
-      {modalData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96 relative">
-            <button
-              className="absolute top-3 right-3"
-              onClick={() => setModalData(null)}
-            >
-              <X />
-            </button>
+{modalData && (
+  <ViewUserModal user={modalData} onClose={() => setModalData(null)} />
+)}
 
-            <h3 className="font-semibold text-lg mb-2">
-              {modalData.firstName} {modalData.lastName}
-            </h3>
+{addModalOpen && (
+  <AddUserModal
+    onClose={() => setAddModalOpen(false)}
+    onSuccess={loadUsers} // reload users after adding
+  />
+)}
 
-            <div className="h-px bg-gray-300 my-2"></div>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Briefcase size={14} className="text-purple-500" /> Position
-                </span>
-                {modalData.position}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Building2 size={14} className="text-yellow-500" /> Department
-                </span>
-                {modalData.department}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Phone size={14} className="text-red-500" /> Contact
-                </span>
-                {modalData.contactNumber}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Mail size={14} className="text-blue-500" /> Email
-                </span>
-                {modalData.email}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -38,6 +38,7 @@ CREATE TABLE tblFarmers (
   Email VARCHAR(100),
   FarmLocation VARCHAR(100),
   FarmSize DECIMAL(10,2),
+  ProgramStatus ENUM('Active', 'Completed', 'Dropped', 'N/A') DEFAULT 'N/A',
   RegistrationDate DATE
 );
 

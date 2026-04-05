@@ -13,3 +13,8 @@ export async function addStaff(staff) {
 export async function editStaff(id, staff) {
   return await staffModel.updateStaff(id, staff);
 }
+
+// Fetch available staff (not yet users), optional search
+export async function fetchAvailableStaff(search = "") {
+  return await staffModel.getAvailableStaff(search);
+}
