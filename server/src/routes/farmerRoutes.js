@@ -7,5 +7,6 @@ const router = express.Router();
 
 
 router.get("/farmersData", authenticateToken, farmerController.getAllFarmer);
+router.post("/addFarmer", authenticateToken, farmerController.saveFarmer);
 
 export default router;

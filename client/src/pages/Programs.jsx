@@ -5,18 +5,14 @@ import {
   SlidersHorizontal,
   Settings,
   Info,
-  X,
-  Edit,
-  PhilippinePeso,
-  Tag,
-  Calendar,
-  Users,
-  Circle
+  Edit
 } from "lucide-react";
 
-import { programsData } from "../data/programsData";
+import { useProgram } from "../context/ProgramContext";
+import ViewProgramModal from "../components/modals/ViewProgramModal";
 
 export default function Programs() {
+  const { program, loadProgram, loading, error } = useProgram();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [modalData, setModalData] = useState(null);
@@ -25,14 +21,16 @@ export default function Programs() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  useEffect(() => {
+    loadProgram();
+  }, []);
+
   // Filter & Search
-  const filtered = programsData.filter((item) => {
+  const filtered = program.filter((item) => {
     const matchSearch =
-      item.programName.toLowerCase().includes(search.toLowerCase());
-
+      item.ProgramName?.toLowerCase().includes(search.toLowerCase());
     const matchFilter =
-      filter === "All" || item.status === filter;
-
+      filter === "All" || item.Status === filter;
     return matchSearch && matchFilter;
   });
 
@@ -44,6 +42,9 @@ export default function Programs() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  if (loading) return <div>Loading programs...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="w-full h-full p-4">
@@ -81,7 +82,7 @@ export default function Programs() {
 
         {/* Filter */}
         <div className="flex gap-4 text-sm mb-4">
-          {["All", "Ongoing", "Completed", "Upcoming"].map((item) => (
+          {["All", "Active", "Completed", "Dropped"].map((item) => (
             <label key={item} className="flex items-center gap-1 cursor-pointer">
               <input
                 type="radio"
@@ -113,7 +114,7 @@ export default function Programs() {
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t">
                   <td className="py-2 px-2 flex items-center gap-1">
-                    {item.programName}
+                    {item.ProgramName}
                     <button
                       onClick={() => setModalData(item)}
                       className="hover:bg-gray-200 p-1 rounded"
@@ -122,10 +123,26 @@ export default function Programs() {
                     </button>
                   </td>
 
-                  <td className="py-2 px-2">{item.startDate}</td>
-                  <td className="py-2 px-2">{item.endDate}</td>
-                  <td className="py-2 px-2">₱ {item.budget.toLocaleString()}</td>
-                  <td className="py-2 px-2">{item.status}</td>
+                  <td className="py-2 px-2">{item.StartDate}</td>
+                  <td className="py-2 px-2">{item.EndDate}</td>
+                  <td className="py-2 px-2">
+                    ₱ {Number(item.Budget)?.toLocaleString()}
+                  </td>
+                  <td className="py-2 px-2">
+                      <span
+                      className={`inline-flex items-center justify-center w-20 py-1 rounded-full text-xs font-semibold text-white ${
+                        item.Status === "Active"
+                          ? "bg-green-600"
+                          : item.Status === "Completed"
+                          ? "bg-blue-800"
+                          : item.Status === "Dropped"
+                          ? "bg-red-600"
+                          : "bg-gray-400"
+                      }`}
+                    >
+                      {item.Status}
+                    </span>
+                  </td>
 
                   <td className="py-2 px-2 flex justify-center">
                     <button className="bg-blue-600 text-white px-2 py-1 rounded">
@@ -178,61 +195,11 @@ export default function Programs() {
         </div>
       </div>
 
-      {/* Modal */}
-      {modalData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96 relative">
-            <button
-              className="absolute top-3 right-3"
-              onClick={() => setModalData(null)}
-            >
-              <X />
-            </button>
-
-            <h3 className="font-semibold text-lg mb-2">
-              {modalData.programName}
-            </h3>
-
-            <div className="h-px bg-gray-300 my-2"></div>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Tag size={14} className="text-green-500" /> Description
-                </span>
-                {modalData.description}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Calendar size={14} className="text-yellow-500" /> Duration
-                </span>
-                {modalData.startDate} → {modalData.endDate}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <PhilippinePeso size={14} className="text-purple-500" /> Budget
-                </span>
-                ₱ {modalData.budget.toLocaleString()}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Users size={14} className="text-blue-500" /> Beneficiaries
-                </span>
-                {modalData.targetBeneficiaries}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Circle size={14} className="text-red-500" />Status</span>
-                {modalData.status}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* View Modal */}
+      <ViewProgramModal
+        program={modalData}
+        onClose={() => setModalData(null)}
+      />
     </div>
   );
 }

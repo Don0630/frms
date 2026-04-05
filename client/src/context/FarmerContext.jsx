@@ -47,6 +47,28 @@ function useProvideFarmer() {
  
 
 
+  // ------ ADD FARMER ------
+  const addFarmer = async (farmerData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newFarmer = await farmerApi.addFarmer(farmerData);
+      console.log("✅ New farmer added:", newFarmer);
+
+      setFarmer((prev) => [...prev, newFarmer]);
+      return newFarmer;
+    } catch (err) {
+      console.error("⚠️ Error adding farmer:", err);
+      setError(err.message);
+      throw err; // rethrow so modal can catch it
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
 
   // Optional: clear farmer data
   const clearFarmer = () => {
@@ -58,6 +80,7 @@ function useProvideFarmer() {
     error,
     farmer,
     loadFarmer,
+    addFarmer,
     clearFarmer,
   };
 }

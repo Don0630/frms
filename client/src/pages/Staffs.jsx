@@ -66,7 +66,7 @@ export default function Staff() {
     return <Users className="w-4 h-4 text-gray-500" />;
   };
 
-  if (loading) return <p className="p-4">Loading staff...</p>;
+  // if (loading) return <p className="p-4">Loading staff...</p>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
@@ -161,12 +161,12 @@ export default function Staff() {
                       <Edit className="w-3 h-3" />
                     </button>
 
-                    <button
+{/*                    <button
                       disabled={item.IsUser === 1}
                       onClick={() => setUserModal(item)}
                       className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50">
                       <UserCog className="w-3 h-3" />
-                    </button>
+                    </button>*/}
                   </td>
 
                 </tr>

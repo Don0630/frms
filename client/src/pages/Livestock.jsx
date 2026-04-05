@@ -1,26 +1,29 @@
 import { useState, useEffect } from "react";
 import { 
-  Search, Plus, SlidersHorizontal, Settings, Info, X, Edit, PhilippinePeso, Tag, BarChart3 
+  Search, Plus, SlidersHorizontal, Settings, Info, Edit
 } from "lucide-react";
-import { livestockData } from "../data/livestockData";
+import { useLivestock } from "../context/LivestockContext.jsx";
+import ViewLivestockModal from "../components/modals/ViewLivestockModal";
 
 export default function Livestock() {
+  const { livestock, loadLivestock, loading, error } = useLivestock(); // Use context
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [modalData, setModalData] = useState(null); // For modal
+  const [viewModal, setViewModal] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Load livestock on mount
+  useEffect(() => {
+    loadLivestock();
+  }, []);
+
   // Filter & Search
-  const filtered = livestockData.filter((item) => {
-    const matchSearch =
-      item.breed.toLowerCase().includes(search.toLowerCase());
-
-    const matchFilter =
-      filter === "All" || item.type === filter;
-
+  const filtered = livestock.filter((item) => {
+    const matchSearch = item.Breed?.toLowerCase().includes(search.toLowerCase());
+    const matchFilter = filter === "All" || item.Type === filter;
     return matchSearch && matchFilter;
   });
 
@@ -32,6 +35,9 @@ export default function Livestock() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  // if (loading) return <p>Loading livestock...</p>;
+  if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div className="w-full h-full p-4">
@@ -67,7 +73,7 @@ export default function Livestock() {
           </button>
         </div>
 
-        {/* Filter */}
+        {/* Filter Buttons */}
         <div className="flex gap-4 text-sm mb-4">
           {["All", "Cattle", "Poultry", "Swine", "Goat"].map((item) => (
             <label key={item} className="flex items-center gap-1 cursor-pointer">
@@ -99,18 +105,18 @@ export default function Livestock() {
             <tbody>
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t">
-                  <td className="py-2 px-2">{item.type}</td>
+                  <td className="py-2 px-2">{item.Type}</td>
                   <td className="py-2 px-2 flex items-center gap-1">
-                    {item.breed}
+                    {item.Breed}
                     <button 
                       className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-                      onClick={() => setModalData(item)}
+                      onClick={() => setViewModal(item)}
                     >
                       <Info className="w-4 h-4 text-blue-500" />
                     </button>
                   </td>
-                  <td className="py-2 px-2">{item.averageProduction}</td>
-                  <td className="py-2 px-2">₱ {item.marketPrice}</td>
+                  <td className="py-2 px-2">{item.AverageProduction}</td>
+                  <td className="py-2 px-2">₱ {item.MarketPrice}</td>
                   <td className="py-2 px-2 flex items-center justify-center gap-1">
                     <button className="flex bg-blue-600 text-white items-center px-2 py-1 hover:bg-blue-700 rounded">
                       <Edit className="w-3 h-3" />
@@ -159,47 +165,10 @@ export default function Livestock() {
       </div>
 
       {/* Modal */}
-      {modalData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96 relative">
-            <button
-              className="absolute top-3 right-3"
-              onClick={() => setModalData(null)}
-            >
-              <X />
-            </button>
-
-            <h3 className="font-semibold text-lg mb-2">
-              {modalData.breed}
-            </h3>
-
-            <div className="h-px bg-gray-300 my-2"></div>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Tag size={16} className="text-red-500" /> Type
-                </span>
-                {modalData.type}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <BarChart3 size={16} className="text-green-500"/> Average Production
-                </span>
-                {modalData.averageProduction}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <PhilippinePeso size={16} className="text-purple-500"/> Price
-                </span>
-                ₱ {modalData.marketPrice}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ViewLivestockModal
+        livestock={viewModal}
+        onClose={() => setViewModal(null)}
+      />
     </div>
   );
 }

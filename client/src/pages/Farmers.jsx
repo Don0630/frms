@@ -3,14 +3,16 @@ import {
   Search, Save, Plus, Mars, Venus, CheckCircle, Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, FileText, MapPinned, Ruler 
 } from "lucide-react";
 import { useFarmer } from "../context/FarmerContext.jsx";
-import FarmerModal from "../components/modals/ViewFarmerModal.jsx";
+import ViewFarmerModal from "../components/modals/ViewFarmerModal.jsx";
+import AddFarmerModal from "../components/modals/AddFarmerModal.jsx";
 
 export default function Farmers() {
   const { farmer, loadFarmer, loading, error } = useFarmer();
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [modalData, setModalData] = useState(null);
+  const [viewModal, setViewModal] = useState(null);
+  const [addModal, setAddModal] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,7 +33,7 @@ export default function Farmers() {
     const matchSearch =
       item.FirstName.toLowerCase().includes(search.toLowerCase()) ||
       item.LastName.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "All" || item.status === filter;
+    const matchFilter = filter === "All" || item.Gender.toLowerCase() === filter.toLowerCase();
     return matchSearch && matchFilter;
   });
 
@@ -39,16 +41,7 @@ export default function Farmers() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Active": return "bg-green-600 text-white";
-      case "Completed": return "bg-blue-900 text-white";
-      case "Dropped": return "bg-red-600 text-white";
-      case "N/A": return "bg-gray-400 text-white";
-      default: return "bg-gray-500 text-white";
-    }
-  };
+ 
 
   const getGenderIcon = (gender) => {
     if (gender.toLowerCase() === "male") return <Venus className="w-4 h-4 text-blue-500 shrink-0" />;
@@ -63,9 +56,12 @@ export default function Farmers() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL FARMERS</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add New Farmer
-          </button>
+<button
+  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+  onClick={() => setAddModal(true)}
+>
+  <Plus className="w-4 h-4" /> Add New Farmer
+</button>
         </div>
 
         {/* Controls */}
@@ -92,7 +88,7 @@ export default function Farmers() {
 
         {/* Filter */}
         <div className="flex gap-4 text-sm mb-4">
-          {["All", "Active", "Completed", "Dropped", "N/A"].map((item) => (
+          {["All", "Male","Female"].map((item) => (
             <label key={item} className="flex items-center gap-1 cursor-pointer">
               <input
                 type="radio"
@@ -112,7 +108,7 @@ export default function Farmers() {
                 <th className="py-3 px-2 text-left">Name</th>
                 <th className="py-3 px-2 text-left">Farm Size</th>
                 <th className="py-3 px-2 text-left">Farm Location</th>
-                <th className="py-3 px-2 text-left">Program Status</th>
+                <th className="py-3 px-2 text-left">Registration Date</th>
                 <th className="py-3 px-2 text-center">
                   <Settings className="text-gray-600 w-5 h-5 mx-auto" />
                 </th>
@@ -139,28 +135,19 @@ export default function Farmers() {
                       {item.FirstName} {item.LastName}
                       <button
                         className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-                        onClick={() => setModalData(item)}
+                        onClick={() => setViewModal(item)}
                       >
                         <Info className="w-4 h-4 text-blue-500" />
                       </button>
                     </td>
                     <td>{item.FarmSize} ha</td>
                     <td>{item.FarmLocation}</td>
-                    <td>
-                      <span className={`inline-flex justify-center items-center w-24 h-6 py-1 rounded-xl text-[10px] uppercase ${getStatusColor(item.ProgramStatus)}`}>
-                        {item.ProgramStatus}
-                      </span>
-                    </td>
+                    <td>{item.RegistrationDate}</td>
                     <td className="py-2 px-2 flex items-center justify-center gap-1">
                       <button className="flex bg-blue-500 text-white items-center px-2 py-1 hover:bg-blue-600 rounded">
                         <Edit className="w-3 h-3" />
                       </button>
-                      <button
-                        disabled={item.ProgramStatus === "Active" || item.ProgramStatus === "Completed"}
-                        className="flex bg-green-600 text-white items-center px-2 py-1 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <CheckCircle className="w-3 h-3" />
-                      </button>
+              
                     </td>
                   </tr>
                 ))
@@ -206,7 +193,14 @@ export default function Farmers() {
       </div>
 
  {/* Modal */}
-<FarmerModal data={modalData} onClose={() => setModalData(null)} />
+<ViewFarmerModal data={viewModal} onClose={() => setViewModal(null)} />
+
+{addModal && (
+  <AddFarmerModal
+    onClose={() => setAddModal(false)}
+    onSuccess={() => loadFarmer()} // reload farmers after adding
+  />
+)}
 
     </div>
   );

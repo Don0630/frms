@@ -2,7 +2,7 @@
 import { db } from "../config/db.js";
 
 
-// --------- GET ALL STAFF ---------
+// --------- GET ALL FARMER ---------
 export async function getAllFarmer() {
   const [rows] = await db.query("SELECT * FROM tblFarmers ORDER BY FarmerID");
   return rows || null;
@@ -10,23 +10,44 @@ export async function getAllFarmer() {
 
 
 
-// --------- CREATE STAFF ---------
-export async function createStaff(staff) {
-  const { FirstName, LastName, Gender, Position, Department, ContactNumber, } = staff;
+// --------- CREATE FARMER ---------
+export async function createFarmer(farmer) {
+  const {
+    FirstName,
+    LastName,
+    Gender,
+    DateOfBirth,
+    Address,
+    ContactNumber,
+    Email,
+    FarmLocation,
+    FarmSize,
+    RegistrationDate
+  } = farmer;
 
   const query = `
-    INSERT INTO tblAgriculturalStaff 
-    (FirstName, LastName, Gender, Position, Department, ContactNumber)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO tblFarmers
+    (FirstName, LastName, Gender, DateOfBirth, Address, ContactNumber, Email, FarmLocation, FarmSize, RegistrationDate)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const values = [ FirstName, LastName, Gender, Position, Department, ContactNumber,
+  const values = [
+    FirstName,
+    LastName,
+    Gender,
+    DateOfBirth,
+    Address,
+    ContactNumber,
+    Email,
+    FarmLocation,
+    FarmSize,
+    RegistrationDate
   ];
 
   const [result] = await db.query(query, values);
 
   return {
-    StaffID: result.insertId,
-    ...staff,
+    FarmerID: result.insertId,
+    ...farmer
   };
 }

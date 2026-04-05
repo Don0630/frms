@@ -41,28 +41,7 @@ function useProvideStaff() {
     }
   };
 
-  // ------ LOAD AVAILABLE STAFF (for modals/dropdowns) ------
-  const loadAvailableStaff = async (search = "") => {
-    setLoading(true);
-    setError(null);
 
-    try {
-      const { success, data: availableStaff } = await staffApi.fetchAvailableStaff(search);
-      if (success) {
-        return availableStaff;
-      } else {
-        setError("Failed to fetch available staff");
-        return [];
-      }
-    } catch (err) {
-      console.error("⚠️ Error fetching available staff:", err);
-      setError(err.message);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
-  
 
   // ------ ADD STAFF ------
   const addStaff = async (staffData) => {
@@ -106,6 +85,32 @@ function useProvideStaff() {
     }
   };
 
+
+
+ // ------ LOAD AVAILABLE STAFF (for modals/dropdowns) ------
+  const loadAvailableStaff = async (search = "") => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { success, data: availableStaff } = await staffApi.fetchAvailableStaff(search);
+      if (success) {
+        return availableStaff;
+      } else {
+        setError("Failed to fetch available staff");
+        return [];
+      }
+    } catch (err) {
+      console.error("⚠️ Error fetching available staff:", err);
+      setError(err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+
   // ------ CLEAR STAFF STATE ------
   const clearStaff = () => setStaff([]);
 
@@ -114,9 +119,9 @@ function useProvideStaff() {
     error,
     staff,
     loadStaff,
-    loadAvailableStaff,
     addStaff,
     updateStaff,
+    loadAvailableStaff,
     clearStaff,
   };
 }

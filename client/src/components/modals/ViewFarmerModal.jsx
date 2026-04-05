@@ -1,7 +1,7 @@
 import React from "react";
 import { X, Calendar, MapPin, Phone, Mail, User, FileText, MapPinned, Ruler } from "lucide-react";
 
-export default function FarmerModal({ data, onClose }) {
+export default function ViewFarmerModal({ data, onClose }) {
   if (!data) return null;
 
   return (
@@ -45,11 +45,6 @@ export default function FarmerModal({ data, onClose }) {
           </div>
           <div className="flex justify-between items-center mb-2">
             <span className="flex items-center gap-1">
-              <FileText size={16} className="text-yellow-500" /><strong>Program Status:</strong>
-            </span> {data.ProgramStatus}
-          </div>
-          <div className="flex justify-between items-center mb-2">
-            <span className="flex items-center gap-1">
               <MapPinned size={16} className="text-green-500" /><strong>Farm Location:</strong>
             </span> {data.FarmLocation}
           </div>
@@ -57,6 +52,11 @@ export default function FarmerModal({ data, onClose }) {
             <span className="flex items-center gap-1">
               <Ruler size={16} className="text-cyan-500" /><strong>Farm Size:</strong>
             </span> {data.FarmSize} ha
+          </div>
+          <div className="flex justify-between items-center mb-2">
+            <span className="flex items-center gap-1">
+              <FileText size={16} className="text-yellow-500" /><strong>Registration Date:</strong>
+            </span> {data.RegistrationDate}
           </div>
         </div>
       </div>
