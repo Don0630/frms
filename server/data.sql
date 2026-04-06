@@ -81,3 +81,38 @@ VALUES
 ('Irrigation Support Project', 'Provide irrigation equipment and training to increase crop yields.', '2026-03-01', '2026-08-31', 750000.00, 200),
 ('Fisheries Enhancement', 'Enhance local fisheries with fishpond development and technical assistance.', '2026-04-01', '2026-09-30', 600000.00, 150),
 ('Community Agro-Enterprise', 'Develop small community businesses for processing and selling agricultural products.', '2026-05-01', '2026-10-31', 450000.00, 100);
+
+
+
+INSERT INTO tblSubsidyDistribution 
+(FarmerID, ProgramID, Amount, DistributionDate, Remarks)
+VALUES
+(1, 1, 5000.00, '2026-01-15', 'Seeds and fertilizer support'),
+(2, 1, 4500.00, '2026-01-18', 'Livestock feeds assistance'),
+(3, 2, 3000.00, '2026-02-05', 'Organic farming materials'),
+(4, 2, 3200.00, '2026-02-10', 'Training support allowance'),
+(5, 3, 7000.00, '2026-03-01', 'Irrigation equipment subsidy'),
+(6, 3, 6800.00, '2026-03-05', 'Water pump assistance'),
+(7, 4, 5500.00, '2026-03-20', 'Fishpond development support'),
+(8, 4, 5200.00, '2026-03-25', 'Fingerlings distribution'),
+(9, 5, 4000.00, '2026-04-01', 'Agro-enterprise startup fund'),
+(10, 5, 4200.00, '2026-04-03', 'Processing equipment subsidy'),
+
+-- extra rows for testing pagination
+(1, 2, 3500.00, '2026-04-10', 'Organic seeds'),
+(2, 3, 6000.00, '2026-04-12', 'Irrigation pipes'),
+(3, 4, 4800.00, '2026-04-15', 'Fishing nets'),
+(4, 5, 3900.00, '2026-04-18', 'Packaging materials'),
+(5, 1, 5100.00, '2026-04-20', 'Fertilizer assistance');
+
+
+-- Example corrected tblReportsAndMonitoring
+INSERT INTO tblReportsAndMonitoring 
+  (FarmerID, CropID, LivestockID, ReportDate, ProductionVolume, Issues, Remarks)
+VALUES
+  (1, 3, NULL, '2026-04-01', '50 kg', 'Pests observed on leaves', 'Applied organic pesticide'), -- CropID 3 = Tomato
+  (2, NULL, 4, '2026-04-02', '10 liters', 'Low milk yield', 'Fed high-protein feed'),            -- LivestockID 4 = Leghorn
+  (3, 4, 5, '2026-04-03', '30 kg, 5 liters', 'Mild disease in livestock', 'Administered vaccine'),
+  (1, 5, NULL, '2026-04-04', '40 kg', NULL, 'No issues this week'),
+  (4, NULL, 6, '2026-04-05', '15 liters', 'Cows stressed due to heat', 'Moved to shaded area'),
+  (5, 7, NULL, '2026-04-06', '60 kg', 'Fungal infection on crop', 'Used fungicide spray');

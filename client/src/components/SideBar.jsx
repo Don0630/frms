@@ -20,7 +20,7 @@ const menuItems = [
   { name: "Farmers", icon: <Users size={20} />, path: "/farmers" },
   { name: "Crops", icon: <Sprout size={20} />, path: "/crops" },
   { name: "Livestock", icon: <Activity size={20} />, path: "/livestock" },
-  { name: "Programs", icon: <FileText size={20} />, path: "/programs" },
+  { name: "Programs & Subsidies", icon: <FileText size={20} />, path: "/programs" },
   {
     name: "Agricultural Staffs",
     icon: <Users size={20} />,
@@ -33,7 +33,12 @@ const menuItems = [
     path: "/subsidy",
   },
   {
-    name: "Reports and Monitoring",
+    name: "Program Details",
+    icon: <Briefcase size={20} />,
+    path: "/programdetails",
+  },
+  {
+    name: "Reports & Monitoring",
     icon: <Clipboard size={20} />,
     path: "/monitoring",
   },

@@ -43,7 +43,7 @@ export default function Programs() {
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  if (loading) return <div>Loading programs...</div>;
+  // if (loading) return <div>Loading programs...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (

@@ -126,7 +126,7 @@ CREATE TABLE tblAgriculturalStaff (
 -- =========================
 -- 8. MONITORING REPORTS
 -- =========================
-CREATE TABLE tblReports (
+CREATE TABLE tblReportsAndMonitoring (
   ReportID INT AUTO_INCREMENT PRIMARY KEY,
   FarmerID INT,
   CropID INT NULL,

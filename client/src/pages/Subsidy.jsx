@@ -8,35 +8,64 @@ import {
   X,
   PhilippinePeso,
   Calendar,
-  FileText
+  FileText,
+  Mars,
+  Venus,
+  Users
 } from "lucide-react";
 
-import { subsidyData } from "../data/subsidyData";
+import { useSubsidy } from "../context/SubsidyContext";
+import ViewSubsidyModal from "../components/modals/ViewSubsidyModal";
 
 export default function Subsidy() {
+  const { subsidy, loadSubsidy, loading, error } = useSubsidy();
+
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("All"); // Gender filter
   const [modalData, setModalData] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Load data
+  useEffect(() => {
+    loadSubsidy();
+  }, []);
+
   // Filter & Search
-  const filtered = subsidyData.filter((item) => {
-    return (
-      item.FarmerID.toString().includes(search) ||
-      item.ProgramID.toString().includes(search)
-    );
+  const filtered = subsidy.filter((item) => {
+    const matchSearch =
+      item.FarmerName?.toLowerCase().includes(search.toLowerCase()) ||
+      item.ProgramName?.toLowerCase().includes(search.toLowerCase());
+
+    const matchFilter =
+      filter === "All" || item.Gender?.toLowerCase() === filter.toLowerCase();
+
+    return matchSearch && matchFilter;
   });
 
+  // Reset page on search/filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search]);
+  }, [search, filter]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  // Gender icon
+  const getGenderIcon = (gender) => {
+    if (gender?.toLowerCase() === "male")
+      return <Mars className="w-4 h-4 text-blue-500" />;
+    if (gender?.toLowerCase() === "female")
+      return <Venus className="w-4 h-4 text-pink-500" />;
+    return <Users className="w-4 h-4 text-gray-500" />;
+  };
+
+  // if (loading) return <p className="p-4">Loading subsidy records...</p>;
+  if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
     <div className="w-full h-full p-4">
@@ -56,7 +85,7 @@ export default function Subsidy() {
             <Search className="w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search Farmer or Program ID..."
+              placeholder="Search farmer or program..."
               className="ml-2 outline-none text-sm w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -72,13 +101,27 @@ export default function Subsidy() {
           </button>
         </div>
 
+        {/* Gender Filter */}
+        <div className="flex gap-4 text-sm mb-4">
+          {["All", "Male", "Female"].map((item) => (
+            <label key={item} className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                checked={filter === item}
+                onChange={() => setFilter(item)}
+              />
+              {item}
+            </label>
+          ))}
+        </div>
+
         {/* Table */}
         <div className="w-full border rounded-lg overflow-x-auto">
           <table className="w-full text-xs sm:text-sm">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="py-3 px-2 text-left">Farmer ID</th>
-                <th className="py-3 px-2 text-left">Program ID</th>
+                <th className="py-3 px-2 text-left">Farmer</th>
+                <th className="py-3 px-2 text-left">Program</th>
                 <th className="py-3 px-2 text-left">Amount</th>
                 <th className="py-3 px-2 text-left">Date</th>
                 <th className="py-3 px-2 text-center">
@@ -90,13 +133,13 @@ export default function Subsidy() {
             <tbody>
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t">
-                  <td className="py-2 px-2">{item.FarmerID}</td>
-                  <td className="py-2 px-2">{item.ProgramID}</td>
-                  <td className="py-2 px-2">
-                    ₱ {item.Amount.toLocaleString()}
+                  <td className="py-2 px-2 flex items-center gap-2">
+                    {getGenderIcon(item.Gender)}
+                    {item.FirstName} {item.LastName}
                   </td>
+                  <td className="py-2 px-2">{item.ProgramName}</td>
+                  <td className="py-2 px-2">₱ {Number(item.Amount).toLocaleString()}</td>
                   <td className="py-2 px-2">{item.DistributionDate}</td>
-
                   <td className="py-2 px-2 flex justify-center">
                     <button
                       onClick={() => setModalData(item)}
@@ -131,9 +174,7 @@ export default function Subsidy() {
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
                 className={`px-3 py-1 rounded ${
-                  currentPage === i + 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200"
+                  currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
                 }`}
               >
                 {i + 1}
@@ -151,61 +192,11 @@ export default function Subsidy() {
         </div>
       </div>
 
-      {/* Modal */}
-      {modalData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96 relative">
-
-            <button
-              className="absolute top-3 right-3"
-              onClick={() => setModalData(null)}
-            >
-              <X />
-            </button>
-
-            <h3 className="font-semibold text-lg mb-2">
-              Subsidy Details
-            </h3>
-
-            <div className="h-px bg-gray-300 my-2"></div>
-
-            <div className="space-y-2 text-xs">
-
-              <div className="flex justify-between">
-                <span>Farmer ID</span>
-                {modalData.FarmerID}
-              </div>
-
-              <div className="flex justify-between">
-                <span>Program ID</span>
-                {modalData.ProgramID}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <PhilippinePeso size={14} /> Amount
-                </span>
-                ₱ {modalData.Amount.toLocaleString()}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Calendar size={14} /> Date
-                </span>
-                {modalData.DistributionDate}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <FileText size={14} /> Remarks
-                </span>
-                {modalData.Remarks}
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
+      {/* View Modal */}
+      <ViewSubsidyModal
+        subsidy={modalData}
+        onClose={() => setModalData(null)}
+      />
     </div>
   );
 }

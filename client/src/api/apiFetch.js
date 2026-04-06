@@ -17,7 +17,7 @@ export async function apiFetch(endpoint, options = {}) {
   if (res.status === 401) {
     // Token expired or invalid
     localStorage.removeItem("token"); // optional: clear token
-    window.location.href = "/login";   // redirect to login
+    window.location.href = "/sessionexpired";   // redirect to sessionexpired
     throw new Error("Session expired. Please log in again.");
   }
 

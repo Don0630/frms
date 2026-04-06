@@ -13,7 +13,7 @@ export default function ViewLivestockModal({ livestock, onClose }) {
           <X />
         </button>
 
-        <h3 className="font-semibold text-lg mb-2">{livestock.breed}</h3>
+        <h3 className="font-semibold text-lg mb-2">{livestock.Breed}</h3>
         <div className="h-px bg-gray-300 my-2"></div>
 
         <div className="space-y-2 text-xs">

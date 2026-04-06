@@ -5,40 +5,67 @@ import {
   SlidersHorizontal,
   Settings,
   Info,
-  X,
-  Calendar,
-  Activity,
-  AlertTriangle,
-  FileText
+  Mars,
+  Venus,
+  Users
 } from "lucide-react";
 
-import { monitoringData } from "../data/monitoringData";
+import { useMonitoring } from "../context/MonitoringContext";
+import ViewMonitoringModal from "../components/modals/ViewMonitoringModal";
 
 export default function Monitoring() {
+  const { monitoring, loadMonitoring, loading, error } = useMonitoring();
+
   const [search, setSearch] = useState("");
-  const [modalData, setModalData] = useState(null);
+  const [filter, setFilter] = useState("All"); // Gender filter
+  const [viewModal, setViewModal] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // Load API data
+  useEffect(() => {
+    loadMonitoring();
+  }, []);
+
   // Filter & Search
-  const filtered = monitoringData.filter((item) => {
-    return (
-      item.FarmerID.toString().includes(search) ||
-      (item.CropID && item.CropID.toString().includes(search)) ||
-      (item.LivestockID && item.LivestockID.toString().includes(search))
-    );
+  const filtered = monitoring.filter((item) => {
+    const searchValue = search.toLowerCase();
+    const matchSearch =
+      `${item.FirstName || ""} ${item.LastName || ""}`
+        .toLowerCase()
+        .includes(searchValue) ||
+      (item.CropName && item.CropName.toLowerCase().includes(searchValue)) ||
+      (item.Breed && item.Breed.toLowerCase().includes(searchValue));
+
+    const matchFilter =
+      filter === "All" || item.Gender?.toLowerCase() === filter.toLowerCase();
+
+    return matchSearch && matchFilter;
   });
 
+  // Reset page on search/filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search]);
+  }, [search, filter]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  // Gender icon
+  const getGenderIcon = (gender) => {
+    if (gender?.toLowerCase() === "male")
+      return <Mars className="w-4 h-4 text-blue-500" />;
+    if (gender?.toLowerCase() === "female")
+      return <Venus className="w-4 h-4 text-pink-500" />;
+    return <Users className="w-4 h-4 text-gray-500" />;
+  };
+
+  // if (loading) return <div className="p-4">Loading monitoring records...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
     <div className="w-full h-full p-4">
@@ -60,7 +87,7 @@ export default function Monitoring() {
             <Search className="w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search Farmer / Crop / Livestock ID..."
+              placeholder="Search farmer, crop, livestock..."
               className="ml-2 outline-none text-sm w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -76,12 +103,26 @@ export default function Monitoring() {
           </button>
         </div>
 
+        {/* Gender Filter */}
+        <div className="flex gap-4 text-sm mb-4">
+          {["All", "Male", "Female"].map((item) => (
+            <label key={item} className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="radio"
+                checked={filter === item}
+                onChange={() => setFilter(item)}
+              />
+              {item}
+            </label>
+          ))}
+        </div>
+
         {/* Table */}
         <div className="w-full border rounded-lg overflow-x-auto">
           <table className="w-full text-xs sm:text-sm">
             <thead className="bg-gray-100 text-gray-600">
               <tr>
-                <th className="py-3 px-2 text-left">Farmer ID</th>
+                <th className="py-3 px-2 text-left">Farmer</th>
                 <th className="py-3 px-2 text-left">Crop</th>
                 <th className="py-3 px-2 text-left">Livestock</th>
                 <th className="py-3 px-2 text-left">Production</th>
@@ -95,20 +136,27 @@ export default function Monitoring() {
             <tbody>
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t">
-                  <td className="py-2 px-2">{item.FarmerID}</td>
-                  <td className="py-2 px-2">{item.CropID || "-"}</td>
-                  <td className="py-2 px-2">{item.LivestockID || "-"}</td>
+                  
+                  {/* Farmer Name with gender icon */}
+                  <td className="py-2 px-2 flex items-center gap-2">
+                    {getGenderIcon(item.Gender)}
+                    {item.FirstName ? `${item.FirstName} ${item.LastName}` : "N/A"}
+                  </td>
+
+                  <td className="py-2 px-2">{item.CropName || "-"}</td>
+                  <td className="py-2 px-2">{item.Breed || "-"}</td>
                   <td className="py-2 px-2">{item.ProductionVolume}</td>
                   <td className="py-2 px-2">{item.ReportDate}</td>
 
                   <td className="py-2 px-2 flex justify-center">
                     <button
-                      onClick={() => setModalData(item)}
+                      onClick={() => setViewModal(item)}
                       className="hover:bg-gray-200 p-1 rounded"
                     >
                       <Info className="w-4 h-4 text-blue-500" />
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -156,72 +204,10 @@ export default function Monitoring() {
       </div>
 
       {/* Modal */}
-      {modalData && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96 relative">
-
-            <button
-              className="absolute top-3 right-3"
-              onClick={() => setModalData(null)}
-            >
-              <X />
-            </button>
-
-            <h3 className="font-semibold text-lg mb-2">
-              Monitoring Details
-            </h3>
-
-            <div className="h-px bg-gray-300 my-2"></div>
-
-            <div className="space-y-2 text-xs">
-
-              <div className="flex justify-between">
-                <span>Farmer ID</span>
-                {modalData.FarmerID}
-              </div>
-
-              <div className="flex justify-between">
-                <span>Crop</span>
-                {modalData.CropID || "-"}
-              </div>
-
-              <div className="flex justify-between">
-                <span>Livestock</span>
-                {modalData.LivestockID || "-"}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Activity size={14} /> Production
-                </span>
-                {modalData.ProductionVolume}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <Calendar size={14} /> Date
-                </span>
-                {modalData.ReportDate}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <AlertTriangle size={14} /> Issues
-                </span>
-                {modalData.Issues}
-              </div>
-
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1">
-                  <FileText size={14} /> Remarks
-                </span>
-                {modalData.Remarks}
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
+      <ViewMonitoringModal
+        monitoring={viewModal}
+        onClose={() => setViewModal(null)}
+      />
     </div>
   );
 }

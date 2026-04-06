@@ -20,6 +20,8 @@ import Monitoring from "./pages/Monitoring";
 import Users from "./pages/Users";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import SessionExpired from "./pages/SessionExpired.jsx";
+import ProgramDetails from "./pages/ProgramDetails.jsx";
 import { Outlet } from "react-router-dom";
 
 function Layout({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, darkMode, setDarkMode }) {
@@ -66,6 +68,8 @@ function App() {
         {/* Public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/sessionexpired" element={<SessionExpired />} />
+        <Route path="/programdetails" element={<ProgramDetails />} />
         <Route path="*" element={<NotFound />} />
 
         {/* Protected layout */}
