@@ -10,3 +10,8 @@ export async function fetchFarmers() {
 export async function addFarmer(farmer) {
   return await farmerModel.createFarmer(farmer);
 }
+
+
+export async function fetchAvailableFarmer(distributionID, search = "") {
+  return await farmerModel.getAvailableFarmer(distributionID, search);
+}

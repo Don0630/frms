@@ -18,4 +18,18 @@ export async function addFarmer(farmer) {
   return data.data;
 }
 
+
+ 
+
+// ------------ FETCH AVAILABLE FARMER ------------
+export async function fetchAvailableFarmer(distributionID, search = "") {
+  // Construct query parameters
+  const params = new URLSearchParams();
+  if (distributionID) params.append("distributionID", distributionID);
+  if (search) params.append("search", search);
+
+  const url = `/farmer/availableFarmer?${params.toString()}`;
+  return apiFetch(url);
+}
+
  

@@ -8,7 +8,7 @@ export async function getAllMonitoring(req, res, next) {
 
   try {
     const monitoringsData = await monitoringService.fetchMonitorings();
-    console.log(monitoringsData);
+    // console.log(monitoringsData);
     if (!monitoringsData) {
       return errorResponse(res, "No active record found", 404);
     }

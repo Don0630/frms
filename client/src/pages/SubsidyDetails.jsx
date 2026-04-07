@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Search, Info, Settings, Plus } from "lucide-react";
 
 import { useSubsidyDetails } from "../context/SubsidyDetailsContext";
-import ViewSubsidyModal from "../components/modals/ViewSubsidyModal";
+import ViewSubsidyDetailsModal from "../components/modals/ViewSubsidyDetailsModal";
 
 export default function SubsidyDetails() {
   const { subsidydetails, loadSubsidyDetails, loading, error } = useSubsidyDetails();
@@ -47,9 +47,9 @@ export default function SubsidyDetails() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">SUBSIDY DETAILS</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
+     {/*     <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
             <Plus className="w-4 h-4" /> Add Subsidy
-          </button>
+          </button>*/}
         </div>
 
         {/* Search */}
@@ -153,8 +153,8 @@ export default function SubsidyDetails() {
       </div>
 
       {/* View Modal */}
-      <ViewSubsidyModal
-        subsidy={modalData}
+      <ViewSubsidyDetailsModal
+        distribution={modalData}
         onClose={() => setModalData(null)}
       />
     </div>

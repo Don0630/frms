@@ -33,3 +33,22 @@ export async function saveFarmer(req, res) {
     return errorResponse(res, err.message, 500);
   }
 }
+
+
+
+export async function getAvailableFarmer(req, res, next) {
+  try {
+    const distributionID = req.query.distributionID; // required
+    const search = req.query.search || "";
+    const availableFarmer = await farmerService.fetchAvailableFarmer(distributionID, search);
+
+    if (!availableFarmer || availableFarmer.length === 0) {
+      return errorResponse(res, "No available farmer found", 404);
+    }
+
+    return successResponse(res, "Available farmer fetched successfully", availableFarmer, 200);
+  } catch (err) {
+    console.error("Error fetching available farmer:", err);
+    next(err);
+  }
+}

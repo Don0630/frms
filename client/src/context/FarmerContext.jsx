@@ -69,6 +69,30 @@ function useProvideFarmer() {
 
 
 
+// ------ LOAD AVAILABLE FARMER (for modals/dropdowns) ------
+const loadAvailableFarmer = async (distributionID, search = "") => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const { success, data: availableFarmer } = await farmerApi.fetchAvailableFarmer(distributionID, search);
+    if (success) {
+      return availableFarmer;
+    } else {
+      setError("Failed to fetch available farmer");
+      return [];
+    }
+  } catch (err) {
+    console.error("⚠️ Error fetching available farmer:", err);
+    setError(err.message);
+    return [];
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   // Optional: clear farmer data
   const clearFarmer = () => {
@@ -81,6 +105,7 @@ function useProvideFarmer() {
     farmer,
     loadFarmer,
     addFarmer,
+    loadAvailableFarmer,
     clearFarmer,
   };
 }

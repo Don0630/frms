@@ -51,3 +51,30 @@ export async function createFarmer(farmer) {
     ...farmer
   };
 }
+
+
+export async function getAvailableFarmer(distributionID, search = "") {
+  const searchPattern = `%${search}%`;
+
+  const [rows] = await db.query(
+    `
+    SELECT 
+      f.FarmerID,
+      f.FirstName,
+      f.LastName,
+      f.FarmLocation,
+      f.ContactNumber
+    FROM tblFarmers f
+    LEFT JOIN tblSubsidyDistributionDetails d
+      ON f.FarmerID = d.FarmerID 
+      AND d.DistributionID = ?
+    WHERE d.FarmerID IS NULL
+      AND (f.FirstName LIKE ? OR f.LastName LIKE ?)
+    ORDER BY f.FirstName, f.LastName
+    LIMIT 10
+    `,
+    [distributionID, searchPattern, searchPattern]
+  );
+
+  return rows || [];
+}

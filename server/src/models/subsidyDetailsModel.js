@@ -20,3 +20,23 @@ export async function getAllSubsidyDetails() {
 
   return rows;
 }
+
+
+
+export async function getAllFarmerPerSubsidy(distributionID) {
+  const [rows] = await db.query(`
+    SELECT 
+      f.FarmerID,
+      f.FirstName,
+      f.LastName,
+      f.ContactNumber,
+      f.Email,
+      d.Amount
+    FROM tblSubsidyDistributionDetails d
+    JOIN tblFarmers f ON f.FarmerID = d.FarmerID
+    WHERE d.DistributionID = ?
+    ORDER BY f.LastName, f.FirstName
+  `, [distributionID]);
+
+  return rows;
+}
