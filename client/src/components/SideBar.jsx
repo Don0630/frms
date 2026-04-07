@@ -33,9 +33,9 @@ const menuItems = [
     path: "/subsidy",
   },
   {
-    name: "Program Details",
+    name: "Subsidy Details",
     icon: <Briefcase size={20} />,
-    path: "/programdetails",
+    path: "/subsidydetails",
   },
   {
     name: "Reports & Monitoring",

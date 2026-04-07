@@ -83,28 +83,7 @@ VALUES
 ('Community Agro-Enterprise', 'Develop small community businesses for processing and selling agricultural products.', '2026-05-01', '2026-10-31', 450000.00, 100);
 
 
-
-INSERT INTO tblSubsidyDistribution 
-(FarmerID, ProgramID, Amount, DistributionDate, Remarks)
-VALUES
-(1, 1, 5000.00, '2026-01-15', 'Seeds and fertilizer support'),
-(2, 1, 4500.00, '2026-01-18', 'Livestock feeds assistance'),
-(3, 2, 3000.00, '2026-02-05', 'Organic farming materials'),
-(4, 2, 3200.00, '2026-02-10', 'Training support allowance'),
-(5, 3, 7000.00, '2026-03-01', 'Irrigation equipment subsidy'),
-(6, 3, 6800.00, '2026-03-05', 'Water pump assistance'),
-(7, 4, 5500.00, '2026-03-20', 'Fishpond development support'),
-(8, 4, 5200.00, '2026-03-25', 'Fingerlings distribution'),
-(9, 5, 4000.00, '2026-04-01', 'Agro-enterprise startup fund'),
-(10, 5, 4200.00, '2026-04-03', 'Processing equipment subsidy'),
-
--- extra rows for testing pagination
-(1, 2, 3500.00, '2026-04-10', 'Organic seeds'),
-(2, 3, 6000.00, '2026-04-12', 'Irrigation pipes'),
-(3, 4, 4800.00, '2026-04-15', 'Fishing nets'),
-(4, 5, 3900.00, '2026-04-18', 'Packaging materials'),
-(5, 1, 5100.00, '2026-04-20', 'Fertilizer assistance');
-
+ 
 
 -- Example corrected tblReportsAndMonitoring
 INSERT INTO tblReportsAndMonitoring 
@@ -116,3 +95,60 @@ VALUES
   (1, 5, NULL, '2026-04-04', '40 kg', NULL, 'No issues this week'),
   (4, NULL, 6, '2026-04-05', '15 liters', 'Cows stressed due to heat', 'Moved to shaded area'),
   (5, 7, NULL, '2026-04-06', '60 kg', 'Fungal infection on crop', 'Used fungicide spray');
+
+
+
+
+
+INSERT INTO tblSubsidyDistribution
+(ProgramID, TotalAmount, DistributionDate, Remarks)
+VALUES
+(1, 80000.00, '2026-01-20', 'Livestock support batch 1'),
+(2, 35000.00, '2026-02-10', 'Organic farming assistance'),
+(3, 140000.00, '2026-03-10', 'Irrigation support batch'),
+(4, 80000.00, '2026-04-05', 'Fisheries assistance'),
+(5, 55000.00, '2026-05-10', 'Agro-enterprise support');
+
+
+
+ 
+
+ -- =========================
+-- 7. SUBSIDY DISTRIBUTION DETAILS
+-- =========================
+
+-- DistributionID 1: Livestock support batch 1
+INSERT INTO tblSubsidyDistributionDetails (DistributionID, FarmerID, Amount)
+VALUES
+  (1, 1, 10000.00),
+  (1, 2, 15000.00),
+  (1, 3, 20000.00),
+  (1, 4, 15000.00);
+
+-- DistributionID 2: Organic farming assistance
+INSERT INTO tblSubsidyDistributionDetails (DistributionID, FarmerID, Amount)
+VALUES
+  (2, 5, 10000.00),
+  (2, 6, 12000.00),
+  (2, 7, 13000.00);
+
+-- DistributionID 3: Irrigation support batch
+INSERT INTO tblSubsidyDistributionDetails (DistributionID, FarmerID, Amount)
+VALUES
+  (3, 1, 40000.00),
+  (3, 3, 50000.00),
+  (3, 8, 50000.00);
+
+-- DistributionID 4: Fisheries assistance
+INSERT INTO tblSubsidyDistributionDetails (DistributionID, FarmerID, Amount)
+VALUES
+  (4, 2, 20000.00),
+  (4, 4, 30000.00),
+  (4, 5, 30000.00);
+
+-- DistributionID 5: Agro-enterprise support
+INSERT INTO tblSubsidyDistributionDetails (DistributionID, FarmerID, Amount)
+VALUES
+  (5, 6, 15000.00),
+  (5, 7, 20000.00),
+  (5, 8, 20000.00);

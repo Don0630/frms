@@ -25,18 +25,7 @@ export default function ViewSubsidyModal({ subsidy, onClose }) {
         {/* Content */}
         <div className="grid grid-cols-1 gap-2 text-gray-700 text-xs">
 
-          {/* Farmer */}
-          <div className="flex justify-between items-center mb-2">
-            <span className="flex items-center gap-1">
-              <User size={16} className="text-blue-500" />
-              <strong>Farmer:</strong>
-            </span>
-            <span>
-              {subsidy.FirstName || subsidy.LastName
-                ? `${subsidy.FirstName ?? ""} ${subsidy.LastName ?? ""}`.trim()
-                : subsidy.FarmerID}
-            </span>
-          </div>
+  
 
           {/* Program */}
           <div className="flex justify-between items-center mb-2">
@@ -54,7 +43,7 @@ export default function ViewSubsidyModal({ subsidy, onClose }) {
               <strong>Amount:</strong>
             </span>
             <span>
-              ₱ {Number(subsidy.Amount).toLocaleString()}
+              ₱ {Number(subsidy.TotalAmount).toLocaleString()}
             </span>
           </div>
 

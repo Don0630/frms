@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS tblUsers (
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
   Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active'
- *
+ 
    
 );
 
@@ -95,16 +95,29 @@ CREATE TABLE tblFarmerProgramParticipation (
 -- =========================
 CREATE TABLE tblSubsidyDistribution (
   DistributionID INT AUTO_INCREMENT PRIMARY KEY,
-  FarmerID INT,
   ProgramID INT,
-  Amount DECIMAL(10,2),
+  TotalAmount DECIMAL(10,2),
   DistributionDate DATE,
   Remarks TEXT
  
 );
 
+
+
 -- =========================
--- 7. AGRICULTURAL STAFF
+-- 7. SUBSIDY DISTRIBUTION DETAILS
+-- =========================
+CREATE TABLE tblSubsidyDistributionDetails (
+  DistributionDetailsID INT AUTO_INCREMENT PRIMARY KEY,
+  DistributionID INT,
+  FarmerID INT, 
+  Amount DECIMAL(10,2)
+ 
+);
+
+
+-- =========================
+-- 8. AGRICULTURAL STAFF
 -- =========================
 CREATE TABLE tblAgriculturalStaff (
   StaffID INT AUTO_INCREMENT PRIMARY KEY,
@@ -119,7 +132,7 @@ CREATE TABLE tblAgriculturalStaff (
 );
 
 -- =========================
--- 8. MONITORING REPORTS
+-- 9. MONITORING REPORTS
 -- =========================
 CREATE TABLE tblReportsAndMonitoring (
   ReportID INT AUTO_INCREMENT PRIMARY KEY,

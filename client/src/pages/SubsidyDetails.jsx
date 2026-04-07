@@ -1,17 +1,12 @@
+// src/pages/SubsidyDetails.jsx
 import { useState, useEffect } from "react";
-import {
-  Search,
-  Plus,
-  SlidersHorizontal,
-  Settings,
-  Info
-} from "lucide-react";
+import { Search, Info, Settings, Plus } from "lucide-react";
 
-import { useSubsidy } from "../context/SubsidyContext";
+import { useSubsidyDetails } from "../context/SubsidyDetailsContext";
 import ViewSubsidyModal from "../components/modals/ViewSubsidyModal";
 
-export default function Subsidy() {
-  const { subsidy, loadSubsidy, loading, error } = useSubsidy();
+export default function SubsidyDetails() {
+  const { subsidydetails, loadSubsidyDetails, loading, error } = useSubsidyDetails();
 
   const [search, setSearch] = useState("");
   const [modalData, setModalData] = useState(null);
@@ -22,14 +17,13 @@ export default function Subsidy() {
 
   // Load data
   useEffect(() => {
-    loadSubsidy();
+    loadSubsidyDetails();
   }, []);
 
-  // ✅ Filter & Search (FIXED - no gender filter)
-  const filtered = subsidy.filter((item) => {
+  // Filter & Search
+  const filtered = subsidydetails.filter((item) => {
     return (
-      item.ProgramName?.toLowerCase().includes(search.toLowerCase()) ||
-      item.Remarks?.toLowerCase().includes(search.toLowerCase())
+      item.ProgramName?.toLowerCase().includes(search.toLowerCase())
     );
   });
 
@@ -43,7 +37,7 @@ export default function Subsidy() {
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  // if (loading) return <p className="p-4">Loading subsidy records...</p>;
+  if (loading) return <p className="p-4">Loading subsidy details...</p>;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
@@ -52,32 +46,24 @@ export default function Subsidy() {
 
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">SUBSIDY RECORDS</h2>
+          <h2 className="text-xl font-semibold text-gray-700">SUBSIDY DETAILS</h2>
           <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
             <Plus className="w-4 h-4" /> Add Subsidy
           </button>
         </div>
 
-        {/* Controls */}
+        {/* Search */}
         <div className="flex flex-wrap gap-2 items-center mb-3">
           <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
             <Search className="w-4 h-4 text-gray-500" />
             <input
               type="text"
-              placeholder="Search program or remarks..."
+              placeholder="Search program..."
               className="ml-2 outline-none text-sm w-full"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-
-          <button className="flex items-center gap-1 px-3 py-2 border rounded-lg bg-white text-sm">
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-          </button>
-
-          <button className="flex items-center gap-1 px-3 py-2 border rounded-lg bg-white text-sm">
-            <Settings className="w-4 h-4" /> Configurations
-          </button>
         </div>
 
         {/* Table */}
@@ -86,9 +72,9 @@ export default function Subsidy() {
             <thead className="bg-gray-100 text-gray-600">
               <tr>
                 <th className="py-3 px-2 text-left">Program</th>
-                <th className="py-3 px-2 text-left">Amount</th>
                 <th className="py-3 px-2 text-left">Date</th>
-                <th className="py-3 px-2 text-left">Remarks</th>
+                <th className="py-3 px-2 text-left">Total Distributed</th>
+                <th className="py-3 px-2 text-left">Total Farmers</th>
                 <th className="py-3 px-2 text-center">
                   <Settings className="w-5 h-5 mx-auto" />
                 </th>
@@ -99,11 +85,11 @@ export default function Subsidy() {
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t">
                   <td className="py-2 px-2">{item.ProgramName}</td>
-                  <td className="py-2 px-2">
-                    ₱ {Number(item.TotalAmount).toLocaleString()}
-                  </td>
                   <td className="py-2 px-2">{item.DistributionDate}</td>
-                  <td className="py-2 px-2">{item.Remarks}</td>
+                  <td className="py-2 px-2">
+                    ₱ {Number(item.TotalDistributed).toLocaleString()}
+                  </td>
+                  <td className="py-2 px-2">{item.TotalFarmers}</td>
                   <td className="py-2 px-2 flex justify-center">
                     <button
                       onClick={() => setModalData(item)}
@@ -114,11 +100,19 @@ export default function Subsidy() {
                   </td>
                 </tr>
               ))}
+
+              {currentItems.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-4 text-center text-gray-500">
+                    No records found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        {/* Footer */}
+        {/* Pagination */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
           <span>
             Showing {currentItems.length} of {filtered.length} records

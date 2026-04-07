@@ -7,6 +7,7 @@ import { UserProvider } from "./context/UserContext.jsx"
 import { StaffProvider } from "./context/StaffContext.jsx"
 import { ProgramProvider } from "./context/ProgramContext.jsx"
 import { SubsidyProvider } from "./context/SubsidyContext.jsx"
+import { SubsidyDetailsProvider } from "./context/SubsidyDetailsContext.jsx"
 import { FarmerProvider } from "./context/FarmerContext.jsx"
 import { CropProvider } from "./context/CropContext.jsx"
 import { LivestockProvider } from "./context/LivestockContext.jsx"
@@ -19,15 +20,17 @@ createRoot(document.getElementById('root')).render(
         <StaffProvider>
           <ProgramProvider>
             <SubsidyProvider>
-              <FarmerProvider>
-                <CropProvider>
-                  <LivestockProvider>
-                    <MonitoringProvider>
+              <SubsidyDetailsProvider>
+                <FarmerProvider>
+                  <CropProvider>
+                    <LivestockProvider>
+                      <MonitoringProvider>
         <App />
-                    </MonitoringProvider>
-                  </LivestockProvider>
-                </CropProvider>
-              </FarmerProvider>
+                      </MonitoringProvider>
+                    </LivestockProvider>
+                  </CropProvider>
+                </FarmerProvider>
+            </SubsidyDetailsProvider>
             </SubsidyProvider>
           </ProgramProvider>
         </StaffProvider>

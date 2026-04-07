@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS tblUsers (
   StaffID INT NULL,
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
-  Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
+  Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active'
 
   -- Foreign keys
   FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE SET NULL
@@ -87,7 +87,7 @@ CREATE TABLE tblFarmerProgramParticipation (
   FarmerID INT,
   ProgramID INT,
   DateJoined DATE,
-  Status ENUM('Active', 'Completed', 'Dropped'),
+  Status ENUM('Active', 'Completed', 'Dropped')
 
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
@@ -98,18 +98,32 @@ CREATE TABLE tblFarmerProgramParticipation (
 -- =========================
 CREATE TABLE tblSubsidyDistribution (
   DistributionID INT AUTO_INCREMENT PRIMARY KEY,
-  FarmerID INT,
   ProgramID INT,
-  Amount DECIMAL(10,2),
+  TotalAmount DECIMAL(10,2),
   DistributionDate DATE,
-  Remarks TEXT,
+  Remarks TEXT
 
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
 );
 
+
+
 -- =========================
--- 7. AGRICULTURAL STAFF
+-- 7. SUBSIDY DISTRIBUTION DETAILS
+-- =========================
+CREATE TABLE tblSubsidyDistributionDetails (
+  DistributionDetailsID INT AUTO_INCREMENT PRIMARY KEY,
+  DistributionID INT,
+  FarmerID INT, 
+  Amount DECIMAL(10,2)
+
+  FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE CASCADE
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
+);
+
+
+-- =========================
+-- 8. AGRICULTURAL STAFF
 -- =========================
 CREATE TABLE tblAgriculturalStaff (
   StaffID INT AUTO_INCREMENT PRIMARY KEY,
@@ -124,7 +138,7 @@ CREATE TABLE tblAgriculturalStaff (
 );
 
 -- =========================
--- 8. MONITORING REPORTS
+-- 9. MONITORING REPORTS
 -- =========================
 CREATE TABLE tblReportsAndMonitoring (
   ReportID INT AUTO_INCREMENT PRIMARY KEY,
@@ -134,7 +148,7 @@ CREATE TABLE tblReportsAndMonitoring (
   ReportDate DATE,
   ProductionVolume VARCHAR(50),
   Issues TEXT,
-  Remarks TEXT,
+  Remarks TEXT
 
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (CropID) REFERENCES tblCrops(CropID) ON DELETE SET NULL,
