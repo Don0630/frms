@@ -5,3 +5,8 @@ import * as livestockModel from "../models/livestockModel.js";
 export async function fetchLivestocks() {
   return await livestockModel.getAllLivestock();
 }
+
+
+export async function addLivestock(livestock) {
+  return await livestockModel.createLivestock(livestock);
+}

@@ -7,5 +7,6 @@ const router = express.Router();
 
 
 router.get("/programsData", authenticateToken, programController.getAllProgram);
+router.post("/addProgram", authenticateToken, programController.saveProgram);
  
 export default router;

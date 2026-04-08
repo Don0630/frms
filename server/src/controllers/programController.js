@@ -20,4 +20,15 @@ export async function getAllProgram(req, res) {
 
 }
 
- 
+
+// ------------- ADD PROGRAM -------------
+export async function saveProgram(req, res) {
+  try {
+    // console.log("req.body:", req.body);
+    const newProgram = await programService.addProgram(req.body);
+    return successResponse(res, "Program added successfully", newProgram, 201);
+  } catch (err) {
+    console.error("Error adding Program:", err);
+    return errorResponse(res, err.message, 500);
+  }
+}

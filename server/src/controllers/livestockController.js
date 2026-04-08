@@ -20,4 +20,18 @@ export async function getAllLivestock(req, res) {
 
 }
 
+
+// ------------- ADD LIVESTOCK -------------
+export async function saveLivestock(req, res) {
+  try {
+    // console.log("req.body:", req.body);
+    const newLivestock = await livestockService.addLivestock(req.body);
+    return successResponse(res, "Livestock added successfully", newLivestock, 201);
+  } catch (err) {
+    console.error("Error adding Livestock:", err);
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
  

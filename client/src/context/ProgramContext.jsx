@@ -41,7 +41,33 @@ function useProvideProgram() {
     }
   };
 
- 
+
+
+
+  // ------ ADD PROGRAM ------
+  const addProgram = async (programData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newProgram = await programApi.addProgram(programData);
+      console.log("✅ New program added:", newProgram);
+
+      setProgram((prev) => [...prev, newProgram]);
+      return newProgram;
+    } catch (err) {
+      console.error("⚠️ Error adding program:", err);
+      setError(err.message);
+      throw err; // rethrow so modal can catch it
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+
 
   // ------ CLEAR PROGRAM STATE ------
   const clearProgram = () => setProgram([]);
@@ -50,6 +76,7 @@ function useProvideProgram() {
     loading,
     error,
     program,
+    addProgram,
     loadProgram,
     clearProgram,
   };

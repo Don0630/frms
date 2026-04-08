@@ -8,3 +8,12 @@ export async function fetchAllLivestock() {
 }
 
 
+// ------------ ADD LIVESTOCK ------------
+export async function addLivestock(livestock) {
+  const data = await apiFetch("/livestock/addLivestock", {
+    method: "POST",
+    body: JSON.stringify(livestock),
+  });
+
+  return data.data;
+}

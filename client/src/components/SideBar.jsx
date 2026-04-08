@@ -21,12 +21,7 @@ const menuItems = [
   { name: "Crops", icon: <Sprout size={20} />, path: "/crops" },
   { name: "Livestock", icon: <Activity size={20} />, path: "/livestock" },
   { name: "Programs & Subsidies", icon: <FileText size={20} />, path: "/programs" },
-  {
-    name: "Agricultural Staffs",
-    icon: <Users size={20} />,
-    path: "/staffs",
-    roles: ["Admin", "staff"], // ✅ only admin & staff
-  },
+ 
   {
     name: "Subsidy Distribution",
     icon: <Briefcase size={20} />,
@@ -41,6 +36,12 @@ const menuItems = [
     name: "Reports & Monitoring",
     icon: <Clipboard size={20} />,
     path: "/monitoring",
+  },
+   {
+    name: "Agricultural Staffs",
+    icon: <Users size={20} />,
+    path: "/staffs",
+    roles: ["Admin", "staff"], // ✅ only admin & staff
   },
   {
     name: "System Users",

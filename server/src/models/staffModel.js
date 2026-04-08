@@ -59,7 +59,6 @@ export async function updateStaff(id, staff) {
 
 
 
-
 export async function getAvailableStaff(search = "") {
   const searchPattern = `%${search}%`;
   const [rows] = await db.query(
@@ -73,7 +72,7 @@ export async function getAvailableStaff(search = "") {
     WHERE u.StaffID IS NULL
       AND (s.FirstName LIKE ? OR s.LastName LIKE ?)
     ORDER BY s.FirstName, s.LastName
-    LIMIT 1
+    LIMIT 3
     `,
     [searchPattern, searchPattern]
   );

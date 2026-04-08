@@ -9,4 +9,22 @@ export async function getAllLivestock() {
 }
 
 
+// --------- CREATE LIVESTOCK ---------
+export async function createLivestock(livestock) {
+  const { Type, Breed, AverageProduction, MarketPrice, } = livestock;
+
+  const query = `
+    INSERT INTO tblLivestock 
+    (Type, Breed, AverageProduction, MarketPrice)
+    VALUES (?, ?, ?, ?)
+  `;
+  const values = [ Type, Breed, AverageProduction, MarketPrice, ];
+  const [result] = await db.query(query, values);
+
+  return {
+    LivestockID: result.insertId,
+    ...livestock,
+  };
+}
+
  

@@ -7,4 +7,12 @@ export async function fetchAllProgram() {
   return apiFetch("/program/programsData");
 }
 
- 
+
+// ------------ ADD PROGRAM ------------
+export async function addProgram(program) {
+  const data = await apiFetch("/program/addProgram", {
+    method: "POST",
+    body: JSON.stringify(program),
+  });
+  return data.data;
+}

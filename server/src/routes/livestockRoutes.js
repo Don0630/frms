@@ -7,5 +7,6 @@ const router = express.Router();
 
 
 router.get("/livestocksData", authenticateToken, livestockController.getAllLivestock);
+router.post("/addLivestock", authenticateToken, livestockController.saveLivestock);
 
 export default router;

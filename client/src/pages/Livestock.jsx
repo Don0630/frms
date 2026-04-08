@@ -4,12 +4,14 @@ import {
 } from "lucide-react";
 import { useLivestock } from "../context/LivestockContext.jsx";
 import ViewLivestockModal from "../components/modals/ViewLivestockModal";
+import AddLivestockModal from "../components/modals/AddLivestockModal";
 
 export default function Livestock() {
   const { livestock, loadLivestock, loading, error } = useLivestock(); // Use context
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +48,10 @@ export default function Livestock() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL LIVESTOCK</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
+          <button
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+            onClick={() => setShowAddModal(true)}
+          >
             <Plus className="w-4 h-4" /> Add New Livestock
           </button>
         </div>
@@ -169,6 +174,14 @@ export default function Livestock() {
         livestock={viewModal}
         onClose={() => setViewModal(null)}
       />
+
+      {showAddModal && (
+        <AddLivestockModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => loadLivestock()} // Refresh list after adding
+        />
+      )}
+      
     </div>
   );
 }

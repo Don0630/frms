@@ -1,13 +1,11 @@
 // src/components/modals/AddUserModal.jsx
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, User, Key, ShieldCheck } from "lucide-react";
 import { useUser } from "../../context/UserContext.jsx";
-import { useStaff } from "../../context/StaffContext.jsx"; 
 import * as staffApi from "../../api/staffApi.js";
 
 export default function AddUserModal({ onClose, onSuccess }) {
   const { createUser } = useUser();
-  const { staff } = useStaff(); // full staff list if needed elsewhere
   const [availableStaff, setAvailableStaff] = useState([]);
   const [searchStaff, setSearchStaff] = useState("");
   const [selectedStaff, setSelectedStaff] = useState(null);
@@ -16,25 +14,24 @@ export default function AddUserModal({ onClose, onSuccess }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
   const [error, setError] = useState("");
+  const [loadingStaff, setLoadingStaff] = useState(false);
 
-  // Load available staff for the modal (staff without user accounts)
   const loadAvailableStaff = async (search = "") => {
     try {
+      setLoadingStaff(true);
       const { success, data } = await staffApi.fetchAvailableStaff(search);
-      if (success) {
-        setAvailableStaff(data); // store only for modal
-      } else {
-        setAvailableStaff([]);
-      }
-    } catch (err) {
-      console.error("Failed to load available staff:", err);
+      setAvailableStaff(success ? data : []);
+    } catch {
       setAvailableStaff([]);
+    } finally {
+      setLoadingStaff(false);
     }
   };
 
-  // Trigger fetch on modal open and when search changes
+  // Debounced search
   useEffect(() => {
-    loadAvailableStaff(searchStaff);
+    const timeout = setTimeout(() => loadAvailableStaff(searchStaff), 300);
+    return () => clearTimeout(timeout);
   }, [searchStaff]);
 
   const handleSubmit = async (e) => {
@@ -53,7 +50,7 @@ export default function AddUserModal({ onClose, onSuccess }) {
         staffId: selectedStaff.StaffID,
         username,
         password,
-        role
+        role,
       });
       onSuccess?.();
       onClose();
@@ -64,30 +61,38 @@ export default function AddUserModal({ onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-lg p-6 w-96 relative">
-        <button className="absolute top-3 right-3 text-gray-500 hover:text-gray-700" onClick={onClose}>
-          <X />
+      <div className="bg-white rounded-sm p-6 w-96 relative shadow-xl">
+        {/* Close Button */}
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
+          onClick={onClose}
+        >
+          <X size={18} />
         </button>
 
-        <h3 className="font-semibold text-lg mb-4">Add User</h3>
-        {error && <p className="text-red-500 text-xs mb-2">{error}</p>}
+        {/* Header */}
+        <h3 className="font-semibold text-xl mb-5 text-gray-800">Add User</h3>
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        <form className="space-y-3 text-xs" onSubmit={handleSubmit}>
-          {/* Searchable Available Staff */}
-          <div className="border rounded">
+        <form className="space-y-4 text-sm" onSubmit={handleSubmit}>
+          {/* Staff Search */}
+          <div className="relative">
             <input
               type="text"
               placeholder="Search staff..."
-              className="w-full px-3 py-2 text-sm outline-none"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-400"
               value={searchStaff}
               onChange={(e) => setSearchStaff(e.target.value)}
             />
-            <div className="max-h-24 overflow-y-auto">
+            {loadingStaff && (
+              <span className="absolute right-3 top-2 text-gray-400 text-xs">Searching...</span>
+            )}
+            <div className="max-h-28 overflow-y-auto border border-t-0 border-gray-200 rounded-b-md">
               {availableStaff.map((s) => (
                 <div
                   key={s.StaffID}
-                  className={`px-3 py-1 cursor-pointer hover:bg-gray-100 ${
-                    selectedStaff?.StaffID === s.StaffID ? "bg-gray-200 font-semibold" : ""
+                  className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+                    selectedStaff?.StaffID === s.StaffID ? "bg-green-500 font-semibold" : ""
                   }`}
                   onClick={() => setSelectedStaff(s)}
                 >
@@ -97,35 +102,48 @@ export default function AddUserModal({ onClose, onSuccess }) {
             </div>
           </div>
 
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full border px-3 py-2 rounded"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
+          {/* Username */}
+          <div className="flex items-center border border-gray-300 rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-green-400">
+            <User size={16} className="text-gray-400 mr-2" />
+            <input
+              type="text"
+              placeholder="Username"
+              className="w-full outline-none text-gray-700"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border px-3 py-2 rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          {/* Password */}
+          <div className="flex items-center border border-gray-300 rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-green-400">
+            <Key size={16} className="text-gray-400 mr-2" />
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full outline-none text-gray-700"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            className="w-full border px-3 py-2 rounded"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-          />
+          {/* Confirm Password */}
+          <div className="flex items-center border border-gray-300 rounded-md px-3 py-2 focus-within:ring-2 focus-within:ring-green-400">
+            <ShieldCheck size={16} className="text-gray-400 mr-2" />
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              className="w-full outline-none text-gray-700"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
 
+          {/* Role */}
           <select
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-green-400 text-gray-700"
             value={role}
             onChange={(e) => setRole(e.target.value)}
             required
@@ -135,9 +153,10 @@ export default function AddUserModal({ onClose, onSuccess }) {
             <option value="Staff">Staff</option>
           </select>
 
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-green-600 text-white px-3 py-2 rounded text-sm"
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition"
           >
             Create User
           </button>

@@ -37,7 +37,7 @@ export default function SubsidyDetails() {
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  if (loading) return <p className="p-4">Loading subsidy details...</p>;
+  // if (loading) return <p className="p-4">Loading subsidy details...</p>;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (

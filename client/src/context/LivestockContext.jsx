@@ -43,13 +43,36 @@ function useProvideLivestock() {
  
   
 
-  // ------ CLEAR STAFF STATE ------
+  // ------ ADD LIVESTOCK ------
+  const addLivestock = async (livestockData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newLivestock = await livestockApi.addLivestock(livestockData);
+      console.log("✅ New livestock added:", newLivestock);
+
+      setLivestock((prev) => [...prev, newLivestock]);
+      return newLivestock;
+    } catch (err) {
+      console.error("⚠️ Error adding livestock:", err);
+      setError(err.message);
+      throw err; // rethrow so modal can catch it
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+  // ------ CLEAR LIVESTOCK STATE ------
   const clearLivestock = () => setLivestock([]);
 
   return {
     loading,
     error,
     livestock,
+    addLivestock,
     loadLivestock,
     clearLivestock,
   };

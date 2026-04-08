@@ -10,12 +10,14 @@ import {
 
 import { useProgram } from "../context/ProgramContext";
 import ViewProgramModal from "../components/modals/ViewProgramModal";
+import AddProgramModal from "../components/modals/AddProgramModal";
 
 export default function Programs() {
   const { program, loadProgram, loading, error } = useProgram();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [modalData, setModalData] = useState(null);
+  const [viewModal, setViewModal] = useState(null);
+  const [addProgramModal, setAddProgramModal] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,8 +55,11 @@ export default function Programs() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL PROGRAMS</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add New Program
+          <button
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+            onClick={() => setAddProgramModal(true)}
+          >
+            <Plus className="w-4 h-4" /> Add Program
           </button>
         </div>
 
@@ -116,7 +121,7 @@ export default function Programs() {
                   <td className="py-2 px-2 flex items-center gap-1">
                     {item.ProgramName}
                     <button
-                      onClick={() => setModalData(item)}
+                      onClick={() => setViewModal(item)}
                       className="hover:bg-gray-200 p-1 rounded"
                     >
                       <Info className="w-4 h-4 text-blue-500" />
@@ -197,9 +202,19 @@ export default function Programs() {
 
       {/* View Modal */}
       <ViewProgramModal
-        program={modalData}
-        onClose={() => setModalData(null)}
+        program={viewModal}
+        onClose={() => setViewModal(null)}
       />
+ 
+
+
+{addProgramModal && (
+  <AddProgramModal
+    onClose={() => setAddProgramModal(false)}
+    onSuccess={() => loadProgram()} // reload farmers after adding
+  />
+)}
+
     </div>
   );
 }
