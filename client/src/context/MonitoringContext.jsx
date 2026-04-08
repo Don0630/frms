@@ -42,6 +42,27 @@ function useProvideMonitoring() {
   };
 
  
+
+  // ------ ADD MONITORING ------
+  const addMonitoring = async (monitoringfData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newMonitoring = await monitoringApi.addMonitoring(monitoringData);
+      console.log("✅ New monitoring added:", newMonitoring);
+
+      setMonitoring((prev) => [...prev, newMonitoring]);
+      return newMonitoring;
+    } catch (err) {
+      console.error("⚠️ Error adding monitoring:", err);
+      setError(err.message);
+      throw err; // rethrow so modal can catch it
+    } finally {
+      setLoading(false);
+    }
+  };
+
   
 
   // ------ CLEAR MONITORING STATE ------
@@ -51,6 +72,7 @@ function useProvideMonitoring() {
     loading,
     error,
     monitoring,
+    addMonitoring,
     loadMonitoring,
     clearMonitoring,
   };

@@ -27,4 +27,23 @@ export async function getAllMonitoring() {
 }
 
 
- 
+// --------- CREATE MONITORING ---------
+export async function createMonitoring(monitoring) {
+  const { FarmerID, CropID, LivestockID, ReportDate, ProductionVolume, Issues, Remarks } = monitoring;
+
+  const query = `
+    INSERT INTO tblReportsAndMonitoring 
+    (FarmerID, CropID, LivestockID, ReportDate, ProductionVolume, Issues, Remarks)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [ FarmerID, CropID, LivestockID, ReportDate, ProductionVolume, Issues, Remarks ];
+
+  const [result] = await db.query(query, values);
+
+  return {
+    ReportID: result.insertId,
+    ...monitoring,
+  };
+}
+
