@@ -5,3 +5,6 @@ export async function fetchSubsidies() {
   return await subsidyModel.getAllSubsidy();
 }
 
+export async function addSubsidy(subsidy) {
+  return await subsidyModel.createSubsidy(subsidy);
+}

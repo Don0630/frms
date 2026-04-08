@@ -19,4 +19,16 @@ export async function getAllSubsidy(req, res) {
   }
 
 }
- 
+
+
+// ------------- ADD SUBSIDY -------------
+export async function saveSubsidy(req, res) {
+  try {
+    // console.log("req.body:", req.body);
+    const newSubsidy = await subsidyService.addSubsidy(req.body);
+    return successResponse(res, "Subsidy added successfully", newSubsidy, 201);
+  } catch (err) {
+    console.error("Error adding Subsidy:", err);
+    return errorResponse(res, err.message, 500);
+  }
+}

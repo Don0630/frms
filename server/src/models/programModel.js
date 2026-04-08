@@ -29,3 +29,24 @@ export async function createProgram(program) {
   };
 }
 
+
+
+export async function getAvailablePrograms(search = "") {
+  const searchPattern = `%${search}%`;
+
+  const [rows] = await db.query(
+    `
+    SELECT 
+      ProgramID,
+      ProgramName
+    FROM tblPrograms
+    WHERE Status = 'Active'
+      AND ProgramName LIKE ?
+    ORDER BY ProgramName
+    LIMIT 5
+    `,
+    [searchPattern]
+  );
+
+  return rows;
+}

@@ -20,4 +20,26 @@ export async function getAllSubsidy() {
 }
 
 
- 
+
+// --------- CREATE SUBSIDY ---------
+export async function createSubsidy(subsidy) {
+  const { ProgramID, TotalAmount, DistributionDate, Remarks, } = subsidy;
+
+  const query = `
+    INSERT INTO tblSubsidyDistribution 
+    (ProgramID, TotalAmount, DistributionDate, Remarks)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  const values = [ ProgramID, TotalAmount, DistributionDate, Remarks, ];
+
+  const [result] = await db.query(query, values);
+
+  return {
+    DistributionID: result.insertId,
+    ...subsidy,
+  };
+}
+
+
+

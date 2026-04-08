@@ -42,6 +42,28 @@ function useProvideSubsidy() {
   };
 
 
+  // ------ ADD SUBSIDY ------
+  const addSubsidy = async (subsidyData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const newSubsidy = await subsidyApi.addSubsidy(subsidyData);
+      console.log("✅ New subsidy added:", newSubsidy);
+
+      setSubsidy((prev) => [...prev, newSubsidy]);
+      return newSubsidy;
+    } catch (err) {
+      console.error("⚠️ Error adding subsidy:", err);
+      setError(err.message);
+      throw err; // rethrow so modal can catch it
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
  
   // ------ CLEAR SUBSIDY STATE ------
   const clearSubsidy = () => setSubsidy([]);
@@ -50,6 +72,7 @@ function useProvideSubsidy() {
     loading,
     error,
     subsidy,
+    addSubsidy,
     loadSubsidy,
     clearSubsidy,
   };

@@ -9,12 +9,14 @@ import {
 
 import { useSubsidy } from "../context/SubsidyContext";
 import ViewSubsidyModal from "../components/modals/ViewSubsidyModal";
+import AddSubsidyModal from "../components/modals/AddSubsidyModal";
 
 export default function Subsidy() {
   const { subsidy, loadSubsidy, loading, error } = useSubsidy();
 
   const [search, setSearch] = useState("");
   const [modalData, setModalData] = useState(null);
+   const [addSubsidyModal, setAddSubsidyModal] = useState(false); // New state
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +55,10 @@ export default function Subsidy() {
         {/* Header */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-700">SUBSIDY RECORDS</h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
+          <button
+            onClick={() => setAddSubsidyModal(true)} // Open modal
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
+          >
             <Plus className="w-4 h-4" /> Add Subsidy
           </button>
         </div>
@@ -163,6 +168,19 @@ export default function Subsidy() {
         subsidy={modalData}
         onClose={() => setModalData(null)}
       />
+
+         {/* Add Subsidy Modal */}
+      {addSubsidyModal && (
+        <AddSubsidyModal
+          onClose={() => setAddSubsidyModal(false)}
+          onSuccess={() => {
+            setAddSubsidyModal(false);
+            loadSubsidy(); // refresh table after adding
+          }}
+        />
+      )}
+
+
     </div>
   );
 }

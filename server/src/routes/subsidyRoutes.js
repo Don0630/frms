@@ -7,5 +7,6 @@ const router = express.Router();
 
 
 router.get("/subsidiesData", authenticateToken, subsidyController.getAllSubsidy); 
+router.post("/addSubsidy", authenticateToken, subsidyController.saveSubsidy);
 
 export default router;

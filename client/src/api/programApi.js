@@ -16,3 +16,15 @@ export async function addProgram(program) {
   });
   return data.data;
 }
+
+
+
+// ------------ FETCH AVAILABLE PROGRAM ------------
+export async function fetchAvailableProgram(search = "") {
+  // Optional search query
+  const url = search
+    ? `/program/availableProgram?search=${encodeURIComponent(search)}`
+    : "/program/availableProgram";
+  return apiFetch(url);
+}
+

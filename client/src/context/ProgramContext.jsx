@@ -68,6 +68,32 @@ function useProvideProgram() {
 
 
 
+ // ------ LOAD AVAILABLE PROGRAM (for modals/dropdowns) ------
+  const loadAvailableProgram = async (search = "") => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { success, data: availableProgram } = await programApi.fetchAvailableProgram(search);
+      if (success) {
+        return availableProgram;
+      } else {
+        setError("Failed to fetch available program");
+        return [];
+      }
+    } catch (err) {
+      console.error("⚠️ Error fetching available program:", err);
+      setError(err.message);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+
+
+
 
   // ------ CLEAR PROGRAM STATE ------
   const clearProgram = () => setProgram([]);
@@ -78,6 +104,7 @@ function useProvideProgram() {
     program,
     addProgram,
     loadProgram,
+    loadAvailableProgram,
     clearProgram,
   };
 }

@@ -32,3 +32,22 @@ export async function saveProgram(req, res) {
     return errorResponse(res, err.message, 500);
   }
 }
+
+
+
+// ------------- GET AVAILABLE PROGRAMS -------------
+export async function getAvailableProgram(req, res, next) {
+  try {
+    const search = req.query.search || "";
+    const availableProgram = await programService.fetchAvailablePrograms(search);
+
+    if (!availableProgram || availableProgram.length === 0) {
+      return errorResponse(res, "No available program found", 404);
+    }
+
+    return successResponse(res, "Available program fetched successfully", availableProgram, 200);
+  } catch (err) {
+    console.error("Error fetching available program:", err);
+    next(err);
+  }
+}
