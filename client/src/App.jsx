@@ -66,6 +66,7 @@ function App() {
     <Router>
       <Routes>
         {/* Public routes */}
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/sessionexpired" element={<SessionExpired />} /> 
