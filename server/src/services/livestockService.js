@@ -10,3 +10,7 @@ export async function fetchLivestocks() {
 export async function addLivestock(livestock) {
   return await livestockModel.createLivestock(livestock);
 }
+
+export async function fetchSearchLivestock(search = "") {
+  return await livestockModel.getSearchLivestock(search);
+}

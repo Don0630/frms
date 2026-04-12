@@ -5,7 +5,7 @@ import { authenticateToken } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-
+router.post("/addMonitoring", authenticateToken, monitoringController.saveMonitoring);
 router.get("/monitoringsData", authenticateToken, monitoringController.getAllMonitoring); 
 
 export default router;

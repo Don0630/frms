@@ -8,6 +8,6 @@ const router = express.Router();
 
 router.get("/farmersData", authenticateToken, farmerController.getAllFarmer);
 router.post("/addFarmer", authenticateToken, farmerController.saveFarmer);
-router.get("/availableFarmer", authenticateToken, farmerController.getAvailableFarmer);
+router.get("/searchFarmers", authenticateToken, farmerController.getSearchFarmers);
 
 export default router;

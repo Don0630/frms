@@ -1,4 +1,4 @@
-// src/api/fetchHelper.js
+// src/api/apiFetch.js
 const API_BASE = "http://localhost:5000";
 
 export async function apiFetch(endpoint, options = {}) {

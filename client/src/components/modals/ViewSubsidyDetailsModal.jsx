@@ -1,4 +1,3 @@
-// src/components/modals/ViewSubsidyDetailsModal.jsx
 import { useEffect, useState } from "react";
 import { X, Plus, DollarSign } from "lucide-react";
 import { useSubsidyDetails } from "../../context/SubsidyDetailsContext.jsx";
@@ -10,125 +9,227 @@ export default function ViewSubsidyDetailsModal({ distribution, onClose }) {
     farmersLoading,
     farmersError,
     loadFarmersPerSubsidy,
-    clearFarmers
+    clearFarmers,
+    updateDistributeSubsidy,
   } = useSubsidyDetails();
 
-  const [showAddFarmerSubsidyModal, setShowAddFarmerSubsidyModal] = useState(false);
-  const openAddFarmerSubsidyModal = () => setShowAddFarmerSubsidyModal(true);
-  const closeAddFarmerSubsidyModal = () => setShowAddFarmerSubsidyModal(false);
+  const [openAdd, setOpenAdd] = useState(false);
 
   useEffect(() => {
-    if (distribution) {
-      loadFarmersPerSubsidy(distribution.DistributionID);
-    }
+    if (!distribution?.DistributionID) return;
+
+    loadFarmersPerSubsidy(distribution.DistributionID);
+
     return () => clearFarmers();
-  }, [distribution]);
+  }, [distribution?.DistributionID]);
 
   if (!distribution) return null;
 
+  // ✅ TOTAL AMOUNT (FROM DB OR COMPUTED — choose one)
+  const totalAmount = Number(distribution?.TotalAmount || 0);
+
+  // ✅ DISTRIBUTED (REACTIVE FROM FARMERS STATE)
+  const totalDistributed = farmers.reduce((sum, f) => {
+    return Number(f.IsDistributed) === 1
+      ? sum + Number(f.Amount || 0)
+      : sum;
+  }, 0);
+
+  // ✅ REMAINING
+  const remaining = totalAmount - totalDistributed;
+
+  // ✅ SAFE DISTRIBUTE HANDLER
+  const handleDistribute = async (DistributionDetailsID) => {
+    if (!DistributionDetailsID) {
+      console.error("❌ Missing DistributionDetailsID");
+      return;
+    }
+
+    try {
+      await updateDistributeSubsidy(DistributionDetailsID, {
+        IsDistributed: 1,
+      });
+
+      // refresh farmers (triggers UI update)
+      await loadFarmersPerSubsidy(distribution.DistributionID);
+    } catch (err) {
+      console.error("❌ Failed to distribute:", err);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl w-full max-w-6xl p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
-        
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-gray-400 hover:text-gray-700 transition"
-        >
-          <X className="w-6 h-6" />
-        </button>
+      <div className="bg-white w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
 
-        {/* Header */}
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Subsidy Distribution Details</h2>
-          <p className="text-gray-500 mt-1 text-sm">
-            View and manage farmers for this subsidy program.
-          </p>
-        </div>
+        {/* HEADER */}
+        <div className="flex items-center justify-between p-6 border-b">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">
+              Subsidy Overview
+            </h2>
+            <p className="text-sm text-gray-500">
+              Manage distribution and farmer allocations
+            </p>
+          </div>
 
-        {/* Distribution Info */}
-        <div className="grid grid-cols-2 gap-6 mb-6 bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
-          <div>
-            <p className="text-gray-600 font-medium">Program</p>
-            <p className="text-gray-800">{distribution.ProgramName}</p>
-          </div>
-          <div>
-            <p className="text-gray-600 font-medium">Total Distributed</p>
-            <p className="text-gray-800 font-semibold">₱ {Number(distribution.TotalDistributed).toLocaleString()}</p>
-          </div>
-          <div>
-            <p className="text-gray-600 font-medium">Distribution Date</p>
-            <p className="text-gray-800">{distribution.DistributionDate}</p>
-          </div>
-          <div>
-            <p className="text-gray-600 font-medium">Remarks</p>
-            <p className="text-gray-800">{distribution.Remarks || "None"}</p>
-          </div>
-        </div>
-
-        {/* Add Farmer Button */}
-        <div className="flex justify-end mb-5">
           <button
-            onClick={openAddFarmerSubsidyModal}
-            className="flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-xl hover:bg-green-700 transition shadow"
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-gray-100"
           >
-            <Plus className="w-4 h-4" /> Add Farmer
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Farmers Table */}
-        <div className="overflow-x-auto rounded-xl border shadow-sm">
-          {farmersLoading ? (
-            <p className="text-center text-gray-500 py-6">Loading farmers...</p>
-          ) : farmersError ? (
-            <p className="text-center text-red-500 py-6">{farmersError}</p>
-          ) : (
-            <table className="w-full min-w-[700px] text-sm border-collapse">
-              <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
-                <tr>
-                  <th className="py-3 px-4 text-left">Farmer Name</th>
-                  <th className="py-3 px-4 text-left">Contact</th>
-                  <th className="py-3 px-4 text-left">Amount Received</th>
-                  <th className="py-3 px-4 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {farmers.length > 0 ? (
-                  farmers.map((farmer, i) => (
-                    <tr key={i} className="hover:bg-gray-50 transition">
-                      <td className="py-3 px-4 font-medium text-gray-800">
-                        {farmer.FirstName} {farmer.LastName}
-                      </td>
-                      <td className="py-3 px-4 text-gray-600">{farmer.ContactNumber || farmer.Email}</td>
-                      <td className="py-3 px-4 text-gray-800 font-semibold">
-                        ₱ {Number(farmer.Amount).toLocaleString()}
-                      </td>
-                      <td className="py-3 px-4 flex justify-center gap-2">
-                        <button className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-xl hover:bg-blue-700 transition text-xs shadow">
-                          <DollarSign className="w-3 h-3" /> Distribute
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+        {/* CONTENT */}
+        <div className="p-6 space-y-6 overflow-y-auto">
+
+          {/* ✅ STATS (NOW REACTIVE) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <StatCard
+              label="Total Amount"
+              value={`₱ ${totalAmount.toLocaleString()}`}
+              color="text-gray-800"
+            />
+
+            <StatCard
+              label="Distributed"
+              value={`₱ ${totalDistributed.toLocaleString()}`}
+              color="text-green-600"
+            />
+
+            <StatCard
+              label="Remaining"
+              value={`₱ ${remaining.toLocaleString()}`}
+              color={remaining > 0 ? "text-orange-600" : "text-gray-400"}
+            />
+          </div>
+
+          {/* INFO */}
+          <div className="bg-gray-50 border rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <Info label="Program" value={distribution?.ProgramName} />
+            <Info label="Date" value={distribution?.DistributionDate} />
+            <Info label="Remarks" value={distribution?.Remarks || "None"} />
+          </div>
+
+          {/* ACTION */}
+          <div className="flex justify-end">
+            <button
+              onClick={() => setOpenAdd(true)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-xl shadow"
+            >
+              <Plus className="w-4 h-4" />
+              Add Farmer
+            </button>
+          </div>
+
+          {/* TABLE */}
+          <div className="border rounded-xl overflow-hidden">
+            {farmersLoading ? (
+              <State text="Loading farmers..." />
+            ) : farmersError ? (
+              <State text={farmersError} error />
+            ) : farmers.length === 0 ? (
+              <State text="No farmers assigned yet." />
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-gray-100 text-xs uppercase text-gray-600">
                   <tr>
-                    <td colSpan={4} className="py-6 text-center text-gray-500">
-                      No farmers found for this distribution.
-                    </td>
+                    <th className="p-3 text-left">Farmer</th>
+                    <th className="p-3 text-left">Contact</th>
+                    <th className="p-3 text-left">Amount</th>
+                    <th className="p-3 text-center">Action</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          )}
+                </thead>
+
+                <tbody>
+                  {farmers.map((f) => {
+                    const isDistributed = Number(f.IsDistributed) === 1;
+
+                    return (
+                      <tr
+                        key={f.DistributionDetailsID}
+                        className="border-t hover:bg-gray-50"
+                      >
+                        <td className="p-3 font-medium">
+                          {f.FirstName} {f.LastName}
+                        </td>
+
+                        <td className="p-3 text-gray-600">
+                          {f.ContactNumber || f.Email}
+                        </td>
+
+                        <td className="p-3 font-semibold">
+                          ₱ {Number(f.Amount || 0).toLocaleString()}
+                        </td>
+
+                        <td className="p-3 text-center">
+                          <button
+                            onClick={() =>
+                              handleDistribute(f.DistributionDetailsID)
+                            }
+                            disabled={isDistributed}
+                            className={`inline-flex items-center gap-1 px-3 py-1 text-xs rounded-lg ${
+                              isDistributed
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 text-white"
+                            }`}
+                          >
+                            <DollarSign className="w-3 h-3" />
+                            {isDistributed ? "Distributed" : "Distribute"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
 
-        {showAddFarmerSubsidyModal && (
+        {/* MODAL */}
+        {openAdd && (
           <AddFarmerSubsidyModal
             distributionID={distribution.DistributionID}
-            onClose={closeAddFarmerSubsidyModal}
+            onClose={() => setOpenAdd(false)}
+            onSuccess={() =>
+              loadFarmersPerSubsidy(distribution.DistributionID)
+            }
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/* UI COMPONENTS */
+
+function StatCard({ label, value, color }) {
+  return (
+    <div className="bg-white border rounded-xl p-4 shadow-sm">
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className={`text-lg font-bold ${color}`}>{value}</p>
+    </div>
+  );
+}
+
+function Info({ label, value }) {
+  return (
+    <div>
+      <p className="text-gray-500 text-xs">{label}</p>
+      <p className="font-medium text-gray-800">{value}</p>
+    </div>
+  );
+}
+
+function State({ text, error }) {
+  return (
+    <div
+      className={`p-6 text-center text-sm ${
+        error ? "text-red-500" : "text-gray-500"
+      }`}
+    >
+      {text}
     </div>
   );
 }

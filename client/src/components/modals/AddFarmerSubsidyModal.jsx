@@ -1,123 +1,147 @@
 import { useEffect, useState } from "react";
-import { X, Search, UserPlus } from "lucide-react";
-import { useFarmer } from "../../context/FarmerContext.jsx";
+import { X } from "lucide-react";
+import { useSubsidyDetails } from "../../context/SubsidyDetailsContext.jsx";
 
-export default function AddFarmerSubsidyModal({ distributionID, onClose }) {
-  const { loadAvailableFarmer } = useFarmer();
+export default function AddFarmerSubsidyModal({ distributionID, onClose, onSuccess }) {
+  const { loadAvailableFarmer, addFarmerSubsidy } = useSubsidyDetails();
 
-  const [search, setSearch] = useState("");
   const [availableFarmers, setAvailableFarmers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState("");
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  // 🔹 Fetch farmers with debounce
-  useEffect(() => {
-    if (!distributionID) return;
-    const handler = setTimeout(async () => {
+  // 🔍 Load farmers (debounced)
+  const loadFarmers = async (search = "") => {
+    try {
       setLoading(true);
-      try {
-         const farmers = await loadAvailableFarmer(distributionID, search);
-        setAvailableFarmers(farmers);
-      } catch (err) {
-        console.error(err);
-        setAvailableFarmers([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 300); // 300ms delay
-
-    return () => clearTimeout(handler);
-  }, [search, distributionID]);
-
-  const handleSelectFarmer = (farmerID) => setSelectedFarmer(farmerID);
-
-  const handleAddFarmer = () => {
-    if (!selectedFarmer) return alert("Please select a farmer first.");
-    console.log("Adding farmer:", selectedFarmer, "Amount:", amount);
-    // TODO: Call your backend here to add farmer to distribution
-    handleClose();
+      const data = await loadAvailableFarmer(distributionID, search);
+      setAvailableFarmers(data || []);
+    } catch {
+      setAvailableFarmers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleClose = () => {
-    setSelectedFarmer(null);
-    setAmount("");
-    setAvailableFarmers([]);
-    setSearch("");
-    onClose();
+  useEffect(() => {
+    if (!distributionID) return;
+    const timeout = setTimeout(() => loadFarmers(search), 300);
+    return () => clearTimeout(timeout);
+  }, [search, distributionID]);
+
+  // ✅ ADD FARMER (FIXED)
+  const handleAddFarmer = async () => {
+    if (!selectedFarmer) {
+      setError("Please select a farmer first.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError("");
+
+      await addFarmerSubsidy({
+        DistributionID: distributionID,
+        FarmerID: selectedFarmer.FarmerID,
+        Amount: amount ? Number(amount) : 0,
+      });
+
+      // ✅ Reset after success
+      setSelectedFarmer(null);
+      setAmount("");
+      setSearch("");
+      setAvailableFarmers([]);
+      onSuccess?.()
+      onClose(); // close modal
+    } catch (err) {
+      console.error(err);
+      setError("Failed to add farmer.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!distributionID) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl p-6 relative">
-        <button onClick={handleClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
-          <X />
+    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div className="bg-white rounded-sm p-6 w-96 relative shadow-xl">
+
+        {/* Close */}
+        <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+          onClick={onClose}
+        >
+          <X size={18} />
         </button>
 
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <UserPlus className="w-5 h-5" />
-          Select Farmer
-        </h2>
+        <h3 className="font-semibold text-xl mb-5 text-gray-800">
+          Add Farmer
+        </h3>
 
-        <div className="flex items-center border rounded-lg px-3 py-2 mb-4">
-          <Search className="w-4 h-4 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search farmer..."
-            className="ml-2 w-full outline-none"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
 
-        <div className="border rounded-lg max-h-60 overflow-y-auto mb-4">
-          {loading ? (
-            <p className="p-4 text-center text-gray-500">Loading...</p>
-          ) : availableFarmers.length > 0 ? (
-            availableFarmers.map((farmer) => (
-              <label
-                key={farmer.FarmerID}
-                className="flex items-center justify-between px-4 py-2 border-b hover:bg-gray-50 cursor-pointer"
-              >
-                <div>
-                  <p className="font-medium">{farmer.FirstName} {farmer.LastName}</p>
-                  <p className="text-xs text-gray-500">{farmer.FarmLocation}</p>
+        <div className="space-y-4 text-sm">
+
+          {/* 🔍 Search */}
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search farmer..."
+              className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-400"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {loading && (
+              <span className="absolute right-3 top-2 text-gray-400 text-xs">
+                Searching...
+              </span>
+            )}
+
+            <div className="max-h-28 overflow-y-auto border border-t-0 border-gray-200 rounded-b-md">
+              
+              {!loading && availableFarmers.length === 0 && (
+                <div className="px-3 py-2 text-gray-400 text-xs">
+                  No results found
                 </div>
-                <input
-                  type="radio"
-                  name="farmer"
-                  checked={selectedFarmer === farmer.FarmerID}
-                  onChange={() => handleSelectFarmer(farmer.FarmerID)}
-                />
-              </label>
-            ))
-          ) : (
-            <p className="p-4 text-center text-gray-500">No available farmers</p>
-          )}
-        </div>
+              )}
 
-        <div className="mb-4">
-          <label className="text-sm text-gray-600">Amount</label>
+              {availableFarmers.map((f) => (
+                <div
+                  key={f.FarmerID}
+                  className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+                    selectedFarmer?.FarmerID === f.FarmerID
+                      ? "bg-green-500 text-white font-semibold"
+                      : ""
+                  }`}
+                  onClick={() => setSelectedFarmer(f)}
+                >
+                  {f.FirstName} {f.LastName}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 💰 Amount */}
           <input
             type="number"
-            className="w-full border rounded-lg px-3 py-2 mt-1"
+            placeholder="Amount (optional)"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-400"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="Enter amount (optional)"
           />
-        </div>
 
-        <div className="flex justify-end gap-2">
-          <button onClick={handleClose} className="px-4 py-2 border rounded-lg">
-            Close
-          </button>
+          {/* Submit */}
           <button
             onClick={handleAddFarmer}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            disabled={saving}
+            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition disabled:opacity-50"
           >
-            Add Farmer
+            {saving ? "Adding..." : "Add Farmer"}
           </button>
         </div>
       </div>

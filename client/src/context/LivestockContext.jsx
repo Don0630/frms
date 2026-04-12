@@ -65,6 +65,32 @@ function useProvideLivestock() {
 
 
 
+
+// ------ LOAD SEARCHED LIVESTOCK (for modals/dropdowns) ------
+const loadSearchLivestock = async (search = "") => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const { success, data: searchLivestock } = await livestockApi.fetchSearchLivestock(search);
+    if (success) {
+      return searchLivestock;
+    } else {
+      setError("Failed to fetch search livestock");
+      return [];
+    }
+  } catch (err) {
+    console.error("⚠️ Error fetching search livestock:", err);
+    setError(err.message);
+    return [];
+  } finally {
+    setLoading(false);
+  }
+};
+  
+
+
+
   // ------ CLEAR LIVESTOCK STATE ------
   const clearLivestock = () => setLivestock([]);
 
@@ -74,6 +100,7 @@ function useProvideLivestock() {
     livestock,
     addLivestock,
     loadLivestock,
+    loadSearchLivestock,
     clearLivestock,
   };
 }

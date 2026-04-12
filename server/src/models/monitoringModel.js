@@ -34,7 +34,7 @@ export async function createMonitoring(monitoring) {
   const query = `
     INSERT INTO tblReportsAndMonitoring 
     (FarmerID, CropID, LivestockID, ReportDate, ProductionVolume, Issues, Remarks)
-    VALUES (?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [ FarmerID, CropID, LivestockID, ReportDate, ProductionVolume, Issues, Remarks ];
@@ -46,4 +46,6 @@ export async function createMonitoring(monitoring) {
     ...monitoring,
   };
 }
+
+
 

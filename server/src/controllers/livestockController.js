@@ -34,4 +34,20 @@ export async function saveLivestock(req, res) {
 }
 
 
+
+// ------------- SEARCH LIVESTOCK -------------
+export async function getSearchLivestock(req, res, next) {
+  try { 
+    const search = req.query.search || "";
+    const searchedLivestock = await livestockService.fetchSearchLivestock(search);
+
+    if (!searchedLivestock || searchedLivestock.length === 0) {
+      return errorResponse(res, "No Livestock found", 404);
+    }
+    return successResponse(res, "Livestock fetched successfully", searchedLivestock, 200);
+  } catch (err) {
+    console.error("Error fetching searched Livestock:", err);
+    next(err);
+  }
+}
  

@@ -30,3 +30,25 @@ export async function createCrop(crop) {
     ...crop,
   };
 }
+
+
+
+// --------------- SEARCH CROP (GENERAL) ---------------
+export async function getSearchCrops(search = "") {
+  const searchPattern = `%${search}%`;
+
+  const [rows] = await db.query(
+    `
+    SELECT 
+      c.CropID,
+      c.CropName
+    FROM tblCrops c
+    WHERE (c.CropName LIKE ?)
+    ORDER BY c.CropName
+    LIMIT 3
+    `,
+    [searchPattern, searchPattern]
+  );
+
+  return rows || [];
+}

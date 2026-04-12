@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/staffsData", authenticateToken, staffController.getAllStaff);
 router.post("/addStaff", authenticateToken, staffController.saveStaff);
-router.put("/updateStaff/:id", authenticateToken, staffController.updateStaff); 
+router.put("/updateStaff/:id", authenticateToken, staffController.updateStaff);
 router.get("/availableStaff", authenticateToken, staffController.getAvailableStaff);
 
 export default router;

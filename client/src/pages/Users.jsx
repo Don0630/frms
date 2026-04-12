@@ -24,8 +24,8 @@ export default function Users() {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [modalData, setModalData] = useState(null);
-  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [viewModal, setViewModal] = useState(null);
+  const [addModal, setAddModal] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +60,7 @@ export default function Users() {
           <h2 className="text-xl font-semibold text-gray-700">ALL USERS</h2>
 <button
   className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
-  onClick={() => setAddModalOpen(true)}
+  onClick={() => setAddModal(true)}
 >
   <Plus className="w-4 h-4" /> Add User
 </button>        </div>
@@ -130,7 +130,7 @@ export default function Users() {
                       {item.FirstName} {item.LastName}
 
                       <button
-                        onClick={() => setModalData(item)}
+                        onClick={() => setViewModal(item)}
                         className="hover:bg-gray-200 p-1 rounded"
                       >
                         <Info className="w-4 h-4 text-blue-500" />
@@ -194,13 +194,13 @@ export default function Users() {
         </div>
       </div>
 
-{modalData && (
-  <ViewUserModal user={modalData} onClose={() => setModalData(null)} />
+{viewModal && (
+  <ViewUserModal user={viewModal} onClose={() => setViewModal(null)} />
 )}
 
-{addModalOpen && (
+{addModal && (
   <AddUserModal
-    onClose={() => setAddModalOpen(false)}
+    onClose={() => setAddModal(false)}
     onSuccess={loadUsers} // reload users after adding
   />
 )}

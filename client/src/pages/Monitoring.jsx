@@ -12,6 +12,7 @@ import {
 
 import { useMonitoring } from "../context/MonitoringContext";
 import ViewMonitoringModal from "../components/modals/ViewMonitoringModal";
+import AddMonitoringModal from "../components/modals/AddMonitoringModal";
 
 export default function Monitoring() {
   const { monitoring, loadMonitoring, loading, error } = useMonitoring();
@@ -19,6 +20,7 @@ export default function Monitoring() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All"); // Gender filter
   const [viewModal, setViewModal] = useState(null);
+  const [addMonitoringModal, setAddMonitoringModal] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,9 +78,12 @@ export default function Monitoring() {
           <h2 className="text-xl font-semibold text-gray-700">
             MONITORING RECORDS
           </h2>
-          <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add Record
-          </button>
+<button
+  onClick={() => setAddMonitoringModal(true)}
+  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+>
+  <Plus className="w-4 h-4" /> New Report
+</button>
         </div>
 
         {/* Controls */}
@@ -208,6 +213,15 @@ export default function Monitoring() {
         monitoring={viewModal}
         onClose={() => setViewModal(null)}
       />
+
+      {addMonitoringModal && (
+        <AddMonitoringModal
+          onClose={() => setAddMonitoringModal(false)}
+          onSuccess={() => loadMonitoring()} // reload data after add
+        />
+      )}
+
+
     </div>
   );
 }

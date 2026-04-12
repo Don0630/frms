@@ -17,3 +17,16 @@ export async function addLivestock(livestock) {
 
   return data.data;
 }
+
+
+
+// ------------ FETCH SEARCHED LIVESTOCK ------------
+export async function fetchSearchLivestock(search = "") {
+  // Construct query parameters
+  const params = new URLSearchParams();
+  if (search) params.append("search", search);
+
+  const url = `/livestock/searchLivestock?${params.toString()}`;
+  return apiFetch(url);
+}
+

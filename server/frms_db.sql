@@ -115,7 +115,8 @@ CREATE TABLE tblSubsidyDistributionDetails (
   DistributionDetailsID INT AUTO_INCREMENT PRIMARY KEY,
   DistributionID INT,
   FarmerID INT, 
-  Amount DECIMAL(10,2)
+  Amount DECIMAL(10,2),
+  IsDistributed TINYINT(1) NOT NULL DEFAULT 0
 
   FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE CASCADE
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
@@ -133,8 +134,7 @@ CREATE TABLE tblAgriculturalStaff (
   Position VARCHAR(50),
   Department VARCHAR(50),
   ContactNumber VARCHAR(20),
-  Email VARCHAR(100),
-  IsUser TINYINT(1) DEFAULT 0
+  Email VARCHAR(100)
 );
 
 -- =========================

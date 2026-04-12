@@ -68,7 +68,27 @@ function useProvideCrop() {
 
 
 
+// ------ LOAD SEARCHED CROPS (for modals/dropdowns) ------
+const loadSearchCrop = async (search = "") => {
+  setLoading(true);
+  setError(null);
 
+  try {
+    const { success, data: searchCrop } = await cropApi.fetchSearchCrops(search);
+    if (success) {
+      return searchCrop;
+    } else {
+      setError("Failed to fetch search crop");
+      return [];
+    }
+  } catch (err) {
+    console.error("⚠️ Error fetching search crop:", err);
+    setError(err.message);
+    return [];
+  } finally {
+    setLoading(false);
+  }
+};
   
 
   // ------ CLEAR CROP STATE ------
@@ -79,6 +99,7 @@ function useProvideCrop() {
     error,
     crop,
     loadCrop,
+    loadSearchCrop,
     addCrop,
     clearCrop,
   };

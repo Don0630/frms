@@ -53,7 +53,10 @@ export async function createFarmer(farmer) {
 }
 
 
-export async function getAvailableFarmer(distributionID, search = "") {
+
+
+// --------------- SEARCH FARMER (GENERAL) ---------------
+export async function getSearchFarmers(search = "") {
   const searchPattern = `%${search}%`;
 
   const [rows] = await db.query(
@@ -61,19 +64,13 @@ export async function getAvailableFarmer(distributionID, search = "") {
     SELECT 
       f.FarmerID,
       f.FirstName,
-      f.LastName,
-      f.FarmLocation,
-      f.ContactNumber
+      f.LastName
     FROM tblFarmers f
-    LEFT JOIN tblSubsidyDistributionDetails d
-      ON f.FarmerID = d.FarmerID 
-      AND d.DistributionID = ?
-    WHERE d.FarmerID IS NULL
-      AND (f.FirstName LIKE ? OR f.LastName LIKE ?)
+    WHERE (f.FirstName LIKE ? OR f.LastName LIKE ?)
     ORDER BY f.FirstName, f.LastName
-    LIMIT 10
+    LIMIT 3
     `,
-    [distributionID, searchPattern, searchPattern]
+    [searchPattern, searchPattern]
   );
 
   return rows || [];

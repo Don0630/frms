@@ -27,4 +27,24 @@ export async function createLivestock(livestock) {
   };
 }
 
- 
+
+// --------------- SEARCH LIVESTOCK (GENERAL) ---------------
+export async function getSearchLivestock(search = "") {
+  const searchPattern = `%${search}%`;
+
+  const [rows] = await db.query(
+    `
+    SELECT 
+      l.LivestockID,
+      l.Type,
+      l.Breed
+    FROM tblLivestock l
+    WHERE (l.Type LIKE ? OR l.Breed LIKE ?)
+    ORDER BY l.Type
+    LIMIT 3
+    `,
+    [searchPattern, searchPattern]
+  );
+
+  return rows || [];
+}

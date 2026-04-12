@@ -9,3 +9,8 @@ export async function fetchCrops() {
 export async function addCrop(crop) {
   return await cropModel.createCrop(crop);
 }
+
+
+export async function fetchSearchCrops(search = "") {
+  return await cropModel.getSearchCrops(search);
+}

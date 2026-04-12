@@ -12,6 +12,6 @@ export async function addFarmer(farmer) {
 }
 
 
-export async function fetchAvailableFarmer(distributionID, search = "") {
-  return await farmerModel.getAvailableFarmer(distributionID, search);
+export async function fetchSearchFarmers(search = "") {
+  return await farmerModel.getSearchFarmers(search);
 }

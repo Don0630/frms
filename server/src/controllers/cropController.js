@@ -32,3 +32,22 @@ export async function saveCrop(req, res) {
     return errorResponse(res, err.message, 500);
   }
 }
+
+
+
+
+// ------------- SEARCH CROP -------------
+export async function getSearchCrops(req, res, next) {
+  try { 
+    const search = req.query.search || "";
+    const searchedCrops = await cropService.fetchSearchCrops(search);
+
+    if (!searchedCrops || searchedCrops.length === 0) {
+      return errorResponse(res, "No Crops found", 404);
+    }
+    return successResponse(res, "Crops fetched successfully", searchedCrops, 200);
+  } catch (err) {
+    console.error("Error fetching searched crops:", err);
+    next(err);
+  }
+}

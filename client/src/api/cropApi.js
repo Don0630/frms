@@ -18,3 +18,17 @@ export async function addCrop(crop) {
 
   return data.data;
 }
+
+
+
+// ------------ FETCH SEARCHED CROP ------------
+export async function fetchSearchCrops(search = "") {
+  // Construct query parameters
+  const params = new URLSearchParams();
+  if (search) params.append("search", search);
+
+  const url = `/crop/searchCrops?${params.toString()}`;
+  return apiFetch(url);
+}
+
+ 

@@ -36,19 +36,19 @@ export async function saveFarmer(req, res) {
 
 
 
-export async function getAvailableFarmer(req, res, next) {
-  try {
-    const distributionID = req.query.distributionID; // required
-    const search = req.query.search || "";
-    const availableFarmer = await farmerService.fetchAvailableFarmer(distributionID, search);
 
-    if (!availableFarmer || availableFarmer.length === 0) {
-      return errorResponse(res, "No available farmer found", 404);
+export async function getSearchFarmers(req, res, next) {
+  try { 
+    const search = req.query.search || "";
+    const searchedFarmer = await farmerService.fetchSearchFarmers(search);
+
+    if (!searchedFarmer || searchedFarmer.length === 0) {
+      return errorResponse(res, "No farmers found", 404);
     }
 
-    return successResponse(res, "Available farmer fetched successfully", availableFarmer, 200);
+    return successResponse(res, "Farmers fetched successfully", searchedFarmer, 200);
   } catch (err) {
-    console.error("Error fetching available farmer:", err);
+    console.error("Error fetching searched farmer:", err);
     next(err);
   }
 }

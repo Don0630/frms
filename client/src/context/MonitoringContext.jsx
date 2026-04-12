@@ -44,7 +44,7 @@ function useProvideMonitoring() {
  
 
   // ------ ADD MONITORING ------
-  const addMonitoring = async (monitoringfData) => {
+  const addMonitoring = async (monitoringData) => {
     setLoading(true);
     setError(null);
 

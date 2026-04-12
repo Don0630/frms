@@ -22,13 +22,13 @@ export async function getAllMonitoring(req, res, next) {
 
 
 // ------------- ADD  MONITORING -------------
-export async function saveMonitroing(req, res) {
+export async function saveMonitoring(req, res) {
   try {
     // console.log("req.body:", req.body);
     const newMonitoring = await monitoringService.addMonitoring(req.body);
-    return successResponse(res, "Monito added successfully", newMonitoring, 201);
+    return successResponse(res, "Monitoring added successfully", newMonitoring, 201);
   } catch (err) {
-    console.error("Error adding Monito:", err);
+    console.error("Error adding Monitoring:", err);
     return errorResponse(res, err.message, 500);
   }
 }

@@ -8,5 +8,6 @@ const router = express.Router();
 
 router.get("/livestocksData", authenticateToken, livestockController.getAllLivestock);
 router.post("/addLivestock", authenticateToken, livestockController.saveLivestock);
+router.get("/searchLivestock", authenticateToken, livestockController.getSearchLivestock);
 
 export default router;
