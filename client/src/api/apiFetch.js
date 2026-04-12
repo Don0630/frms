@@ -1,5 +1,8 @@
 // src/api/apiFetch.js
-const API_BASE = "http://localhost:5000";
+const API_BASE =
+  import.meta.env.DEV
+    ? "http://localhost:5000"
+    : import.meta.env.VITE_API_BASE_URL;
 
 export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem("token");
