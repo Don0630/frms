@@ -1,4 +1,3 @@
-// src/app.js
 import express from "express";
 import cors from "cors";
 
@@ -28,10 +27,11 @@ const allowedOrigins = [
 ];
 
 /* -----------------------------
-   ✅ CORS CONFIG (FIXED)
+   ✅ CORS CONFIG
 ------------------------------ */
 const corsOptions = {
   origin: (origin, callback) => {
+    // allow REST tools / server-to-server requests
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -45,14 +45,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-/* ❌ IMPORTANT FIX:
-   DO NOT use app.options("*")
-   It crashes Express 5 / path-to-regexp
-*/
-
-// Optional: ONLY if you really need preflight override
-app.options(/.*/, cors(corsOptions));
-
+ 
 /* -----------------------------
    📦 Middleware
 ------------------------------ */
@@ -80,7 +73,7 @@ app.use("/livestock", livestockRoutes);
 app.use("/monitoring", monitoringRoutes);
 
 /* -----------------------------
-   ❌ Error Handler
+   ❌ Error Handler (must be last)
 ------------------------------ */
 app.use(errorHandler);
 
