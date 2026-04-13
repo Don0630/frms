@@ -1,5 +1,7 @@
+// src/app.js
 import express from "express";
 import cors from "cors";
+
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import staffRoutes from "./routes/staffRoutes.js";
@@ -10,10 +12,13 @@ import farmerRoutes from "./routes/farmerRoutes.js";
 import cropRoutes from "./routes/cropRoutes.js";
 import livestockRoutes from "./routes/livestockRoutes.js";
 import monitoringRoutes from "./routes/monitoringRoutes.js";
+
 import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
+
+// ✅ Allowed origins (DEV + PROD)
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -21,21 +26,36 @@ const allowedOrigins = [
   "https://frms-git-main-iceys-projects-5e804d03.vercel.app"
 ];
 
+
+// ✅ CORS config
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman / server-to-server
+  origin: (origin, callback) => {
+    // allow requests with no origin (Postman, mobile apps, etc.)
+    if (!origin) return callback(null, true);
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true
 }));
 
-// 🔥 IMPORTANT: handle preflight requests
+
+// ✅ VERY IMPORTANT: Handle preflight requests
 app.options("*", cors());
 
+
+// ✅ Middleware
 app.use(express.json());
+
+
+// ✅ Optional health check (good for Railway)
+app.get("/_health", (req, res) => {
+  res.json({ ok: true });
+});
+
 
 // --- Routes ---
 app.use("/auth", authRoutes);
@@ -49,7 +69,9 @@ app.use("/crop", cropRoutes);
 app.use("/livestock", livestockRoutes);
 app.use("/monitoring", monitoringRoutes);
 
+
 // --- Error handler ---
 app.use(errorHandler);
+
 
 export default app;
