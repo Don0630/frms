@@ -17,7 +17,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 
 /* -----------------------------
-   🌐 Allowed Origins (FIXED)
+   🌐 Allowed Origins
 ------------------------------ */
 const allowedOrigins = [
   "http://localhost:5173",
@@ -29,29 +29,30 @@ const allowedOrigins = [
 /* -----------------------------
    ✅ CORS CONFIG (FIXED)
 ------------------------------ */
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow Postman / server-to-server requests
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: (origin, callback) => {
+    // allow Postman / server-to-server
+    if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-      console.log("❌ Blocked by CORS:", origin);
-      return callback(null, false);
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+    console.log("❌ Blocked by CORS:", origin);
+    return callback(null, false);
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 /* -----------------------------
-   🔧 Handle preflight requests
+   ⚠️ IMPORTANT FIX
+   DO NOT use app.options("*", cors())
+   (causes crash in Node 24 / path-to-regexp)
 ------------------------------ */
-app.options("*", cors());
 
 /* -----------------------------
    📦 Middleware
@@ -64,7 +65,7 @@ app.use(express.json());
 app.get("/_health", (req, res) => {
   res.json({
     ok: true,
-    message: "FRMS API is running",
+    message: "FRMS API running",
     time: new Date().toISOString()
   });
 });
@@ -84,7 +85,7 @@ app.use("/livestock", livestockRoutes);
 app.use("/monitoring", monitoringRoutes);
 
 /* -----------------------------
-   ❌ Error Handler (MUST BE LAST)
+   ❌ Error Handler (LAST)
 ------------------------------ */
 app.use(errorHandler);
 
