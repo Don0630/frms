@@ -17,8 +17,9 @@ import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
-
-// ✅ Allowed origins (DEV + PROD)
+/* -----------------------------
+   🌐 Allowed Origins
+------------------------------ */
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
@@ -26,11 +27,11 @@ const allowedOrigins = [
   "https://frms-git-main-iceys-projects-5e804d03.vercel.app"
 ];
 
-
-// ✅ CORS config
-app.use(cors({
+/* -----------------------------
+   ✅ CORS CONFIG (FIXED)
+------------------------------ */
+const corsOptions = {
   origin: (origin, callback) => {
-    // allow requests with no origin (Postman, mobile apps, etc.)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -40,34 +41,33 @@ app.use(cors({
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true
-}));
+};
 
+app.use(cors(corsOptions));
 
-// ✅ VERY IMPORTANT: Handle preflight requests
-app.options("/*", cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true
-}));
+/* ❌ IMPORTANT FIX:
+   DO NOT use app.options("*")
+   It crashes Express 5 / path-to-regexp
+*/
 
+// Optional: ONLY if you really need preflight override
+app.options(/.*/, cors(corsOptions));
 
-
-// ✅ Middleware
+/* -----------------------------
+   📦 Middleware
+------------------------------ */
 app.use(express.json());
 
-
-// ✅ Optional health check (good for Railway)
+/* -----------------------------
+   ❤️ Health Check
+------------------------------ */
 app.get("/_health", (req, res) => {
   res.json({ ok: true });
 });
 
-
-// --- Routes ---
+/* -----------------------------
+   🚀 Routes
+------------------------------ */
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/staff", staffRoutes);
@@ -79,9 +79,9 @@ app.use("/crop", cropRoutes);
 app.use("/livestock", livestockRoutes);
 app.use("/monitoring", monitoringRoutes);
 
-
-// --- Error handler ---
+/* -----------------------------
+   ❌ Error Handler
+------------------------------ */
 app.use(errorHandler);
-
 
 export default app;
