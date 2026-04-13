@@ -17,35 +17,42 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 
 /* -----------------------------
-   🌐 Allowed Origins
+   🌐 Allowed Origins (FIXED)
 ------------------------------ */
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://frms-git-main-iceys-projects-5e804d03.vercel.app",
-  "https://www.frms-nine.vercel.app"
+  "https://frms-nine.vercel.app",
+  "https://frms-qlozzmgfu-iceys-projects-5e804d03.vercel.app"
 ];
 
 /* -----------------------------
-   ✅ CORS CONFIG
+   ✅ CORS CONFIG (FIXED)
 ------------------------------ */
-const corsOptions = {
-  origin: (origin, callback) => {
-    // allow REST tools / server-to-server requests
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow Postman / server-to-server requests
+      if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
 
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true
-};
+      console.log("❌ Blocked by CORS:", origin);
+      return callback(null, false);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
-app.use(cors(corsOptions));
+/* -----------------------------
+   🔧 Handle preflight requests
+------------------------------ */
+app.options("*", cors());
 
- 
 /* -----------------------------
    📦 Middleware
 ------------------------------ */
@@ -55,7 +62,11 @@ app.use(express.json());
    ❤️ Health Check
 ------------------------------ */
 app.get("/_health", (req, res) => {
-  res.json({ ok: true });
+  res.json({
+    ok: true,
+    message: "FRMS API is running",
+    time: new Date().toISOString()
+  });
 });
 
 /* -----------------------------
@@ -73,7 +84,7 @@ app.use("/livestock", livestockRoutes);
 app.use("/monitoring", monitoringRoutes);
 
 /* -----------------------------
-   ❌ Error Handler (must be last)
+   ❌ Error Handler (MUST BE LAST)
 ------------------------------ */
 app.use(errorHandler);
 
