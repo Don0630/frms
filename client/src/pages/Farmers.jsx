@@ -3,7 +3,7 @@ import {
   Search, Save, Plus, Mars, Venus, CheckCircle, Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, FileText, MapPinned, Ruler 
 } from "lucide-react";
 import { useFarmer } from "../context/FarmerContext.jsx";
-import ViewFarmerModal from "../components/modals/ViewFarmerModal.jsx";
+import InfoFarmerModal from "../components/modals/InfoFarmerModal.jsx";
 import AddFarmerModal from "../components/modals/AddFarmerModal.jsx";
 
 export default function Farmers() {
@@ -11,7 +11,7 @@ export default function Farmers() {
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null);
+  const [infoModal, setInfoModal] = useState(null);
   const [addModal, setAddModal] = useState(false);
 
   // Pagination
@@ -106,8 +106,8 @@ export default function Farmers() {
             <thead className="bg-gray-100 text-gray-600">
               <tr>
                 <th className="py-3 px-2 text-left">Name</th>
-                <th className="py-3 px-2 text-left">Farm Size</th>
-                <th className="py-3 px-2 text-left">Farm Location</th>
+                <th className="py-3 px-2 text-left">Email</th>
+                <th className="py-3 px-2 text-left">Contact No.</th>
                 <th className="py-3 px-2 text-left">Registration Date</th>
                 <th className="py-3 px-2 text-center">
                   <Settings className="text-gray-600 w-5 h-5 mx-auto" />
@@ -132,16 +132,16 @@ export default function Farmers() {
                   <tr key={i} className="border-t">
                     <td className="py-2 px-2 flex items-center gap-1">
                       {getGenderIcon(item.Gender)}
-                      {item.FirstName} {item.LastName}
+                      {item.FirstName} {item.MiddleName}. {item.LastName}
                       <button
                         className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-                        onClick={() => setViewModal(item)}
+                        onClick={() => setInfoModal(item)}
                       >
                         <Info className="w-4 h-4 text-blue-500" />
                       </button>
                     </td>
-                    <td>{item.FarmSize} ha</td>
-                    <td>{item.FarmLocation}</td>
+                    <td>{item.Email}</td>
+                    <td>{item.ContactNumber}</td>
                     <td>{item.RegistrationDate}</td>
                     <td className="py-2 px-2 flex items-center justify-center gap-1">
                       <button className="flex bg-blue-500 text-white items-center px-2 py-1 hover:bg-blue-600 rounded">
@@ -193,7 +193,7 @@ export default function Farmers() {
       </div>
 
  {/* Modal */}
-<ViewFarmerModal data={viewModal} onClose={() => setViewModal(null)} />
+<InfoFarmerModal data={infoModal} onClose={() => setInfoModal(null)} />
 
 {addModal && (
   <AddFarmerModal

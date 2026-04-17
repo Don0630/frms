@@ -20,8 +20,7 @@ import Monitoring from "./pages/Monitoring";
 import Users from "./pages/Users";
 import Unauthorized from "./pages/Unauthorized.jsx";
 import NotFound from "./pages/NotFound.jsx";
-import SessionExpired from "./pages/SessionExpired.jsx";
-import SubsidyDetails from "./pages/SubsidyDetails.jsx";
+import SessionExpired from "./pages/SessionExpired.jsx"; 
 import { Outlet } from "react-router-dom";
 
 function Layout({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, darkMode, setDarkMode }) {
@@ -134,15 +133,7 @@ function App() {
                 <Subsidy />
               </ProtectedRoute>
             }
-          />
-          <Route
-            path="subsidydetails"
-            element={
-              <ProtectedRoute>
-                <SubsidyDetails />
-              </ProtectedRoute>
-            }
-          />
+          /> 
           <Route
             path="monitoring"
             element={

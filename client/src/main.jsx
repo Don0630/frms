@@ -6,8 +6,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import { UserProvider } from "./context/UserContext.jsx";
 import { StaffProvider } from "./context/StaffContext.jsx";
 import { ProgramProvider } from "./context/ProgramContext.jsx";
-import { SubsidyProvider } from "./context/SubsidyContext.jsx";
-import { SubsidyDetailsProvider } from "./context/SubsidyDetailsContext.jsx";
+import { SubsidyProvider } from "./context/SubsidyContext.jsx"; 
 import { FarmerProvider } from "./context/FarmerContext.jsx";
 import { CropProvider } from "./context/CropContext.jsx";
 import { LivestockProvider } from "./context/LivestockContext.jsx";
@@ -19,8 +18,7 @@ createRoot(document.getElementById('root')).render(
       <UserProvider>
         <StaffProvider>
           <ProgramProvider>
-            <SubsidyProvider>
-              <SubsidyDetailsProvider>
+            <SubsidyProvider> 
                 <FarmerProvider>
                   <CropProvider>
                     <LivestockProvider>
@@ -29,8 +27,7 @@ createRoot(document.getElementById('root')).render(
                       </MonitoringProvider>
                     </LivestockProvider>
                   </CropProvider>
-                </FarmerProvider>
-            </SubsidyDetailsProvider>
+                </FarmerProvider> 
             </SubsidyProvider>
           </ProgramProvider>
         </StaffProvider>

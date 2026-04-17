@@ -4,66 +4,65 @@ import {
   Plus,
   SlidersHorizontal,
   Settings,
-  Info
+  Info,
+  Eye
 } from "lucide-react";
 
 import { useSubsidy } from "../context/SubsidyContext";
+import InfoSubsidyModal from "../components/modals/InfoSubsidyModal";
 import ViewSubsidyModal from "../components/modals/ViewSubsidyModal";
 import AddSubsidyModal from "../components/modals/AddSubsidyModal";
 
 export default function Subsidy() {
-  const { subsidy, loadSubsidy, loading, error } = useSubsidy();
+  const { subsidy, loadSubsidy, error } = useSubsidy();
 
   const [search, setSearch] = useState("");
-  const [modalData, setModalData] = useState(null);
-   const [addSubsidyModal, setAddSubsidyModal] = useState(false); // New state
+  const [infoModal, setInfoModal] = useState(null);
+  const [viewModal, setViewModal] = useState(null);
+  const [addSubsidyModal, setAddSubsidyModal] = useState(false);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Load data
   useEffect(() => {
     loadSubsidy();
   }, []);
 
-  // ✅ Filter & Search (FIXED - no gender filter)
-  const filtered = subsidy.filter((item) => {
-    return (
-      item.ProgramName?.toLowerCase().includes(search.toLowerCase()) ||
-      item.Remarks?.toLowerCase().includes(search.toLowerCase())
-    );
-  });
-
-  // Reset page on search change
   useEffect(() => {
     setCurrentPage(1);
   }, [search]);
+
+  const filtered = subsidy.filter((item) =>
+    item.ProgramName?.toLowerCase().includes(search.toLowerCase()) ||
+    item.Remarks?.toLowerCase().includes(search.toLowerCase())
+  );
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  // if (loading) return <p className="p-4">Loading subsidy records...</p>;
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
   return (
     <div className="w-full h-full p-4">
       <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">SUBSIDY RECORDS</h2>
+          <h2 className="text-xl font-semibold text-gray-700">
+            SUBSIDY RECORDS
+          </h2>
+
           <button
-            onClick={() => setAddSubsidyModal(true)} // Open modal
+            onClick={() => setAddSubsidyModal(true)}
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
           >
             <Plus className="w-4 h-4" /> Add Subsidy
           </button>
         </div>
 
-        {/* Controls */}
+        {/* CONTROLS */}
         <div className="flex flex-wrap gap-2 items-center mb-3">
           <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
             <Search className="w-4 h-4 text-gray-500" />
@@ -85,14 +84,17 @@ export default function Subsidy() {
           </button>
         </div>
 
-        {/* Table */}
+        {/* TABLE */}
         <div className="w-full border rounded-lg overflow-x-auto">
           <table className="w-full text-xs sm:text-sm">
+
             <thead className="bg-gray-100 text-gray-600">
               <tr>
                 <th className="py-3 px-2 text-left">Program</th>
-                <th className="py-3 px-2 text-left">Amount</th>
+                <th className="py-3 px-2 text-left">Total Amount</th>
                 <th className="py-3 px-2 text-left">Date</th>
+                <th className="py-3 px-2 text-left">Total Distributed</th>
+                <th className="py-3 px-2 text-left">Total Farmers</th>
                 <th className="py-3 px-2 text-left">Remarks</th>
                 <th className="py-3 px-2 text-center">
                   <Settings className="w-5 h-5 mx-auto" />
@@ -102,28 +104,58 @@ export default function Subsidy() {
 
             <tbody>
               {currentItems.map((item, i) => (
-                <tr key={i} className="border-t">
-                  <td className="py-2 px-2">{item.ProgramName}</td>
-                  <td className="py-2 px-2">
-                    ₱ {Number(item.TotalAmount).toLocaleString()}
-                  </td>
-                  <td className="py-2 px-2">{item.DistributionDate}</td>
-                  <td className="py-2 px-2">{item.Remarks}</td>
-                  <td className="py-2 px-2 flex justify-center">
+                <tr key={i} className="border-t hover:bg-gray-50">
+
+                  {/* PROGRAM + INFO BUTTON */}
+                    <td className="py-2 px-2 flex items-center gap-1">
+                      {item.ProgramName}
+                      
                     <button
-                      onClick={() => setModalData(item)}
+                      onClick={() => setInfoModal(item)}
                       className="hover:bg-gray-200 p-1 rounded"
                     >
                       <Info className="w-4 h-4 text-blue-500" />
                     </button>
+                    </td>
+
+                  <td className="py-2 px-2">
+                    ₱ {Number(item.TotalAmount).toLocaleString()}
                   </td>
+
+                  <td className="py-2 px-2">
+                    {item.DistributionDate}
+                  </td>
+
+                  <td className="py-2 px-2 text-green-600 font-medium">
+                    ₱ {Number(item.TotalDistributed || 0).toLocaleString()}
+                  </td>
+
+                  <td className="py-2 px-2">
+                    {item.TotalFarmers || 0}
+                  </td>
+
+                  <td className="py-2 px-2">
+                    {item.Remarks}
+                  </td>
+
+                  {/* EMPTY ACTION COLUMN (keeps alignment clean) */}
+<td className="px-2 py-2 text-center">
+  <button
+    onClick={() => setViewModal(item)}
+    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-green-600 text-white text-xs font-medium shadow-sm hover:bg-green-700 hover:shadow-md transition active:scale-95"
+  >
+    <Eye className="w-4 h-4" />
+    View
+  </button>
+</td>
                 </tr>
               ))}
             </tbody>
+
           </table>
         </div>
 
-        {/* Footer */}
+        {/* PAGINATION */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
           <span>
             Showing {currentItems.length} of {filtered.length} records
@@ -161,26 +193,33 @@ export default function Subsidy() {
             </button>
           </div>
         </div>
+
       </div>
 
-      {/* View Modal */}
-      <ViewSubsidyModal
-        subsidy={modalData}
-        onClose={() => setModalData(null)}
+      {/* MODALS */}
+      <InfoSubsidyModal
+        subsidy={infoModal}
+        onClose={() => setInfoModal(null)}
       />
 
-         {/* Add Subsidy Modal */}
+
+            {/* View Modal */}
+      <ViewSubsidyModal
+        subsidy={viewModal}
+        onClose={() => setViewModal(null)}
+      /> 
+
+
+
       {addSubsidyModal && (
         <AddSubsidyModal
           onClose={() => setAddSubsidyModal(false)}
           onSuccess={() => {
             setAddSubsidyModal(false);
-            loadSubsidy(); // refresh table after adding
+            loadSubsidy();
           }}
         />
       )}
-
-
     </div>
   );
 }

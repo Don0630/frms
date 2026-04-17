@@ -25,15 +25,15 @@ export async function getAllStaff() {
 
 // --------- CREATE STAFF ---------
 export async function createStaff(staff) {
-  const { FirstName, LastName, Gender, Position, Department, ContactNumber, } = staff;
+  const { FirstName, LastName, Gender, Position, Department, ContactNumber, Email, } = staff;
 
   const query = `
     INSERT INTO tblAgriculturalStaff 
-    (FirstName, LastName, Gender, Position, Department, ContactNumber)
-    VALUES (?, ?, ?, ?, ?, ?)
+    (FirstName, LastName, Gender, Position, Department, ContactNumber, Email)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const values = [ FirstName, LastName, Gender, Position, Department, ContactNumber,
+  const values = [ FirstName, LastName, Gender, Position, Department, ContactNumber, Email,
   ];
 
   const [result] = await db.query(query, values);

@@ -26,12 +26,7 @@ const menuItems = [
     name: "Subsidy Distribution",
     icon: <Briefcase size={20} />,
     path: "/subsidy",
-  },
-  {
-    name: "Subsidy Details",
-    icon: <Briefcase size={20} />,
-    path: "/subsidydetails",
-  },
+  }, 
   {
     name: "Reports & Monitoring",
     icon: <Clipboard size={20} />,

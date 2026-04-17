@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { useSubsidyDetails } from "../../context/SubsidyDetailsContext.jsx";
+import { useSubsidy } from "../../context/SubsidyContext.jsx";
 
 export default function AddFarmerSubsidyModal({ distributionID, onClose, onSuccess }) {
-  const { loadAvailableFarmer, addFarmerSubsidy } = useSubsidyDetails();
+  const { loadAvailableFarmer, addFarmerSubsidy } = useSubsidy();
 
   const [availableFarmers, setAvailableFarmers] = useState([]);
   const [search, setSearch] = useState("");

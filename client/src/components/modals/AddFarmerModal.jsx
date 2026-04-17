@@ -1,4 +1,3 @@
-// src/components/modals/AddFarmerModal.jsx
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { useFarmer } from "../../context/FarmerContext.jsx";
@@ -6,150 +5,207 @@ import { useFarmer } from "../../context/FarmerContext.jsx";
 export default function AddFarmerModal({ onClose, onSuccess }) {
   const { addFarmer } = useFarmer();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [gender, setGender] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [address, setAddress] = useState("");
-  const [contactNumber, setContactNumber] = useState("");
-  const [email, setEmail] = useState("");
-  const [farmLocation, setFarmLocation] = useState("");
-  const [farmSize, setFarmSize] = useState("");
+  const [form, setForm] = useState({
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    gender: "",
+    dateOfBirth: "",
+    barangay: "",
+    municipality: "",
+    province: "",
+    contactNumber: "",
+    email: "",
+  });
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!firstName || !lastName || !gender || !dateOfBirth || !contactNumber || !farmLocation || !farmSize) {
+    const {
+      firstName,
+      lastName,
+      gender,
+      dateOfBirth,
+      contactNumber,
+      barangay,
+      municipality,
+      province,
+    } = form;
+
+    if (
+      !firstName ||
+      !lastName ||
+      !gender ||
+      !dateOfBirth ||
+      !contactNumber ||
+      !barangay ||
+      !municipality ||
+      !province
+    ) {
       setError("Please fill all required fields");
       return;
     }
 
     try {
-      const currentDate = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+      setLoading(true);
+
+      const currentDate = new Date().toISOString().split("T")[0];
+
       await addFarmer({
-        FirstName: firstName,
-        LastName: lastName,
-        Gender: gender,
-        DateOfBirth: dateOfBirth,
-        Address: address,
-        ContactNumber: contactNumber,
-        Email: email,
-        FarmLocation: farmLocation,
-        FarmSize: farmSize,
-        RegistrationDate: currentDate
+        FirstName: form.firstName,
+        MiddleName: form.middleName,
+        LastName: form.lastName,
+        Gender: form.gender,
+        DateOfBirth: form.dateOfBirth,
+        Barangay: form.barangay,
+        Municipality: form.municipality,
+        Province: form.province,
+        ContactNumber: form.contactNumber,
+        Email: form.email,
+        RegistrationDate: currentDate,
       });
+
       onSuccess?.();
       onClose();
     } catch (err) {
       setError(err.message || "Failed to add farmer");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-lg p-6 w-96 relative">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6 relative animate-fadeIn">
+
+        {/* Close Button */}
         <button
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
           onClick={onClose}
         >
-          <X />
+          <X size={20} />
         </button>
 
-        <h3 className="font-semibold text-lg mb-4">Add New Farmer</h3>
-        {error && <p className="text-red-500 text-xs mb-2">{error}</p>}
+        {/* Header */}
+        <div className="mb-5">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Add New Farmer
+          </h2>
+          <p className="text-sm text-gray-500">
+            Fill in the details below to register a farmer
+          </p>
+        </div>
 
-        <form className="space-y-3 text-xs" onSubmit={handleSubmit}>
+        {error && (
+          <div className="bg-red-100 text-red-600 text-sm p-2 rounded mb-3">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* Name */}
+          <div className="grid grid-cols-3 gap-3">
+            <input name="firstName" placeholder="First Name" value={form.firstName} onChange={handleChange} className="input" />
+            <input name="middleName" placeholder="Middle Name" value={form.middleName} onChange={handleChange} className="input" />
+            <input name="lastName" placeholder="Last Name" value={form.lastName} onChange={handleChange} className="input" />
+          </div>
+
+          {/* Gender + DOB */}
+          <div className="grid grid-cols-2 gap-3">
+            <select name="gender" value={form.gender} onChange={handleChange} className="input">
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+
+            <input
+              type="date"
+              name="dateOfBirth"
+              value={form.dateOfBirth}
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
+
+          {/* Address */}
+          <div className="grid grid-cols-3 gap-3">
+            <input name="barangay" placeholder="Barangay" value={form.barangay} onChange={handleChange} className="input" />
+            <input name="municipality" placeholder="Municipality" value={form.municipality} onChange={handleChange} className="input" />
+            <input name="province" placeholder="Province" value={form.province} onChange={handleChange} className="input" />
+          </div>
+
+          {/* Contact */}
           <input
-            type="text"
-            placeholder="First Name"
-            className="w-full border px-3 py-2 rounded"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
-
-          <input
-            type="text"
-            placeholder="Last Name"
-            className="w-full border px-3 py-2 rounded"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-          />
-
-          <select
-            className="w-full border px-3 py-2 rounded"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            required
-          >
-            <option value="">Select Gender</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-          </select>
-
-          <input
-            type="date"
-            placeholder="Date of Birth"
-            className="w-full border px-3 py-2 rounded"
-            value={dateOfBirth}
-            onChange={(e) => setDateOfBirth(e.target.value)}
-            required
-          />
-
-          <input
-            type="text"
-            placeholder="Address"
-            className="w-full border px-3 py-2 rounded"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            required
-          />
-
-          <input
-            type="text"
+            name="contactNumber"
             placeholder="Contact Number"
-            className="w-full border px-3 py-2 rounded"
-            value={contactNumber}
-            onChange={(e) => setContactNumber(e.target.value)}
-            required
+            value={form.contactNumber}
+            onChange={handleChange}
+            className="input"
           />
 
           <input
+            name="email"
             type="email"
-            placeholder="Email"
-            className="w-full border px-3 py-2 rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email (optional)"
+            value={form.email}
+            onChange={handleChange}
+            className="input"
           />
 
-          <input
-            type="text"
-            placeholder="Farm Location"
-            className="w-full border px-3 py-2 rounded"
-            value={farmLocation}
-            onChange={(e) => setFarmLocation(e.target.value)}
-            required
-          />
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg bg-gray-100"
+            >
+              Cancel
+            </button>
 
-          <input
-            type="number"
-            placeholder="Farm Size (ha)"
-            className="w-full border px-3 py-2 rounded"
-            value={farmSize}
-            onChange={(e) => setFarmSize(e.target.value)}
-            required
-          />
-
-          <button
-            type="submit"
-            className="w-full bg-green-600 text-white px-3 py-2 rounded text-sm"
-          >
-            Add Farmer
-          </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 rounded-lg bg-green-600 text-white"
+            >
+              {loading ? "Saving..." : "Save Farmer"}
+            </button>
+          </div>
         </form>
       </div>
+
+      <style>{`
+        .input {
+          width: 100%;
+          border: 1px solid #e5e7eb;
+          padding: 10px;
+          border-radius: 10px;
+          font-size: 14px;
+        }
+
+        .input:focus {
+          outline: none;
+          border-color: #16a34a;
+          box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

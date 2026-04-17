@@ -1,7 +1,7 @@
 import React from "react";
 import { X, Calendar, MapPin, Phone, Mail, User, FileText, MapPinned, Ruler } from "lucide-react";
 
-export default function ViewFarmerModal({ data, onClose }) {
+export default function InfoFarmerModal({ data, onClose }) {
   if (!data) return null;
 
   return (
@@ -26,7 +26,7 @@ export default function ViewFarmerModal({ data, onClose }) {
           <div className="flex justify-between items-center mb-2">
             <span className="flex items-center gap-1">
               <MapPin size={16} className="text-blue-500" /><strong>Address:</strong>
-            </span> {data.Address}
+            </span> {data.Barangay}, {data.Municipality}, {data.Province}
           </div>
           <div className="flex justify-between items-center mb-2">
             <span className="flex items-center gap-1">

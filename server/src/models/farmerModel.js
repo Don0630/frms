@@ -14,33 +14,45 @@ export async function getAllFarmer() {
 export async function createFarmer(farmer) {
   const {
     FirstName,
+    MiddleName,
     LastName,
     Gender,
     DateOfBirth,
-    Address,
+    Barangay,
+    Municipality,
+    Province,
     ContactNumber,
     Email,
-    FarmLocation,
-    FarmSize,
     RegistrationDate
   } = farmer;
 
   const query = `
     INSERT INTO tblFarmers
-    (FirstName, LastName, Gender, DateOfBirth, Address, ContactNumber, Email, FarmLocation, FarmSize, RegistrationDate)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (FirstName,
+    MiddleName,
+    LastName,
+    Gender,
+    DateOfBirth,
+    Barangay,
+    Municipality,
+    Province,
+    ContactNumber,
+    Email,
+    RegistrationDate)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
     FirstName,
+    MiddleName,
     LastName,
     Gender,
     DateOfBirth,
-    Address,
+    Barangay,
+    Municipality,
+    Province,
     ContactNumber,
     Email,
-    FarmLocation,
-    FarmSize,
     RegistrationDate
   ];
 

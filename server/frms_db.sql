@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS tblUsers (
   StaffID INT NULL,
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
-  Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active'
+  Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
 
   -- Foreign keys
   FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE SET NULL
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS tblUsers (
 
 
 -- =========================
--- 1. FARMERS
+-- 1. FARMERS (UPDATED)
 -- =========================
 CREATE TABLE tblFarmers (
   FarmerID INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,10 +37,26 @@ CREATE TABLE tblFarmers (
   Address TEXT,
   ContactNumber VARCHAR(20),
   Email VARCHAR(100),
-  FarmLocation VARCHAR(100),
-  FarmSize DECIMAL(10,2), 
   RegistrationDate DATE
 );
+
+
+-- =========================
+-- 2. FARMS (NEW TABLE)
+-- =========================
+CREATE TABLE tblFarms (
+  FarmID INT AUTO_INCREMENT PRIMARY KEY,
+  FarmerID INT NOT NULL,
+
+  FarmName VARCHAR(100),
+  FarmBarangay VARCHAR(100),
+  FarmMunicipality VARCHAR(100),
+
+  FarmSize DECIMAL(10,2),
+
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID)
+  ON DELETE CASCADE
+);  j
 
 -- =========================
 -- 2. CROPS
@@ -87,7 +103,7 @@ CREATE TABLE tblFarmerProgramParticipation (
   FarmerID INT,
   ProgramID INT,
   DateJoined DATE,
-  Status ENUM('Active', 'Completed', 'Dropped')
+  Status ENUM('Active', 'Completed', 'Dropped'),
 
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
@@ -101,7 +117,7 @@ CREATE TABLE tblSubsidyDistribution (
   ProgramID INT,
   TotalAmount DECIMAL(10,2),
   DistributionDate DATE,
-  Remarks TEXT
+  Remarks TEXT,
 
   FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
 );
@@ -116,7 +132,7 @@ CREATE TABLE tblSubsidyDistributionDetails (
   DistributionID INT,
   FarmerID INT, 
   Amount DECIMAL(10,2),
-  IsDistributed TINYINT(1) NOT NULL DEFAULT 0
+  IsDistributed TINYINT(1) NOT NULL DEFAULT 0,
 
   FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE CASCADE
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
@@ -148,7 +164,7 @@ CREATE TABLE tblReportsAndMonitoring (
   ReportDate DATE,
   ProductionVolume VARCHAR(50),
   Issues TEXT,
-  Remarks TEXT
+  Remarks TEXT,
 
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (CropID) REFERENCES tblCrops(CropID) ON DELETE SET NULL,

@@ -8,5 +8,9 @@ const router = express.Router();
 
 router.get("/subsidiesData", authenticateToken, subsidyController.getAllSubsidy); 
 router.post("/addSubsidy", authenticateToken, subsidyController.saveSubsidy);
+router.get("/subsidyData/:distributionID/farmers", authenticateToken, subsidyController.getAllFarmerPerSubsidy);
+router.get("/availableFarmer", authenticateToken, subsidyController.getAvailableFarmer);
+router.post("/addFarmerSubsidy", authenticateToken, subsidyController.saveFarmerSubsidy);
+router.put("/updateDistributeSubsidy/:id", authenticateToken, subsidyController.updateDistributeSubsidy);
 
 export default router;
