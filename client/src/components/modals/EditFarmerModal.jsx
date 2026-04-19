@@ -1,25 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useFarmer } from "../../context/FarmerContext.jsx";
 
-export default function AddFarmerModal({ onClose, onSuccess }) {
-  const { addFarmer } = useFarmer(); // ✅ no context loading
+export default function EditFarmerModal({ onClose, selectedFarmer }) {
+  const { updateFarmer, loading } = useFarmer();
 
-  const [form, setForm] = useState({
-    FirstName: "",
-    MiddleName: "",
-    LastName: "",
-    Gender: "",
-    DateOfBirth: "",
-    Barangay: "",
-    Municipality: "",
-    Province: "",
-    ContactNumber: "",
-    Email: "",
-  });
-
+  const [form, setForm] = useState({});
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ local only
+
+  // Load selected farmer into form
+  useEffect(() => {
+    if (selectedFarmer) {
+      setForm({
+        FarmerID: selectedFarmer.FarmerID,
+        FirstName: selectedFarmer.FirstName || "",
+        MiddleName: selectedFarmer.MiddleName || "",
+        LastName: selectedFarmer.LastName || "",
+        Gender: selectedFarmer.Gender || "",
+        DateOfBirth: selectedFarmer.DateOfBirth?.split("T")[0] || "",
+        Barangay: selectedFarmer.Barangay || "",
+        Municipality: selectedFarmer.Municipality || "",
+        Province: selectedFarmer.Province || "",
+        ContactNumber: selectedFarmer.ContactNumber || "",
+        Email: selectedFarmer.Email || "",
+      });
+    }
+  }, [selectedFarmer]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -29,47 +35,11 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
     e.preventDefault();
     setError("");
 
-    const {
-      FirstName,
-      LastName,
-      Gender,
-      DateOfBirth,
-      ContactNumber,
-      Barangay,
-      Municipality,
-      Province,
-    } = form;
-
-    if (
-      !FirstName ||
-      !LastName ||
-      !Gender ||
-      !DateOfBirth ||
-      !ContactNumber ||
-      !Barangay ||
-      !Municipality ||
-      !Province
-    ) {
-      setError("Please fill all required fields");
-      return;
-    }
-
     try {
-      setLoading(true);
-
-      const currentDate = new Date().toISOString().split("T")[0];
-
-      await addFarmer({
-        ...form,
-        RegistrationDate: currentDate,
-      });
-
-      onSuccess?.();
+      await updateFarmer(form);
       onClose();
     } catch (err) {
-      setError(err.message || "Failed to add farmer");
-    } finally {
-      setLoading(false);
+      setError(err.message || "Failed to update farmer");
     }
   };
 
@@ -82,15 +52,16 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
           <X />
         </button>
 
-        {/* HEADER */}
+        {/* Header */}
         <div className="mb-5">
           <h2 className="text-xl font-semibold text-gray-800">
-            Add Farmer
+            Edit Farmer
           </h2>
           <p className="text-sm text-gray-500">
-            Fill in the details below to register a farmer
+            Edit the details below to update a farmer
           </p>
         </div>
+
 
         {error && (
           <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
@@ -105,32 +76,17 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
 
             <div>
               <label className="text-xs text-gray-500">First Name</label>
-              <input
-                name="FirstName"
-                value={form.FirstName}
-                onChange={handleChange}
-                className="input"
-              />
+              <input name="FirstName" value={form.FirstName || ""} onChange={handleChange} className="input" />
             </div>
 
             <div>
               <label className="text-xs text-gray-500">Middle Name</label>
-              <input
-                name="MiddleName"
-                value={form.MiddleName}
-                onChange={handleChange}
-                className="input"
-              />
+              <input name="MiddleName" value={form.MiddleName || ""} onChange={handleChange} className="input" />
             </div>
 
             <div>
               <label className="text-xs text-gray-500">Last Name</label>
-              <input
-                name="LastName"
-                value={form.LastName}
-                onChange={handleChange}
-                className="input"
-              />
+              <input name="LastName" value={form.LastName || ""} onChange={handleChange} className="input" />
             </div>
 
           </div>
@@ -142,7 +98,7 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
               <label className="text-xs text-gray-500">Gender</label>
               <select
                 name="Gender"
-                value={form.Gender}
+                value={form.Gender || ""}
                 onChange={handleChange}
                 className="input"
               >
@@ -157,7 +113,7 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
               <input
                 type="date"
                 name="DateOfBirth"
-                value={form.DateOfBirth}
+                value={form.DateOfBirth || ""}
                 onChange={handleChange}
                 className="input"
               />
@@ -165,63 +121,77 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
 
           </div>
 
-          {/* CONTACT + EMAIL */}
-          <div className="grid grid-cols-2 gap-2">
 
-            <div>
-              <label className="text-xs text-gray-500">Contact Number</label>
-              <input
-                name="ContactNumber"
-                value={form.ContactNumber}
-                onChange={handleChange}
-                className="input"
-              />
+            {/* CONTACT + EMAIL ROW */}
+            <div className="grid grid-cols-2 gap-2">
+
+              <div>
+                <label className="text-xs text-gray-500">Contact Number</label>
+                <input
+                  name="ContactNumber"
+                  value={form.ContactNumber || ""}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-500">Email Address</label>
+                <input
+                  name="Email"
+                  value={form.Email || ""}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+
             </div>
 
-            <div>
-              <label className="text-xs text-gray-500">Email Address</label>
-              <input
-                name="Email"
-                value={form.Email}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
 
-          </div>
+
+
+
+
+
 
           {/* ADDRESS */}
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-3">
 
-            <div>
-              <label className="text-xs text-gray-500">Barangay</label>
-              <input
-                name="Barangay"
-                value={form.Barangay}
-                onChange={handleChange}
-                className="input"
-              />
+            {/* ADDRESS ROW */}
+            <div className="grid grid-cols-3 gap-2">
+
+              <div>
+                <label className="text-xs text-gray-500">Barangay</label>
+                <input
+                  name="Barangay"
+                  value={form.Barangay || ""}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-500">Municipality</label>
+                <input
+                  name="Municipality"
+                  value={form.Municipality || ""}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-500">Province</label>
+                <input
+                  name="Province"
+                  value={form.Province || ""}
+                  onChange={handleChange}
+                  className="input"
+                />
+              </div>
+
             </div>
 
-            <div>
-              <label className="text-xs text-gray-500">Municipality</label>
-              <input
-                name="Municipality"
-                value={form.Municipality}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Province</label>
-              <input
-                name="Province"
-                value={form.Province}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
 
           </div>
 
@@ -232,13 +202,14 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
             </button>
 
             <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Saving..." : "Save Farmer"}
+              {loading ? "Updating..." : "Update"}
             </button>
           </div>
 
         </form>
       </div>
 
+      {/* STYLES */}
       <style>{`
         .input {
           width: 100%;
@@ -266,6 +237,7 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
           padding: 8px 14px;
           border-radius: 8px;
         }
+
 
         .animate-fadeIn {
           animation: fadeIn 0.2s ease-out;

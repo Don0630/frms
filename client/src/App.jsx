@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Login from "./pages/Auth/Login"; 
 import Dashboard from "./pages/Dashboard";
 import Farmers from "./pages/Farmers";
+import FarmerDetails from "./pages/FarmerDetails";
 import Crops from "./pages/Crops";
 import Livestock from "./pages/Livestock";
 import Programs from "./pages/Programs"; 
@@ -70,7 +71,14 @@ function App() {
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/sessionexpired" element={<SessionExpired />} /> 
         <Route path="*" element={<NotFound />} />
-
+        <Route
+            path="farmerdetails/:id"
+            element={
+              <ProtectedRoute>
+                <FarmerDetails />
+              </ProtectedRoute>
+            }
+          />
         {/* Protected layout */}
         <Route
           path="/"
@@ -102,6 +110,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="crops"
             element={

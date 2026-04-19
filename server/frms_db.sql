@@ -46,9 +46,7 @@ CREATE TABLE tblFarmers (
 -- =========================
 CREATE TABLE tblFarms (
   FarmID INT AUTO_INCREMENT PRIMARY KEY,
-  FarmerID INT NOT NULL,
-
-  FarmName VARCHAR(100),
+  FarmerID INT NOT NULL, 
   FarmBarangay VARCHAR(100),
   FarmMunicipality VARCHAR(100),
 

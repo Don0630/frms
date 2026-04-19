@@ -36,6 +36,65 @@ export async function saveFarmer(req, res) {
 
 
 
+// ------------- UPDATE FARMER -------------
+export async function updateFarmer(req, res) {
+  try {
+    const updated = await farmerService.editFarmer(req.params.id, req.body);
+    return successResponse(res, "Farmer updated successfully", updated);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
+
+
+
+// ------------- ADD Farm -------------
+export async function saveFarm(req, res) {
+  try {
+    // console.log("req.body:", req.body);
+    const newFarm = await farmerService.addFarm(req.body);
+    return successResponse(res, "Farm added successfully", newFarm, 201);
+  } catch (err) {
+    console.error("Error adding Farm:", err);
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
+// ------------- UPDATE FARM -------------
+export async function updateFarm(req, res) {
+  try {
+    const updated = await farmerService.editFarm(req.params.id, req.body);
+    return successResponse(res, "Farm updated successfully", updated);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
+
+// ------------- DELETE FARM -------------
+export async function deleteFarm(req, res) {
+  try {
+    const deleted = await farmerService.removeFarm(req.params.id);
+
+    if (!deleted.deleted) {
+      return errorResponse(res, "Farm not found", 404);
+    }
+
+    return successResponse(res, "Farm deleted successfully", deleted);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
+
+
+
+
 
 export async function getSearchFarmers(req, res, next) {
   try { 

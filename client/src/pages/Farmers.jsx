@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import { 
-  Search, Save, Plus, Mars, Venus, CheckCircle, Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, FileText, MapPinned, Ruler 
+  Search, Save, Plus, Mars, Venus, CheckCircle, Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, FileText, MapPinned, Ruler, Eye
 } from "lucide-react";
-import { useFarmer } from "../context/FarmerContext.jsx";
-import InfoFarmerModal from "../components/modals/InfoFarmerModal.jsx";
+import { useNavigate } from "react-router-dom";
+import { useFarmer } from "../context/FarmerContext.jsx"; 
 import AddFarmerModal from "../components/modals/AddFarmerModal.jsx";
+import EditFarmerModal from "../components/modals/EditFarmerModal";
 
 export default function Farmers() {
   const { farmer, loadFarmer, loading, error } = useFarmer();
-
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [infoModal, setInfoModal] = useState(null);
-  const [addModal, setAddModal] = useState(false);
+  const [filter, setFilter] = useState("All"); 
+  const [addModal, setAddModal] = useState(false); 
+  const [editModal, setEditModal] = useState(null); 
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -44,8 +45,8 @@ export default function Farmers() {
  
 
   const getGenderIcon = (gender) => {
-    if (gender.toLowerCase() === "male") return <Venus className="w-4 h-4 text-blue-500 shrink-0" />;
-    if (gender.toLowerCase() === "female") return <Mars className="w-4 h-4 text-pink-500 shrink-0" />;
+    if (gender.toLowerCase() === "male") return <Mars className="w-4 h-4 text-blue-500 shrink-0" />;
+    if (gender.toLowerCase() === "female") return <Venus className="w-4 h-4 text-pink-500 shrink-0" />;
     return <Users className="w-4 h-4 text-gray-500" />;
   };
 
@@ -133,20 +134,23 @@ export default function Farmers() {
                     <td className="py-2 px-2 flex items-center gap-1">
                       {getGenderIcon(item.Gender)}
                       {item.FirstName} {item.MiddleName}. {item.LastName}
-                      <button
-                        className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-                        onClick={() => setInfoModal(item)}
-                      >
-                        <Info className="w-4 h-4 text-blue-500" />
-                      </button>
+                    
                     </td>
                     <td>{item.Email}</td>
                     <td>{item.ContactNumber}</td>
                     <td>{item.RegistrationDate}</td>
                     <td className="py-2 px-2 flex items-center justify-center gap-1">
-                      <button className="flex bg-blue-500 text-white items-center px-2 py-1 hover:bg-blue-600 rounded">
-                        <Edit className="w-3 h-3" />
-                      </button>
+                    <button onClick={() => setEditModal(item)} 
+                      className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+                      <Edit className="w-3 h-3" />
+                    </button>
+
+<button
+  onClick={() => navigate(`/farmerdetails/${item.FarmerID}`)}
+  className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+>
+  <Eye className="w-3 h-3" />
+</button>
               
                     </td>
                   </tr>
@@ -192,8 +196,7 @@ export default function Farmers() {
         </div>
       </div>
 
- {/* Modal */}
-<InfoFarmerModal data={infoModal} onClose={() => setInfoModal(null)} />
+ {/* Modal */} 
 
 {addModal && (
   <AddFarmerModal
@@ -201,6 +204,17 @@ export default function Farmers() {
     onSuccess={() => loadFarmer()} // reload farmers after adding
   />
 )}
+ 
+  {editModal && (
+    <EditFarmerModal
+      selectedFarmer={editModal}
+      onClose={() => setEditModal(null)}
+      onSuccess={loadFarmer}
+    />
+  )}
+
+
+
 
     </div>
   );
