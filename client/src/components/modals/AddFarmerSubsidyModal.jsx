@@ -1,150 +1,220 @@
-import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Search, User } from "lucide-react";
 import { useSubsidy } from "../../context/SubsidyContext.jsx";
 
-export default function AddFarmerSubsidyModal({ distributionID, onClose, onSuccess }) {
-  const { loadAvailableFarmer, addFarmerSubsidy } = useSubsidy();
+export default function AddFarmerSubsidyModal({
+  distributionID,
+  onClose,
+  onSuccess,
+}) {
+  const {
+    loadAvailableFarmer,
+    addFarmerSubsidy,
+    loading,
+  } = useSubsidy();
 
   const [availableFarmers, setAvailableFarmers] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedFarmer, setSelectedFarmer] = useState(null);
   const [amount, setAmount] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔍 Load farmers (debounced)
-  const loadFarmers = async (search = "") => {
+  // ================= LOAD FARMERS =================
+  const fetchFarmers = async (keyword = "") => {
     try {
-      setLoading(true);
-      const data = await loadAvailableFarmer(distributionID, search);
+      const data = await loadAvailableFarmer(distributionID, keyword);
       setAvailableFarmers(data || []);
     } catch {
       setAvailableFarmers([]);
-    } finally {
-      setLoading(false);
     }
   };
 
+  // ================= DEBOUNCED SEARCH =================
   useEffect(() => {
-    if (!distributionID) return;
-    const timeout = setTimeout(() => loadFarmers(search), 300);
-    return () => clearTimeout(timeout);
+    const t = setTimeout(() => {
+      if (distributionID) fetchFarmers(search);
+    }, 300);
+
+    return () => clearTimeout(t);
   }, [search, distributionID]);
 
-  // ✅ ADD FARMER (FIXED)
-  const handleAddFarmer = async () => {
-    if (!selectedFarmer) {
-      setError("Please select a farmer first.");
+  // ================= SUBMIT =================
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!selectedFarmer || !amount) {
+      setError("Please select a farmer and enter amount");
       return;
     }
 
     try {
-      setSaving(true);
-      setError("");
-
       await addFarmerSubsidy({
         DistributionID: distributionID,
         FarmerID: selectedFarmer.FarmerID,
-        Amount: amount ? Number(amount) : 0,
+        Amount: parseFloat(amount),
       });
 
-      // ✅ Reset after success
-      setSelectedFarmer(null);
-      setAmount("");
-      setSearch("");
-      setAvailableFarmers([]);
-      onSuccess?.()
-      onClose(); // close modal
+      onSuccess?.();
+      onClose();
     } catch (err) {
-      console.error(err);
-      setError("Failed to add farmer.");
-    } finally {
-      setSaving(false);
+      setError(err.message || "Failed to assign subsidy");
     }
   };
 
-  if (!distributionID) return null;
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-sm p-6 w-96 relative shadow-xl">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
 
-        {/* Close */}
-        <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
-          onClick={onClose}
-        >
-          <X size={18} />
+        {/* CLOSE */}
+        <button onClick={onClose} className="absolute top-3 right-3">
+          <X />
         </button>
 
-        <h3 className="font-semibold text-xl mb-5 text-gray-800">
-          Add Farmer
-        </h3>
+        {/* HEADER */}
+        <div className="mb-5">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Add Farmer Subsidy
+          </h2>
+          <p className="text-sm text-gray-500">
+            Select a farmer and assign subsidy amount
+          </p>
+        </div>
 
-        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+        {/* ERROR */}
+        {error && (
+          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
+            {error}
+          </div>
+        )}
 
-        <div className="space-y-4 text-sm">
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-          {/* 🔍 Search */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search farmer..."
-              className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-400"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          {/* ================= SEARCH FARMER ================= */}
+          <div>
+            <label className="text-xs text-gray-500">Search Farmer</label>
 
-            {loading && (
-              <span className="absolute right-3 top-2 text-gray-400 text-xs">
-                Searching...
-              </span>
-            )}
+            <div className="relative"> 
 
-            <div className="max-h-28 overflow-y-auto border border-t-0 border-gray-200 rounded-b-md">
-              
-              {!loading && availableFarmers.length === 0 && (
-                <div className="px-3 py-2 text-gray-400 text-xs">
-                  No results found
-                </div>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="input pl-8"
+                placeholder="Type here..."
+              />
+            </div>
+
+            {/* FARMER LIST */}
+            <div className="max-h-28 overflow-y-auto border rounded-md mt-2">
+              {availableFarmers.length === 0 ? (
+                <p className="text-xs text-gray-400 p-2">
+                  No farmers found
+                </p>
+              ) : (
+                availableFarmers.map((f) => (
+                  <div
+                    key={f.FarmerID}
+                    onClick={() => setSelectedFarmer(f)}
+                    className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+                      selectedFarmer?.FarmerID === f.FarmerID
+                        ? "bg-green-100 font-semibold"
+                        : ""
+                    }`}
+                  >
+                    {f.FirstName} {f.LastName}
+                  </div>
+                ))
               )}
-
-              {availableFarmers.map((f) => (
-                <div
-                  key={f.FarmerID}
-                  className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                    selectedFarmer?.FarmerID === f.FarmerID
-                      ? "bg-green-500 text-white font-semibold"
-                      : ""
-                  }`}
-                  onClick={() => setSelectedFarmer(f)}
-                >
-                  {f.FirstName} {f.LastName}
-                </div>
-              ))}
             </div>
           </div>
 
-          {/* 💰 Amount */}
-          <input
-            type="number"
-            placeholder="Amount (optional)"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-green-400"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
+          {/* ================= SELECTED FARMER ================= */}
+          {selectedFarmer && (
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <User size={14} />
+              <span>
+                Selected:{" "}
+                <strong>
+                  {selectedFarmer.FirstName} {selectedFarmer.LastName}
+                </strong>
+              </span>
+            </div>
+          )}
 
-          {/* Submit */}
-          <button
-            onClick={handleAddFarmer}
-            disabled={saving}
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md transition disabled:opacity-50"
-          >
-            {saving ? "Adding..." : "Add Farmer"}
-          </button>
-        </div>
+          {/* ================= AMOUNT ================= */}
+          <div>
+            <label className="text-xs text-gray-500">Amount</label>
+            <input
+              type="number"
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="input"
+              placeholder="Enter subsidy amount"
+            />
+          </div>
+
+          {/* ================= ACTIONS ================= */}
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-gray"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-green"
+            >
+              {loading ? "Saving..." : "Assign Subsidy"}
+            </button>
+          </div>
+
+        </form>
       </div>
+
+      {/* ================= STYLES ================= */}
+      <style>{`
+        .input {
+          width: 100%;
+          border: 1px solid #e5e7eb;
+          padding: 8px;
+          border-radius: 8px;
+          font-size: 14px;
+        }
+
+        .input:focus {
+          outline: none;
+          border-color: #16a34a;
+          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
+        }
+
+        .btn-green {
+          background: #16a34a;
+          color: white;
+          padding: 8px 14px;
+          border-radius: 8px;
+        }
+
+        .btn-gray {
+          background: #e5e7eb;
+          padding: 8px 14px;
+          border-radius: 8px;
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -21,6 +21,17 @@ export async function addCrop(crop) {
 
 
 
+// ------------ UPDATE CROP ------------
+export async function updateCrop(crop) {
+  const data = await apiFetch(`/crop/updateCrop/${crop.CropID}`, {
+    method: "PUT",
+    body: JSON.stringify(crop),
+  });
+
+  return data.data;
+}
+
+
 // ------------ FETCH SEARCHED CROP ------------
 export async function fetchSearchCrops(search = "") {
   // Construct query parameters

@@ -66,6 +66,31 @@ function useProvideCrop() {
   };
 
 
+  // ------ UPDATE CROP ------
+const updateCrop = async (cropData) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const updatedCrop = await cropApi.updateCrop(cropData);
+
+    setCrop((prev) =>
+      prev.map((c) =>
+        c.CropID === updatedCrop.CropID
+          ? { ...c, ...updatedCrop }
+          : c
+      )
+    );
+
+    return updatedCrop;
+  } catch (err) {
+    setError(err.message);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
 // ------ LOAD SEARCHED CROPS (for modals/dropdowns) ------
@@ -101,6 +126,7 @@ const loadSearchCrop = async (search = "") => {
     loadCrop,
     loadSearchCrop,
     addCrop,
+    updateCrop,
     clearCrop,
   };
 }

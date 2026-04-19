@@ -17,6 +17,7 @@ import Livestock from "./pages/Livestock";
 import Programs from "./pages/Programs"; 
 import Staffs from "./pages/Staffs";
 import Subsidy from "./pages/Subsidy";
+import SubsidyDetails from "./pages/SubsidyDetails";
 import Monitoring from "./pages/Monitoring";
 import Users from "./pages/Users";
 import Unauthorized from "./pages/Unauthorized.jsx";
@@ -79,6 +80,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+        <Route
+            path="subsidydetails/:id"
+            element={
+              <ProtectedRoute>
+                <SubsidyDetails />
+              </ProtectedRoute>
+            }
+          />
+
         {/* Protected layout */}
         <Route
           path="/"

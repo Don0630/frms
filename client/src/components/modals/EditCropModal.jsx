@@ -1,18 +1,36 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { useLivestock } from "../../context/LivestockContext.jsx";
+import { useCrop } from "../../context/CropContext.jsx";
 
-export default function AddLivestockModal({ onClose, onSuccess }) {
-  const { addLivestock, loading } = useLivestock();
+export default function EditCropModal({ onClose, onSuccess, selectedCrop }) {
+  const { updateCrop } = useCrop();
 
   const [formData, setFormData] = useState({
-    Type: "",
-    Breed: "",
-    AverageProduction: "",
+    CropID: "",
+    CropName: "",
+    Category: "",
+    Season: "",
+    AverageYieldPerHectare: "",
     MarketPrice: "",
   });
 
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Load selected crop
+  useEffect(() => {
+    if (selectedCrop) {
+      setFormData({
+        CropID: selectedCrop.CropID,
+        CropName: selectedCrop.CropName || "",
+        Category: selectedCrop.Category || "",
+        Season: selectedCrop.Season || "",
+        AverageYieldPerHectare:
+          selectedCrop.AverageYieldPerHectare || "",
+        MarketPrice: selectedCrop.MarketPrice || "",
+      });
+    }
+  }, [selectedCrop]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -24,29 +42,23 @@ export default function AddLivestockModal({ onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (
-      !formData.Type ||
-      !formData.Breed ||
-      !formData.AverageProduction ||
-      !formData.MarketPrice
-    ) {
-      setError("Please fill in all fields");
-      return;
-    }
+    setLoading(true);
 
     try {
-      await addLivestock({
-        Type: formData.Type,
-        Breed: formData.Breed,
-        AverageProduction: parseFloat(formData.AverageProduction),
+      await updateCrop({
+        ...formData,
+        AverageYieldPerHectare: parseFloat(
+          formData.AverageYieldPerHectare
+        ),
         MarketPrice: parseFloat(formData.MarketPrice),
       });
 
       onSuccess?.();
       onClose();
     } catch (err) {
-      setError(err.message || "Failed to add livestock");
+      setError(err.message || "Failed to update crop");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,14 +74,13 @@ export default function AddLivestockModal({ onClose, onSuccess }) {
         {/* HEADER */}
         <div className="mb-5">
           <h2 className="text-xl font-semibold text-gray-800">
-            Add Livestock
+            Edit Crop
           </h2>
           <p className="text-sm text-gray-500">
-            Fill in livestock information
+            Update crop information
           </p>
         </div>
 
-        {/* ERROR */}
         {error && (
           <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
             {error}
@@ -78,44 +89,70 @@ export default function AddLivestockModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-          {/* TYPE */}
+          {/* CROP NAME */}
           <div>
-            <label className="text-xs text-gray-500">Type</label>
+            <label className="text-xs text-gray-500">Crop Name</label>
             <input
-              type="text"
-              name="Type"
-              value={formData.Type}
+              name="CropName"
+              value={formData.CropName}
               onChange={handleChange}
               className="input"
-              placeholder="e.g. Cow, Goat"
             />
           </div>
 
-          {/* BREED */}
-          <div>
-            <label className="text-xs text-gray-500">Breed</label>
-            <input
-              type="text"
-              name="Breed"
-              value={formData.Breed}
-              onChange={handleChange}
-              className="input"
-              placeholder="Breed"
-            />
-          </div>
-
-          {/* PRODUCTION + PRICE */}
+          {/* CATEGORY + SEASON */}
           <div className="grid grid-cols-2 gap-2">
 
             <div>
               <label className="text-xs text-gray-500">
-                Avg Production
+                Category
+              </label>
+              <select
+                name="Category"
+                value={formData.Category}
+                onChange={handleChange}
+                className="input"
+              >
+                <option value="">Select Category</option>
+                <option>Grain</option>
+                <option>Vegetable</option>
+                <option>Fruit</option>
+                <option>Root Crop</option>
+                <option>Legume</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">
+                Season
+              </label>
+              <select
+                name="Season"
+                value={formData.Season}
+                onChange={handleChange}
+                className="input"
+              >
+                <option value="">Select Season</option>
+                <option>Wet</option>
+                <option>Dry</option>
+                <option>All Year</option>
+              </select>
+            </div>
+
+          </div>
+
+          {/* YIELD + PRICE (SAME ROW) */}
+          <div className="grid grid-cols-2 gap-2">
+
+            <div>
+              <label className="text-xs text-gray-500">
+                Yield per Hectare
               </label>
               <input
                 type="number"
                 step="0.01"
-                name="AverageProduction"
-                value={formData.AverageProduction}
+                name="AverageYieldPerHectare"
+                value={formData.AverageYieldPerHectare}
                 onChange={handleChange}
                 className="input"
               />
@@ -152,7 +189,7 @@ export default function AddLivestockModal({ onClose, onSuccess }) {
               disabled={loading}
               className="btn-green"
             >
-              {loading ? "Saving..." : "Save Livestock"}
+              {loading ? "Updating..." : "Update Crop"}
             </button>
           </div>
 

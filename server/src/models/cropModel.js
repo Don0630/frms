@@ -33,6 +33,45 @@ export async function createCrop(crop) {
 
 
 
+// --------- UPDATE CROP ---------
+export async function updateCrop(id, crop) {
+  const {
+    CropName,
+    Category,
+    Season,
+    AverageYieldPerHectare,
+    MarketPrice,
+  } = crop;
+
+  const query = `
+    UPDATE tblCrops
+    SET
+      CropName = ?,
+      Category = ?,
+      Season = ?,
+      AverageYieldPerHectare = ?,
+      MarketPrice = ?
+    WHERE CropID = ?
+  `;
+
+  const values = [
+    CropName,
+    Category,
+    Season,
+    AverageYieldPerHectare,
+    MarketPrice,
+    id,
+  ];
+
+  await db.query(query, values);
+
+  return {
+    CropID: id,
+    ...crop,
+  };
+}
+
+
 // --------------- SEARCH CROP (GENERAL) ---------------
 export async function getSearchCrops(search = "") {
   const searchPattern = `%${search}%`;

@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get("/cropsData", authenticateToken, cropController.getAllCrop);
 router.post("/addCrop", authenticateToken, cropController.saveCrop);
+router.put("/updateCrop/:id", authenticateToken, cropController.updateCrop);
 router.get("/searchCrops", authenticateToken, cropController.getSearchCrops);
 
 

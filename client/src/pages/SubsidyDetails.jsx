@@ -1,162 +1,248 @@
-// src/pages/SubsidyDetails.jsx
-import { useState, useEffect } from "react";
-import { Search, Info, Settings, Plus } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSubsidy } from "../context/SubsidyContext.jsx";
+import AddFarmerSubsidyModal from "../components/modals/AddFarmerSubsidyModal";
 
-import { useSubsidyDetails } from "../context/SubsidyDetailsContext";
-import ViewSubsidyDetailsModal from "../components/modals/ViewSubsidyDetailsModal";
+import {
+  ArrowLeft,
+  Calendar,
+  DollarSign,
+  Users,
+  CheckCircle2,
+  Plus,
+} from "lucide-react";
 
 export default function SubsidyDetails() {
-  const { subsidydetails, loadSubsidyDetails, loading, error } = useSubsidyDetails();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-  const [search, setSearch] = useState("");
-  const [modalData, setModalData] = useState(null);
+  const {
+    subsidy,
+    loadSubsidy,
+    farmers,
+    loadFarmersPerSubsidy,
+    clearFarmers,
+  } = useSubsidy();
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [selectedSubsidy, setSelectedSubsidy] = useState(null);
+  const [addModal, setAddModal] = useState(false);
 
-  // Load data
+  // ================= LOAD SUBSIDY =================
   useEffect(() => {
-    loadSubsidyDetails();
+    loadSubsidy();
   }, []);
 
-  // Filter & Search
-  const filtered = subsidydetails.filter((item) => {
-    return (
-      item.ProgramName?.toLowerCase().includes(search.toLowerCase())
-    );
-  });
-
-  // Reset page on search change
+  // ================= LOAD FARMERS =================
   useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
+    if (!id) return;
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    loadFarmersPerSubsidy(id);
 
-  // if (loading) return <p className="p-4">Loading subsidy details...</p>;
-  if (error) return <p className="p-4 text-red-500">{error}</p>;
+    return () => clearFarmers(); // prevent stale data
+  }, [id]);
+
+  // ================= FIND SUBSIDY =================
+  useEffect(() => {
+    if (!subsidy?.length) return;
+
+    const found = subsidy.find(
+      (s) => String(s.DistributionID) === String(id)
+    );
+
+    setSelectedSubsidy(found || null);
+  }, [subsidy, id]);
+
+  // ================= LOADING GUARD =================
+  if (!selectedSubsidy) {
+    return (
+      <div className="p-6 text-gray-500">
+        Loading subsidy...
+      </div>
+    );
+  }
+
+  // ================= CALCULATIONS =================
+  const totalAmount = Number(selectedSubsidy.TotalAmount || 0);
+  const distributed = Number(selectedSubsidy.TotalDistributed || 0);
+  const remaining = totalAmount - distributed;
 
   return (
-    <div className="w-full h-full p-4">
-      <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
+    <div className="min-h-screen bg-gray-100 p-6 space-y-6">
 
-        {/* Header */}
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">SUBSIDY DETAILS</h2>
-     {/*     <button className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow">
-            <Plus className="w-4 h-4" /> Add Subsidy
-          </button>*/}
-        </div>
+      {/* ================= HEADER ================= */}
+      <div className="flex items-center justify-between">
 
-        {/* Search */}
-        <div className="flex flex-wrap gap-2 items-center mb-3">
-          <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
-            <Search className="w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search program..."
-              className="ml-2 outline-none text-sm w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-600 hover:text-black"
+        >
+          <ArrowLeft size={18} />
+          Back
+        </button>
+
+        <span className="text-sm text-gray-500">
+          Subsidy Dashboard
+        </span>
+
+      </div>
+
+      {/* ================= SUBSIDY CARD ================= */}
+      <div className="bg-white rounded-2xl shadow-sm border p-6">
+
+        <h1 className="text-2xl font-bold text-gray-800">
+          {selectedSubsidy.ProgramName}
+        </h1>
+
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+            <Calendar className="text-green-500" size={18} />
+            <div>
+              <p className="text-gray-500">Distribution Date</p>
+              <p className="font-medium text-gray-800">
+                {selectedSubsidy.DistributionDate}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Table */}
-        <div className="w-full border rounded-lg overflow-x-auto">
-          <table className="w-full text-xs sm:text-sm">
-            <thead className="bg-gray-100 text-gray-600">
-              <tr>
-                <th className="py-3 px-2 text-left">Program</th>
-                <th className="py-3 px-2 text-left">Date</th>
-                <th className="py-3 px-2 text-left">Total Distributed</th>
-                <th className="py-3 px-2 text-left">Total Farmers</th>
-                <th className="py-3 px-2 text-center">
-                  <Settings className="w-5 h-5 mx-auto" />
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {currentItems.map((item, i) => (
-                <tr key={i} className="border-t">
-                  <td className="py-2 px-2">{item.ProgramName}</td>
-                  <td className="py-2 px-2">{item.DistributionDate}</td>
-                  <td className="py-2 px-2">
-                    ₱ {Number(item.TotalDistributed).toLocaleString()}
-                  </td>
-                  <td className="py-2 px-2">{item.TotalFarmers}</td>
-                  <td className="py-2 px-2 flex justify-center">
-                    <button
-                      onClick={() => setModalData(item)}
-                      className="hover:bg-gray-200 p-1 rounded"
-                    >
-                      <Info className="w-4 h-4 text-blue-500" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {currentItems.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-4 text-center text-gray-500">
-                    No records found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <span>
-            Showing {currentItems.length} of {filtered.length} records
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
-              className="px-3 py-1 bg-gray-200 rounded"
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === i + 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage(prev => prev + 1)}
-              className="px-3 py-1 bg-gray-200 rounded"
-            >
-              Next
-            </button>
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+            <DollarSign className="text-blue-500" size={18} />
+            <div>
+              <p className="text-gray-500">Total Amount</p>
+              <p className="font-semibold text-gray-800">
+                ₱ {totalAmount.toLocaleString()}
+              </p>
+            </div>
           </div>
+
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+            <Users className="text-purple-500" size={18} />
+            <div>
+              <p className="text-gray-500">Farmers</p>
+              <p className="font-semibold text-gray-800">
+                {selectedSubsidy.TotalFarmers || 0}
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        {/* SUMMARY */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="p-5 rounded-xl bg-green-50 border border-green-100">
+            <p className="text-gray-500 text-sm">Distributed</p>
+            <p className="text-2xl font-bold text-green-700">
+              ₱ {distributed.toLocaleString()}
+            </p>
+          </div>
+
+          <div className="p-5 rounded-xl bg-yellow-50 border border-yellow-100">
+            <p className="text-gray-500 text-sm">Remaining</p>
+            <p className="text-2xl font-bold text-yellow-700">
+              ₱ {remaining.toLocaleString()}
+            </p>
+          </div>
+
         </div>
       </div>
 
-      {/* View Modal */}
-      <ViewSubsidyDetailsModal
-        distribution={modalData}
-        onClose={() => setModalData(null)}
-      />
+      {/* ================= FARMERS CARD ================= */}
+      <div className="bg-white rounded-2xl shadow-sm border p-6">
+
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-4">
+
+          <div className="flex items-center gap-2">
+            <Users className="text-green-600" size={18} />
+            <h2 className="text-lg font-semibold text-gray-800">
+              Farmers Distribution
+            </h2>
+          </div>
+
+          <button
+            onClick={() => setAddModal(true)}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm"
+          >
+            <Plus size={16} />
+            Add Farmer
+          </button>
+
+        </div>
+
+        {/* TABLE */}
+        {farmers.length === 0 ? (
+          <p className="text-gray-500 text-sm">
+            No farmers assigned yet.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+
+            <table className="w-full text-sm">
+
+              <thead>
+                <tr className="text-left text-gray-500 border-b">
+                  <th className="p-3">Farmer</th>
+                  <th className="p-3">Contact</th>
+                  <th className="p-3">Amount</th>
+                  <th className="p-3 text-center">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {farmers.map((f) => (
+                  <tr
+                    key={f.FarmerID}
+                    className="border-b hover:bg-gray-50"
+                  >
+
+                    <td className="p-3 font-medium text-gray-800">
+                      {f.FirstName} {f.LastName}
+                    </td>
+
+                    <td className="p-3 text-gray-600">
+                      {f.ContactNumber || "N/A"}
+                    </td>
+
+                    <td className="p-3 font-semibold text-green-700">
+                      ₱ {Number(f.Amount || 0).toLocaleString()}
+                    </td>
+
+                    <td className="p-3 text-center">
+                      {f.IsDistributed ? (
+                        <span className="inline-flex items-center gap-1 text-green-600 font-medium">
+                          <CheckCircle2 size={14} />
+                          Distributed
+                        </span>
+                      ) : (
+                        <span className="text-yellow-600 font-medium">
+                          Pending
+                        </span>
+                      )}
+                    </td>
+
+                  </tr>
+                ))}
+              </tbody>
+
+            </table>
+
+          </div>
+        )}
+      </div>
+
+      {/* ================= MODAL ================= */}
+      {addModal && (
+        <AddFarmerSubsidyModal
+          distributionID={id}
+          onClose={() => setAddModal(false)}
+          onSuccess={() => {
+            loadFarmersPerSubsidy(id);
+            loadSubsidy();
+          }}
+        />
+      )}
+
     </div>
   );
 }

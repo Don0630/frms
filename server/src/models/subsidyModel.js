@@ -13,15 +13,18 @@ export async function getAllSubsidy() {
       d.Remarks,
       p.ProgramName,
 
-      -- ✅ computed fields (from details)
-      COALESCE(SUM(CASE 
-        WHEN sd.IsDistributed = 1 THEN sd.Amount 
-        ELSE 0 
-      END), 0) AS TotalDistributed,
+      -- 💰 total distributed money
+      COALESCE(SUM(
+        CASE WHEN sd.IsDistributed = 1 THEN sd.Amount ELSE 0 END
+      ), 0) AS TotalDistributed,
 
-      COUNT(CASE 
-        WHEN sd.IsDistributed = 1 THEN sd.FarmerID 
-      END) AS TotalFarmers
+      -- 👨‍🌾 total assigned farmers (ALL farmers)
+      COALESCE(COUNT(sd.FarmerID), 0) AS TotalFarmers,
+
+      -- ✅ distributed farmers count (optional but useful)
+      COALESCE(SUM(
+        CASE WHEN sd.IsDistributed = 1 THEN 1 ELSE 0 END
+      ), 0) AS DistributedFarmers
 
     FROM tblSubsidyDistribution d
 
@@ -43,7 +46,6 @@ export async function getAllSubsidy() {
 
   return rows || [];
 }
-
 
 
 
@@ -94,7 +96,7 @@ export async function getAllFarmerPerSubsidy(distributionID) {
 
 
 
-// --------------- SEARCH FARMER WITHOUT SUBSIDY DETAILS ---------------
+// --------------- SEARCH AVAILABLE FARMERS (NOT YET IN DISTRIBUTION) ---------------
 export async function getAvailableFarmer(distributionID, search = "") {
   const searchPattern = `%${search}%`;
 
@@ -104,23 +106,32 @@ export async function getAvailableFarmer(distributionID, search = "") {
       f.FarmerID,
       f.FirstName,
       f.LastName,
-      f.FarmLocation,
+      f.Barangay,
+      f.Municipality,
       f.ContactNumber
     FROM tblFarmers f
-    LEFT JOIN tblSubsidyDistributionDetails d
-      ON f.FarmerID = d.FarmerID 
-      AND d.DistributionID = ?
-    WHERE d.FarmerID IS NULL
-      AND (f.FirstName LIKE ? OR f.LastName LIKE ?)
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM tblSubsidyDistributionDetails d
+      WHERE d.FarmerID = f.FarmerID
+        AND d.DistributionID = ?
+    )
+    AND (
+      f.FirstName LIKE ?
+      OR f.LastName LIKE ?
+    )
     ORDER BY f.FirstName, f.LastName
     LIMIT 10
     `,
-    [distributionID, searchPattern, searchPattern]
+    [
+      distributionID,
+      searchPattern,
+      searchPattern,
+    ]
   );
 
   return rows || [];
 }
-
 
 
 // --------- CREATE FARMER SUBSIDY ---------

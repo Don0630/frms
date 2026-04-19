@@ -26,13 +26,22 @@ export async function fetchAllFarmersPerSubsidy(distributionID) {
 
 // ------------ FETCH AVAILABLE FARMER FOR SUBSIDY ------------
 export async function fetchAvailableFarmer(distributionID, search = "") {
-  // Construct query parameters
   const params = new URLSearchParams();
-  if (distributionID) params.append("distributionID", distributionID);
-  if (search) params.append("search", search);
+
+  if (distributionID != null) {
+    params.append("distributionID", distributionID);
+  }
+
+  if (search.trim()) {
+    params.append("search", search.trim());
+  }
 
   const url = `/subsidy/availableFarmer?${params.toString()}`;
-  return apiFetch(url);
+
+  const res = await apiFetch(url);
+
+  // normalize response
+  return res?.data || res || [];
 }
 
 

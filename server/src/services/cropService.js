@@ -11,6 +11,11 @@ export async function addCrop(crop) {
 }
 
 
+export async function editCrop(id, crop) {
+  return await cropModel.updateCrop(id, crop);
+}
+
+
 export async function fetchSearchCrops(search = "") {
   return await cropModel.getSearchCrops(search);
 }

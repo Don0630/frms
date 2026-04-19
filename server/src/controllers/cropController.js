@@ -35,6 +35,18 @@ export async function saveCrop(req, res) {
 
 
 
+// --------- UPDATE CROP ---------
+export async function updateCrop(req, res) {
+  try {
+    const updated = await cropService.editCrop(req.params.id, req.body);
+    return successResponse(res, "Crop updated successfully", updated);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
+
 
 // ------------- SEARCH CROP -------------
 export async function getSearchCrops(req, res, next) {

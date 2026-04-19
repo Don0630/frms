@@ -37,7 +37,6 @@ export async function saveSubsidy(req, res) {
 
 
 
-
 // ------------- GET ALL FARMERS PER SUBSIDY -------------
 export async function getAllFarmerPerSubsidy(req, res, next) {
   const { distributionID } = req.params;
@@ -61,21 +60,31 @@ export async function getAllFarmerPerSubsidy(req, res, next) {
 
 export async function getAvailableFarmer(req, res, next) {
   try {
-    const distributionID = req.query.distributionID; // required
+    const distributionID = req.query.distributionID;
     const search = req.query.search || "";
-    const availableFarmer = await subsidyService.fetchAvailableFarmer(distributionID, search);
 
-    if (!availableFarmer || availableFarmer.length === 0) {
-      return errorResponse(res, "No available farmer found", 404);
+    if (!distributionID) {
+      return errorResponse(res, "Distribution ID is required", 400);
     }
 
-    return successResponse(res, "Available farmer fetched successfully", availableFarmer, 200);
+    const availableFarmer = await subsidyService.fetchAvailableFarmer(
+      distributionID,
+      search
+    );
+
+    // ✅ ALWAYS return 200 even if empty
+    return successResponse(
+      res,
+      "Available farmers fetched successfully",
+      availableFarmer || [],
+      200
+    );
+
   } catch (err) {
     console.error("Error fetching available farmer:", err);
     next(err);
   }
 }
-
 
 
 // ------------- ADD FARMER SUBSIDY -------------

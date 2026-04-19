@@ -7,38 +7,33 @@ import {
   SlidersHorizontal,
   Settings,
   Info,
-  X,
   Edit,
-  Tag,
-  CloudSun,
-  BarChart3,
-  PhilippinePeso
 } from "lucide-react";
-
 
 import ViewCropModal from "../components/modals/ViewCropModal";
 import AddCropModal from "../components/modals/AddCropModal";
+import EditCropModal from "../components/modals/EditCropModal"; // ✅ ADDED
 
 export default function Crops() {
-  const { crop, loadCrop, loading, error } = useCrop(); // get crops from context
+  const { crop, loadCrop, error } = useCrop();
+
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
 
+  const [editModal, setEditModal] = useState(null); // ✅ EDIT STATE
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Load crops on mount
   useEffect(() => {
     loadCrop();
   }, []);
 
-  // Extract unique categories for filter buttons
   const categories = ["All", ...Array.from(new Set(crop.map(c => c.Category)))];
 
-  // Filter & Search
   const filtered = crop.filter((item) => {
     const matchSearch =
       item.CropName.toLowerCase().includes(search.toLowerCase());
@@ -55,16 +50,16 @@ export default function Crops() {
   const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
-  // if (loading) return <p>Loading crops...</p>;
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div className="w-full h-full p-4">
       <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
 
-        {/* Header */}
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+        {/* HEADER */}
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-700">ALL CROPS</h2>
+
           <button
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
             onClick={() => setShowAddModal(true)}
@@ -73,8 +68,8 @@ export default function Crops() {
           </button>
         </div>
 
-        {/* Controls */}
-        <div className="flex flex-wrap gap-2 items-center mb-3">
+        {/* SEARCH + FILTERS */}
+        <div className="flex gap-2 items-center mb-3">
           <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
             <Search className="w-4 h-4 text-gray-500" />
             <input
@@ -95,7 +90,7 @@ export default function Crops() {
           </button>
         </div>
 
-        {/* Filter Buttons */}
+        {/* CATEGORY FILTER */}
         <div className="flex gap-4 text-sm mb-4">
           {categories.map((item) => (
             <label key={item} className="flex items-center gap-1 cursor-pointer">
@@ -109,7 +104,7 @@ export default function Crops() {
           ))}
         </div>
 
-        {/* Table */}
+        {/* TABLE */}
         <div className="w-full border rounded-lg">
           <table className="w-full text-xs sm:text-sm">
             <thead className="bg-gray-100 text-gray-600">
@@ -119,31 +114,38 @@ export default function Crops() {
                 <th className="py-3 px-2 text-left">Season</th>
                 <th className="py-3 px-2 text-left">Yield (ha)</th>
                 <th className="py-3 px-2 text-left">Price</th>
-                <th className="py-3 px-2 text-center">
-                  <Settings className="text-gray-600 w-5 h-5 mx-auto" />
-                </th>
+                <th className="py-3 px-2 text-center">Actions</th>
               </tr>
             </thead>
+
             <tbody>
-              {currentItems.map((item, i) => (
-                <tr key={i} className="border-t">
+              {currentItems.map((item) => (
+                <tr key={item.CropID} className="border-t">
+
+                  {/* NAME + VIEW */}
                   <td className="py-2 px-2 flex items-center gap-1">
                     {item.CropName}
-                    <button
-                      className="flex items-center gap-1 px-2 py-1 hover:bg-gray-200 rounded"
-                      onClick={() => setViewModal(item)}
-                    >
+                    <button onClick={() => setViewModal(item)}>
                       <Info className="w-4 h-4 text-blue-500" />
                     </button>
                   </td>
+
                   <td>{item.Category}</td>
                   <td>{item.Season}</td>
                   <td>{item.AverageYieldPerHectare}</td>
                   <td>₱ {item.MarketPrice}</td>
-                  <td className="py-2 px-2 flex items-center justify-center gap-1">
-                    <button className="flex bg-blue-600 text-white items-center px-2 py-1 hover:bg-blue-700 rounded">
+
+                  {/* ACTIONS */}
+                  <td className="py-2 px-2 flex justify-center gap-1">
+
+                    {/* EDIT BUTTON */}
+                    <button
+                      onClick={() => setEditModal(item)}
+                      className="flex bg-blue-600 text-white items-center px-2 py-1 hover:bg-blue-700 rounded"
+                    >
                       <Edit className="w-3 h-3" />
                     </button>
+
                   </td>
                 </tr>
               ))}
@@ -151,32 +153,39 @@ export default function Crops() {
           </table>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
+        {/* PAGINATION */}
+        <div className="flex justify-between mt-4 text-sm">
           <span>
-            Showing {currentItems.length} of {filtered.length} crops
+            Showing {currentItems.length} of {filtered.length}
           </span>
+
           <div className="flex gap-2">
             <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
+              onClick={() => setCurrentPage((p) => p - 1)}
+              className="px-3 py-1 bg-gray-200 rounded"
             >
               Prev
             </button>
+
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i}
                 onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200"
+                }`}
               >
                 {i + 1}
               </button>
             ))}
+
             <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage(prev => prev + 1)}
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+              className="px-3 py-1 bg-gray-200 rounded"
             >
               Next
             </button>
@@ -184,16 +193,36 @@ export default function Crops() {
         </div>
       </div>
 
+      {/* VIEW MODAL */}
+      {viewModal && (
+        <ViewCropModal
+          crop={viewModal}
+          onClose={() => setViewModal(null)}
+        />
+      )}
 
- {/* Modal */}
-<ViewCropModal crop={viewModal} onClose={() => setViewModal(null)} />
+      {/* ADD MODAL */}
+      {showAddModal && (
+        <AddCropModal
+          onClose={() => setShowAddModal(false)}
+          onSuccess={() => {
+            loadCrop();
+            setShowAddModal(false);
+          }}
+        />
+      )}
 
-{showAddModal && (
-  <AddCropModal onClose={() => setShowAddModal(false)} />
-)}
- 
-
-
+      {/* EDIT MODAL */}
+      {editModal && (
+        <EditCropModal
+          selectedCrop={editModal}
+          onClose={() => setEditModal(null)}
+          onSuccess={() => {
+            loadCrop(); // refresh table
+            setEditModal(null);
+          }}
+        />
+      )}
     </div>
   );
 }

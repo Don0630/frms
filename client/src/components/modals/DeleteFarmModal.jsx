@@ -13,7 +13,8 @@ export default function DeleteFarmModal({
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-sm rounded-xl shadow-xl p-5 relative">
+
+      <div className="bg-white w-full max-w-sm rounded-xl shadow-xl p-5 relative animate-fadeIn">
 
         {/* CLOSE */}
         <button
@@ -59,6 +60,25 @@ export default function DeleteFarmModal({
 
         </div>
       </div>
+
+      {/* ANIMATION STYLE */}
+      <style>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
+
     </div>
   );
 }

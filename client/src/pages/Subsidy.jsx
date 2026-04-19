@@ -7,18 +7,14 @@ import {
   Info,
   Eye
 } from "lucide-react";
-
-import { useSubsidy } from "../context/SubsidyContext";
-import InfoSubsidyModal from "../components/modals/InfoSubsidyModal";
-import ViewSubsidyModal from "../components/modals/ViewSubsidyModal";
+import { useNavigate } from "react-router-dom";
+import { useSubsidy } from "../context/SubsidyContext"; 
 import AddSubsidyModal from "../components/modals/AddSubsidyModal";
 
 export default function Subsidy() {
   const { subsidy, loadSubsidy, error } = useSubsidy();
-
-  const [search, setSearch] = useState("");
-  const [infoModal, setInfoModal] = useState(null);
-  const [viewModal, setViewModal] = useState(null);
+  const navigate = useNavigate();
+  const [search, setSearch] = useState(""); 
   const [addSubsidyModal, setAddSubsidyModal] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -109,13 +105,7 @@ export default function Subsidy() {
                   {/* PROGRAM + INFO BUTTON */}
                     <td className="py-2 px-2 flex items-center gap-1">
                       {item.ProgramName}
-                      
-                    <button
-                      onClick={() => setInfoModal(item)}
-                      className="hover:bg-gray-200 p-1 rounded"
-                    >
-                      <Info className="w-4 h-4 text-blue-500" />
-                    </button>
+         
                     </td>
 
                   <td className="py-2 px-2">
@@ -140,13 +130,12 @@ export default function Subsidy() {
 
                   {/* EMPTY ACTION COLUMN (keeps alignment clean) */}
 <td className="px-2 py-2 text-center">
-  <button
-    onClick={() => setViewModal(item)}
-    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-green-600 text-white text-xs font-medium shadow-sm hover:bg-green-700 hover:shadow-md transition active:scale-95"
-  >
-    <Eye className="w-4 h-4" />
-    View
-  </button>
+ <button
+  onClick={() => navigate(`/subsidydetails/${item.DistributionID}`)}
+  className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+>
+  <Eye className="w-3 h-3" />
+</button>
 </td>
                 </tr>
               ))}
@@ -195,20 +184,8 @@ export default function Subsidy() {
         </div>
 
       </div>
-
-      {/* MODALS */}
-      <InfoSubsidyModal
-        subsidy={infoModal}
-        onClose={() => setInfoModal(null)}
-      />
-
-
-            {/* View Modal */}
-      <ViewSubsidyModal
-        subsidy={viewModal}
-        onClose={() => setViewModal(null)}
-      /> 
-
+ 
+ 
 
 
       {addSubsidyModal && (

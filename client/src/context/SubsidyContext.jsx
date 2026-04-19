@@ -112,23 +112,21 @@ const loadSubsidy = async () => {
   };
 
   // ================= AVAILABLE FARMERS =================
-  const loadAvailableFarmer = async (distributionID, search = "") => {
-    setLoading(true);
-    setError(null);
+const loadAvailableFarmer = async (distributionID, search = "") => {
+  setLoading(true);
+  setError(null);
 
-    try {
-      const { success, data } =
-        await subsidyApi.fetchAvailableFarmer(distributionID, search);
-
-      return success ? data : [];
-    } catch (err) {
-      console.error("⚠️ Error fetching available farmer:", err);
-      setError(err.message);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const data = await subsidyApi.fetchAvailableFarmer(distributionID, search);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error(err);
+    setError(err.message);
+    return [];
+  } finally {
+    setLoading(false);
+  }
+};
 
   // ================= ADD FARMER SUBSIDY =================
   const addFarmerSubsidy = async (farmerSubsidyData) => {
