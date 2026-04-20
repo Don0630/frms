@@ -121,7 +121,7 @@ export async function getAvailableFarmer(distributionID, search = "") {
       OR f.LastName LIKE ?
     )
     ORDER BY f.FirstName, f.LastName
-    LIMIT 10
+    LIMIT 5
     `,
     [
       distributionID,
@@ -132,6 +132,8 @@ export async function getAvailableFarmer(distributionID, search = "") {
 
   return rows || [];
 }
+
+
 
 
 // --------- CREATE FARMER SUBSIDY ---------
