@@ -20,6 +20,19 @@ export async function addLivestock(livestock) {
 
 
 
+// ------------ UPDATE LIVESTOCK ------------
+export async function updateLivestock(livestock) {
+  const data = await apiFetch(`/livestock/updateLivestock/${livestock.LivestockID}`, {
+    method: "PUT",
+    body: JSON.stringify(livestock),
+  });
+
+  return data.data;
+}
+
+
+
+
 // ------------ FETCH SEARCHED LIVESTOCK ------------
 export async function fetchSearchLivestock(search = "") {
   // Construct query parameters

@@ -5,13 +5,15 @@ import {
 import { useLivestock } from "../context/LivestockContext.jsx";
 import ViewLivestockModal from "../components/modals/ViewLivestockModal";
 import AddLivestockModal from "../components/modals/AddLivestockModal";
+import EditLivestockModal from "../components/modals/EditLivestockModal";
 
 export default function Livestock() {
   const { livestock, loadLivestock, loading, error } = useLivestock(); // Use context
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +52,7 @@ export default function Livestock() {
           <h2 className="text-xl font-semibold text-gray-700">ALL LIVESTOCK</h2>
           <button
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
-            onClick={() => setShowAddModal(true)}
+            onClick={() => setAddModal(true)}
           >
             <Plus className="w-4 h-4" /> Add New Livestock
           </button>
@@ -123,9 +125,12 @@ export default function Livestock() {
                   <td className="py-2 px-2">{item.AverageProduction}</td>
                   <td className="py-2 px-2">₱ {item.MarketPrice}</td>
                   <td className="py-2 px-2 flex items-center justify-center gap-1">
-                    <button className="flex bg-blue-600 text-white items-center px-2 py-1 hover:bg-blue-700 rounded">
-                      <Edit className="w-3 h-3" />
-                    </button>
+                  <button 
+  onClick={() => setEditModal(item)}
+  className="flex bg-blue-600 text-white items-center px-2 py-1 hover:bg-blue-700 rounded"
+>
+  <Edit className="w-3 h-3" />
+</button>
                   </td>
                 </tr>
               ))}
@@ -175,12 +180,21 @@ export default function Livestock() {
         onClose={() => setViewModal(null)}
       />
 
-      {showAddModal && (
+      {addModal && (
         <AddLivestockModal
-          onClose={() => setShowAddModal(false)}
+          onClose={() => setAddModal(false)}
           onSuccess={() => loadLivestock()} // Refresh list after adding
         />
       )}
+
+      {editModal && (
+  <EditLivestockModal
+    selectedLivestock={editModal}
+    onClose={() => setEditModal(null)}
+    onSuccess={loadLivestock}
+  />
+)}
+      
       
     </div>
   );

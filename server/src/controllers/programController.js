@@ -35,6 +35,24 @@ export async function saveProgram(req, res) {
 
 
 
+
+// ------------- UPDATE PROGRAM -------------
+export async function updateProgram(req, res) {
+  try {
+    const updated = await programService.editProgram(req.params.id, req.body);
+    return successResponse(res, "Program updated successfully", updated);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
+
+
+
+
+
+
+
+
 // ------------- GET AVAILABLE PROGRAMS -------------
 export async function getAvailableProgram(req, res, next) {
   try {

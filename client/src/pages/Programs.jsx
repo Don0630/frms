@@ -11,6 +11,8 @@ import {
 import { useProgram } from "../context/ProgramContext";
 import ViewProgramModal from "../components/modals/ViewProgramModal";
 import AddProgramModal from "../components/modals/AddProgramModal";
+import EditProgramModal from "../components/modals/EditProgramModal";
+
 
 export default function Programs() {
   const { program, loadProgram, loading, error } = useProgram();
@@ -18,6 +20,7 @@ export default function Programs() {
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
   const [addProgramModal, setAddProgramModal] = useState(null);
+  const [editModal, setEditModal] = useState(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -150,9 +153,12 @@ export default function Programs() {
                   </td>
 
                   <td className="py-2 px-2 flex justify-center">
-                    <button className="bg-blue-600 text-white px-2 py-1 rounded">
-                      <Edit className="w-3 h-3" />
-                    </button>
+<button
+  onClick={() => setEditModal(item)}
+  className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+>
+  <Edit className="w-3 h-3" />
+</button>
                   </td>
                 </tr>
               ))}
@@ -214,6 +220,16 @@ export default function Programs() {
     onSuccess={() => loadProgram()} // reload farmers after adding
   />
 )}
+
+
+{editModal && (
+  <EditProgramModal
+    selectedProgram={editModal}
+    onClose={() => setEditModal(null)}
+    onSuccess={() => loadProgram()}
+  />
+)}
+
 
     </div>
   );

@@ -66,6 +66,39 @@ function useProvideProgram() {
 
 
 
+  // ------ UPDATE PROGRAM ------
+  const updateProgram = async (programData) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updatedProgram = await programApi.updateProgram(programData);
+
+      setProgram((prev) =>
+  prev.map((f) =>
+    f.ProgramID === updatedProgram.ProgramID
+      ? { ...f, ...updatedProgram }
+      : f
+  )
+);
+
+      return updatedProgram;
+    } catch (err) {
+      console.error("⚠️ Error updating program:", err);
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+
+
+
+
 
 
  // ------ LOAD AVAILABLE PROGRAM (for modals/dropdowns) ------
@@ -104,6 +137,7 @@ function useProvideProgram() {
     program,
     addProgram,
     loadProgram,
+    updateProgram,
     loadAvailableProgram,
     clearProgram,
   };

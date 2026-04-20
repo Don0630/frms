@@ -148,32 +148,23 @@ function useProvideSubsidy() {
 
 
 
-
-
-
-
-
-
-
-
-  // ================= UPDATE DISTRIBUTION =================
-  const updateDistributeSubsidy = async (id, data) => {
+  // ------ UPDATE FARMER ------
+  const updateDistributeSubsidy = async (distributeData) => {
     setLoading(true);
     setError(null);
 
     try {
-      const { success } =
-        await subsidyApi.updateDistributeSubsidy(id, data);
-
-      if (!success) throw new Error("Failed to update distribution");
+      const updateDistribute = await subsidyApi.updateDistributeSubsidy(distributeData);
 
       setFarmers((prev) =>
-        prev.map((f) =>
-          f.DistributionDetailsID === id
-            ? { ...f, IsDistributed: 1 }
-            : f
-        )
-      );
+  prev.map((f) =>
+    f.DistributionDetailsID === updateDistribute.DistributionDetailsID
+      ? { ...f, ...updateDistribute }
+      : f
+  )
+);
+
+      return updateDistribute;
     } catch (err) {
       console.error("⚠️ Error updating distribution:", err);
       setError(err.message);
@@ -182,6 +173,9 @@ function useProvideSubsidy() {
       setLoading(false);
     }
   };
+
+
+ 
 
   // ================= CLEAR FUNCTIONS =================
   const clearFarmers = () => setFarmers([]);

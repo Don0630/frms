@@ -12,6 +12,11 @@ export async function addProgram(program) {
 }
 
 
+export async function editProgram(id, program) {
+  return await programModel.updateProgram(id, program);
+}
+
+
 // Fetch available programs (Active Programs), optional search
 export async function fetchAvailablePrograms(search = "") {
   return await programModel.getAvailablePrograms(search);

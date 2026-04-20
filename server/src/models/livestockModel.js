@@ -48,3 +48,40 @@ export async function getSearchLivestock(search = "") {
 
   return rows || [];
 }
+
+
+
+// --------- UPDATE LIVESTOCK ---------
+export async function updateLivestock(id, livestock) {
+  const {
+    Type,
+    Breed,
+    AverageProduction,
+    MarketPrice
+  } = livestock;
+
+  const query = `
+    UPDATE tblLivestock
+    SET
+      Type = ?,
+      Breed = ?,
+      AverageProduction = ?,
+      MarketPrice = ?
+    WHERE LivestockID = ?
+  `;
+
+  const values = [
+    Type,
+    Breed,
+    AverageProduction,
+    MarketPrice,
+    id
+  ];
+
+  const [result] = await db.query(query, values);
+
+  return {
+    LivestockID: id,
+    ...livestock
+  };
+}

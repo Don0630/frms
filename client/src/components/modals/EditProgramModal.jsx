@@ -1,63 +1,52 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useProgram } from "../../context/ProgramContext.jsx";
 
-export default function AddProgramModal({ onClose, onSuccess }) {
-  const { addProgram } = useProgram();
+export default function EditProgramModal({ onClose, selectedProgram }) {
+  const { updateProgram, loading } = useProgram();
 
-  const [formData, setFormData] = useState({
-    ProgramName: "",
-    Description: "",
-    StartDate: "",
-    EndDate: "",
-    Budget: "",
-    TargetBeneficiaries: "",
-  });
-
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({});
   const [error, setError] = useState("");
 
+  // Format date for input type="date"
+  const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
+
+  // Load selected program
+  useEffect(() => {
+    if (selectedProgram) {
+      setForm({
+        ProgramID: selectedProgram.ProgramID,
+        ProgramName: selectedProgram.ProgramName || "",
+        Description: selectedProgram.Description || "",
+        StartDate: formatDate(selectedProgram.StartDate),
+        EndDate: formatDate(selectedProgram.EndDate),
+        Budget: selectedProgram.Budget || "",
+        TargetBeneficiaries: selectedProgram.TargetBeneficiaries || "",
+      });
+    }
+  }, [selectedProgram]);
+
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    const {
-      ProgramName,
-      StartDate,
-      EndDate,
-      Budget,
-      TargetBeneficiaries,
-    } = formData;
-
-    // VALIDATION
-    if (!ProgramName || !StartDate || !EndDate || !Budget || !TargetBeneficiaries) {
-      setError("Please fill all required fields");
-      setLoading(false);
-      return;
-    }
-
     try {
-      await addProgram({
-        ...formData,
-        Budget: parseFloat(Budget),
-        TargetBeneficiaries: parseFloat(TargetBeneficiaries),
-        Status: "Active",
+      await updateProgram({
+        ...form,
+        Budget: parseFloat(form.Budget),
+        TargetBeneficiaries: parseInt(form.TargetBeneficiaries),
       });
 
-      onSuccess?.();
       onClose();
     } catch (err) {
-      setError(err.message || "Failed to add program");
-    } finally {
-      setLoading(false);
+      setError(err.message || "Failed to update program");
     }
   };
 
@@ -73,10 +62,10 @@ export default function AddProgramModal({ onClose, onSuccess }) {
         {/* HEADER */}
         <div className="mb-5">
           <h2 className="text-xl font-semibold text-gray-800">
-            Add Program
+            Edit Program
           </h2>
           <p className="text-sm text-gray-500">
-            Fill in program information
+            Update program information
           </p>
         </div>
 
@@ -87,18 +76,16 @@ export default function AddProgramModal({ onClose, onSuccess }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+        <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* PROGRAM NAME */}
           <div>
             <label className="text-xs text-gray-500">Program Name</label>
             <input
-              type="text"
               name="ProgramName"
-              value={formData.ProgramName}
+              value={form.ProgramName || ""}
               onChange={handleChange}
               className="input"
-              required
             />
           </div>
 
@@ -107,7 +94,7 @@ export default function AddProgramModal({ onClose, onSuccess }) {
             <label className="text-xs text-gray-500">Description</label>
             <textarea
               name="Description"
-              value={formData.Description}
+              value={form.Description || ""}
               onChange={handleChange}
               className="input"
               rows={3}
@@ -122,10 +109,9 @@ export default function AddProgramModal({ onClose, onSuccess }) {
               <input
                 type="date"
                 name="StartDate"
-                value={formData.StartDate}
+                value={form.StartDate || ""}
                 onChange={handleChange}
                 className="input"
-                required
               />
             </div>
 
@@ -134,10 +120,9 @@ export default function AddProgramModal({ onClose, onSuccess }) {
               <input
                 type="date"
                 name="EndDate"
-                value={formData.EndDate}
+                value={form.EndDate || ""}
                 onChange={handleChange}
                 className="input"
-                required
               />
             </div>
 
@@ -151,22 +136,22 @@ export default function AddProgramModal({ onClose, onSuccess }) {
               <input
                 type="number"
                 name="Budget"
-                value={formData.Budget}
+                value={form.Budget || ""}
                 onChange={handleChange}
                 className="input"
-                required
               />
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Target Beneficiaries</label>
+              <label className="text-xs text-gray-500">
+                Target Beneficiaries
+              </label>
               <input
                 type="number"
                 name="TargetBeneficiaries"
-                value={formData.TargetBeneficiaries}
+                value={form.TargetBeneficiaries || ""}
                 onChange={handleChange}
                 className="input"
-                required
               />
             </div>
 
@@ -179,7 +164,7 @@ export default function AddProgramModal({ onClose, onSuccess }) {
             </button>
 
             <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Saving..." : "Save Program"}
+              {loading ? "Updating..." : "Update Program"}
             </button>
           </div>
 

@@ -31,6 +31,52 @@ export async function createProgram(program) {
 
 
 
+
+// --------- UPDATE PROGRAM ---------
+export async function updateProgram(id, program) {
+  const {
+    ProgramName,
+    Description,
+    StartDate,
+    EndDate,
+    Budget,
+    TargetBeneficiaries
+  } = program;
+
+  const query = `
+    UPDATE tblPrograms
+    SET
+      ProgramName = ?,
+      Description = ?,
+      StartDate = ?,
+      EndDate = ?,
+      Budget = ?,
+      TargetBeneficiaries = ?
+    WHERE ProgramID = ?
+  `;
+
+  const values = [
+    ProgramName,
+    Description,
+    StartDate,
+    EndDate,
+    Budget,
+    TargetBeneficiaries,
+    id
+  ];
+
+  const [result] = await db.query(query, values);
+
+  return {
+    ProgramID: id,
+    ...program
+  };
+}
+
+
+
+
+
 export async function getAvailablePrograms(search = "") {
   const searchPattern = `%${search}%`;
 

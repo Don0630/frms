@@ -11,6 +11,12 @@ export async function addLivestock(livestock) {
   return await livestockModel.createLivestock(livestock);
 }
 
+
+export async function editLivestock(id, livestock) {
+  return await livestockModel.updateLivestock(id, livestock);
+}
+
+
 export async function fetchSearchLivestock(search = "") {
   return await livestockModel.getSearchLivestock(search);
 }

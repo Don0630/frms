@@ -19,6 +19,19 @@ export async function addProgram(program) {
 
 
 
+// ------------ UPDATE PROGRAM ------------
+export async function updateProgram(program) {
+  const data = await apiFetch(`/program/updateProgram/${program.ProgramID}`, {
+    method: "PUT",
+    body: JSON.stringify(program),
+  });
+
+  return data.data;
+}
+
+
+
+
 // ------------ FETCH AVAILABLE PROGRAM ------------
 export async function fetchAvailableProgram(search = "") {
   // Optional search query

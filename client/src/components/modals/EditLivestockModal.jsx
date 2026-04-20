@@ -1,21 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { useProgram } from "../../context/ProgramContext.jsx";
+import { useLivestock } from "../../context/LivestockContext.jsx";
 
-export default function AddProgramModal({ onClose, onSuccess }) {
-  const { addProgram } = useProgram();
+export default function EditLivestockModal({
+  onClose,
+  onSuccess,
+  selectedLivestock,
+}) {
+  const { updateLivestock, loading } = useLivestock();
 
   const [formData, setFormData] = useState({
-    ProgramName: "",
-    Description: "",
-    StartDate: "",
-    EndDate: "",
-    Budget: "",
-    TargetBeneficiaries: "",
+    LivestockID: "",
+    Type: "",
+    Breed: "",
+    AverageProduction: "",
+    MarketPrice: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // LOAD SELECTED DATA
+  useEffect(() => {
+    if (selectedLivestock) {
+      setFormData({
+        LivestockID: selectedLivestock.LivestockID,
+        Type: selectedLivestock.Type || "",
+        Breed: selectedLivestock.Breed || "",
+        AverageProduction: selectedLivestock.AverageProduction || "",
+        MarketPrice: selectedLivestock.MarketPrice || "",
+      });
+    }
+  }, [selectedLivestock]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -26,38 +41,31 @@ export default function AddProgramModal({ onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    const {
-      ProgramName,
-      StartDate,
-      EndDate,
-      Budget,
-      TargetBeneficiaries,
-    } = formData;
-
-    // VALIDATION
-    if (!ProgramName || !StartDate || !EndDate || !Budget || !TargetBeneficiaries) {
-      setError("Please fill all required fields");
-      setLoading(false);
+    if (
+      !formData.Type ||
+      !formData.Breed ||
+      !formData.AverageProduction ||
+      !formData.MarketPrice
+    ) {
+      setError("Please fill in all fields");
       return;
     }
 
     try {
-      await addProgram({
-        ...formData,
-        Budget: parseFloat(Budget),
-        TargetBeneficiaries: parseFloat(TargetBeneficiaries),
-        Status: "Active",
+      await updateLivestock({
+        LivestockID: formData.LivestockID,
+        Type: formData.Type,
+        Breed: formData.Breed,
+        AverageProduction: parseFloat(formData.AverageProduction),
+        MarketPrice: parseFloat(formData.MarketPrice),
       });
 
       onSuccess?.();
       onClose();
     } catch (err) {
-      setError(err.message || "Failed to add program");
-    } finally {
-      setLoading(false);
+      setError(err.message || "Failed to update livestock");
     }
   };
 
@@ -73,10 +81,10 @@ export default function AddProgramModal({ onClose, onSuccess }) {
         {/* HEADER */}
         <div className="mb-5">
           <h2 className="text-xl font-semibold text-gray-800">
-            Add Program
+            Edit Livestock
           </h2>
           <p className="text-sm text-gray-500">
-            Fill in program information
+            Update livestock information
           </p>
         </div>
 
@@ -89,84 +97,58 @@ export default function AddProgramModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-          {/* PROGRAM NAME */}
+          {/* TYPE */}
           <div>
-            <label className="text-xs text-gray-500">Program Name</label>
+            <label className="text-xs text-gray-500">Type</label>
             <input
               type="text"
-              name="ProgramName"
-              value={formData.ProgramName}
+              name="Type"
+              value={formData.Type}
               onChange={handleChange}
               className="input"
-              required
             />
           </div>
 
-          {/* DESCRIPTION */}
+          {/* BREED */}
           <div>
-            <label className="text-xs text-gray-500">Description</label>
-            <textarea
-              name="Description"
-              value={formData.Description}
+            <label className="text-xs text-gray-500">Breed</label>
+            <input
+              type="text"
+              name="Breed"
+              value={formData.Breed}
               onChange={handleChange}
               className="input"
-              rows={3}
             />
           </div>
 
-          {/* DATES */}
+          {/* PRODUCTION + PRICE */}
           <div className="grid grid-cols-2 gap-2">
 
             <div>
-              <label className="text-xs text-gray-500">Start Date</label>
-              <input
-                type="date"
-                name="StartDate"
-                value={formData.StartDate}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">End Date</label>
-              <input
-                type="date"
-                name="EndDate"
-                value={formData.EndDate}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-          </div>
-
-          {/* BUDGET + BENEFICIARIES */}
-          <div className="grid grid-cols-2 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">Budget</label>
+              <label className="text-xs text-gray-500">
+                Avg Production
+              </label>
               <input
                 type="number"
-                name="Budget"
-                value={formData.Budget}
+                step="0.01"
+                name="AverageProduction"
+                value={formData.AverageProduction}
                 onChange={handleChange}
                 className="input"
-                required
               />
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Target Beneficiaries</label>
+              <label className="text-xs text-gray-500">
+                Market Price
+              </label>
               <input
                 type="number"
-                name="TargetBeneficiaries"
-                value={formData.TargetBeneficiaries}
+                step="0.01"
+                name="MarketPrice"
+                value={formData.MarketPrice}
                 onChange={handleChange}
                 className="input"
-                required
               />
             </div>
 
@@ -174,12 +156,20 @@ export default function AddProgramModal({ onClose, onSuccess }) {
 
           {/* ACTIONS */}
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-gray"
+            >
               Cancel
             </button>
 
-            <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Saving..." : "Save Program"}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-green"
+            >
+              {loading ? "Updating..." : "Update Livestock"}
             </button>
           </div>
 

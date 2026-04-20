@@ -34,6 +34,16 @@ export async function saveLivestock(req, res) {
 }
 
 
+// ------------- UPDATE LIVESTOCK -------------
+export async function updateLivestock(req, res) {
+  try {
+    const updated = await livestockService.editLivestock(req.params.id, req.body);
+    return successResponse(res, "Livestock updated successfully", updated);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}
+
 
 // ------------- SEARCH LIVESTOCK -------------
 export async function getSearchLivestock(req, res, next) {
@@ -50,4 +60,5 @@ export async function getSearchLivestock(req, res, next) {
     next(err);
   }
 }
- 
+
+
