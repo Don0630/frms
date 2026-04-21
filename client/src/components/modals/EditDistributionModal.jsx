@@ -1,7 +1,7 @@
 import React from "react";
 import { X, AlertTriangle, CheckCircle2 } from "lucide-react";
 
-export default function AddDistributionModal({
+export default function EditDistributionModal({
   open,
   title = "Confirm Distribution",
   message = "Are you sure you want to distribute this subsidy to this farmer?",

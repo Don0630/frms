@@ -57,16 +57,13 @@ export async function addFarmerSubsidy(subsidy) {
 
 
 
-// ------------ UPDATE DISTRIBUTE SUBSIDY ------------
-export async function updateDistributeSubsidy(id, data) {
+// ------------ UPDATE DISTRIBUTION ------------
+export async function updateDistribution(distribution) {
   const res = await apiFetch(
-    `/subsidy/updateDistributeSubsidy/${id}`,
+    `/subsidy/updateDistribution/${distribution.DistributionDetailsID}`,
     {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+      body: JSON.stringify(distribution),
     }
   );
 

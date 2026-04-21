@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSubsidy } from "../context/SubsidyContext.jsx";
 import AddFarmerSubsidyModal from "../components/modals/AddFarmerSubsidyModal";
+import EditDistributionModal from "../components/modals/EditDistributionModal";
 
 import {
   ArrowLeft,
@@ -23,14 +24,20 @@ export default function SubsidyDetails() {
     farmers,
     loadFarmersPerSubsidy,
     clearFarmers,
-    updateDistributeSubsidy,
+    updateDistribution,
   } = useSubsidy();
 
   const [selectedSubsidy, setSelectedSubsidy] = useState(null);
   const [addModal, setAddModal] = useState(false);
+
   const [loadingRow, setLoadingRow] = useState(null);
 
-  // SEARCH + PAGINATION
+  // modal states
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [actionType, setActionType] = useState(null); // distribute | cancel
+
+  // search + pagination
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -72,7 +79,9 @@ export default function SubsidyDetails() {
 
   // FILTER
   const filteredFarmers = farmers.filter((f) =>
-    `${f.FirstName} ${f.LastName}`.toLowerCase().includes(search.toLowerCase()) ||
+    `${f.FirstName} ${f.LastName}`
+      .toLowerCase()
+      .includes(search.toLowerCase()) ||
     f.ContactNumber?.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -82,21 +91,37 @@ export default function SubsidyDetails() {
   const currentItems = filteredFarmers.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredFarmers.length / itemsPerPage);
 
-  // DISTRIBUTE
-  const handleDistribute = async (f) => {
-    try {
-      setLoadingRow(f.DistributionDetailsID);
-
-      await updateDistributeSubsidy(f.DistributionDetailsID, {
-        IsDistributed: 1,
-      });
-
-      await loadFarmersPerSubsidy(id);
-    } finally {
-      setLoadingRow(null);
-    }
+  // OPEN MODAL (DISRIBUTE / CANCEL)
+  const openActionModal = (f, type) => {
+    setSelectedRow(f);
+    setActionType(type);
+    setConfirmModal(true);
   };
 
+const handleConfirm = async () => {
+  if (!selectedRow) return;
+
+  try {
+    setLoadingRow(selectedRow.DistributionDetailsID);
+
+    await updateDistribution({
+      DistributionDetailsID: selectedRow.DistributionDetailsID,
+      IsDistributed: actionType === "distribute" ? 1 : 0,
+    });
+
+    await loadFarmersPerSubsidy(id);
+
+    // 🔥 ADD THIS
+    await loadSubsidy();
+
+    setConfirmModal(false);
+    setSelectedRow(null);
+    setActionType(null);
+
+  } finally {
+    setLoadingRow(null);
+  }
+};
   return (
     <div className="w-full min-h-screen p-4 space-y-6 bg-gray-100">
 
@@ -170,7 +195,7 @@ export default function SubsidyDetails() {
         </div>
       </div>
 
-      {/* FARMERS TABLE (FIXED DESIGN) */}
+      {/* FARMERS TABLE */}
       <div className="w-full bg-white/30 backdrop-blur-sm shadow-md p-6 rounded-sm">
 
         {/* HEADER */}
@@ -184,30 +209,28 @@ export default function SubsidyDetails() {
 
           <button
             onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700"
           >
             <Plus className="w-4 h-4" />
             Add Farmer
           </button>
         </div>
 
-        {/* CONTROLS (SEPARATE ROW LIKE SUBSIDY PAGE) */}
-        <div className="flex flex-wrap gap-2 items-center mb-3">
-          <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
-            <Search className="w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search farmer..."
-              className="ml-2 outline-none text-sm w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+        {/* SEARCH */}
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64 mb-3">
+          <Search className="w-4 h-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search farmer..."
+            className="ml-2 outline-none text-sm w-full"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         {/* TABLE */}
         <div className="w-full border rounded-lg overflow-x-auto">
-          <table className="w-full text-xs sm:text-sm">
+          <table className="w-full text-sm">
 
             <thead className="bg-gray-100 text-gray-600">
               <tr>
@@ -221,9 +244,9 @@ export default function SubsidyDetails() {
 
             <tbody>
               {currentItems.map((f) => (
-                <tr key={f.DistributionDetailsID} className="border-t hover:bg-gray-50">
+                <tr key={f.DistributionDetailsID} className="border-t">
 
-                  <td className="py-2 px-2 font-medium">
+                  <td className="py-2 px-2">
                     {f.FirstName} {f.LastName}
                   </td>
 
@@ -237,33 +260,30 @@ export default function SubsidyDetails() {
 
                   <td className="py-2 px-2 text-center">
                     {f.IsDistributed ? (
-                      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
-                        <CheckCircle2 size={12} className="inline mr-1" />
-                        Distributed
-                      </span>
+                      <span className="text-green-600 text-xs">Distributed</span>
                     ) : (
-                      <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                        Pending
-                      </span>
+                      <span className="text-yellow-600 text-xs">Pending</span>
                     )}
                   </td>
 
-                  <td className="py-2 px-2 text-center">
-                    <button
-                      disabled={f.IsDistributed || loadingRow === f.DistributionDetailsID}
-                      onClick={() => handleDistribute(f)}
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        f.IsDistributed
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-green-600 text-white hover:bg-green-700"
-                      }`}
-                    >
-                      {loadingRow === f.DistributionDetailsID
-                        ? "Saving..."
-                        : f.IsDistributed
-                        ? "Done"
-                        : "Distribute"}
-                    </button>
+                  <td className="py-2 px-2 text-center flex justify-center gap-2">
+
+                    {!f.IsDistributed ? (
+                      <button
+                        onClick={() => openActionModal(f, "distribute")}
+                        className="px-2 py-1 bg-green-600 text-white rounded text-xs"
+                      >
+                        Distribute
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => openActionModal(f, "cancel")}
+                        className="px-2 py-1 bg-red-600 text-white rounded text-xs"
+                      >
+                        Cancel
+                      </button>
+                    )}
+
                   </td>
 
                 </tr>
@@ -278,43 +298,10 @@ export default function SubsidyDetails() {
           <span>
             Showing {currentItems.length} of {filteredFarmers.length}
           </span>
-
-          <div className="flex gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((p) => p - 1)}
-              className="px-3 py-1 bg-gray-200 rounded"
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === i + 1
-                    ? "bg-green-600 text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage((p) => p + 1)}
-              className="px-3 py-1 bg-gray-200 rounded"
-            >
-              Next
-            </button>
-          </div>
         </div>
-
       </div>
 
-      {/* MODAL */}
+      {/* ADD MODAL */}
       {addModal && (
         <AddFarmerSubsidyModal
           distributionID={id}
@@ -325,6 +312,25 @@ export default function SubsidyDetails() {
           }}
         />
       )}
+
+      {/* CONFIRM MODAL */}
+      <EditDistributionModal
+        open={confirmModal}
+        title={
+          actionType === "distribute"
+            ? "Confirm Distribution"
+            : "Cancel Distribution"
+        }
+        message={
+          actionType === "distribute"
+            ? "Are you sure you want to distribute this subsidy?"
+            : "Are you sure you want to cancel this distribution?"
+        }
+        confirmText={actionType === "distribute" ? "Distribute" : "Cancel"}
+        loading={loadingRow === selectedRow?.DistributionDetailsID}
+        onCancel={() => setConfirmModal(false)}
+        onConfirm={handleConfirm}
+      />
 
     </div>
   );

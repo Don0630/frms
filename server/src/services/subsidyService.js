@@ -29,7 +29,7 @@ export async function addFarmerSubsidy(farmerSubsidy) {
   return await subsidyModel.createFarmerSubsidy(farmerSubsidy);
 }
 
-// ------------------ EDIT DISTRIBUTE SUBSIDY ------------------
-export async function editDistributeSubsidy(id, data) {
-  return await subsidyModel.distributeSubsidy(id, data);
+// ------------------ EDIT DISTRIBUTION ------------------
+export async function editDistribution(id, distribution) {
+  return await subsidyModel.updateDistribution(id, distribution);
 }

@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 
 // ------------- GET ALL SUBSIDY -------------
-export async function getAllSubsidy(req, res) {
+export async function getAllSubsidy(req, res, next) {
 
   try {
     const subsidyData = await subsidyService.fetchSubsidies();
@@ -101,12 +101,12 @@ export async function saveFarmerSubsidy(req, res) {
 
 
 
-// ------------- UPDATE DISTRIBUTION SUBSIDY -------------
-export async function updateDistributeSubsidy(req, res) {
+// ------------- UPDATE DISTRIBUTION  -------------
+export async function updateDistribution(req, res) {
   try {
     console.log("req.body:", req.body);
-    const updated = await subsidyService.editDistributeSubsidy(req.params.id, req.body);
-    return successResponse(res, "Distribute Subsidy updated successfully", updated);
+    const updated = await subsidyService.editDistribution(req.params.id, req.body);
+    return successResponse(res, "Distribute Subsidy updated successfully", updated, 200);
   } catch (err) {
     return errorResponse(res, err.message, 500);
   }

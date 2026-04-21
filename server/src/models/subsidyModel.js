@@ -47,7 +47,7 @@ export async function getAllSubsidy() {
   return rows || [];
 }
 
-
+ 
 
 // --------- CREATE SUBSIDY ---------
 export async function createSubsidy(subsidy) {
@@ -161,9 +161,9 @@ export async function createFarmerSubsidy(farmerSubsidy) {
 }
 
  
-// --------- DISTRIBUTE SUBSIDY ---------
-export async function distributeSubsidy(id, distribute) {
-  const { IsDistributed } = distribute;
+// --------- UPDATE SUBSIDY DISTRIBUTION ---------
+export async function updateDistribution(id, distribution) {
+  const { IsDistributed } = distribution;
 
   const query = `
     UPDATE tblSubsidyDistributionDetails

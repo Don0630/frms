@@ -148,31 +148,35 @@ function useProvideSubsidy() {
 
 
 
-  // ------ UPDATE FARMER ------
-  const updateDistributeSubsidy = async (distributeData) => {
-    setLoading(true);
-    setError(null);
+  // ------ UPDATE DISTRIBUTION ------
+const updateDistribution = async (distributionData) => {
+  setLoading(true);
+  setError(null);
 
-    try {
-      const updateDistribute = await subsidyApi.updateDistributeSubsidy(distributeData);
+  try {
+    const updated = await subsidyApi.updateDistribution(distributionData);
 
-      setFarmers((prev) =>
-  prev.map((f) =>
-    f.DistributionDetailsID === updateDistribute.DistributionDetailsID
-      ? { ...f, ...updateDistribute }
-      : f
-  )
-);
+    setFarmers((prev) =>
+      prev.map((f) =>
+        Number(f.DistributionDetailsID) === Number(updated.DistributionDetailsID)
+          ? {
+              ...f,
+              ...updated,
+              IsDistributed: updated.IsDistributed ?? f.IsDistributed,
+            }
+          : f
+      )
+    );
 
-      return updateDistribute;
-    } catch (err) {
-      console.error("⚠️ Error updating distribution:", err);
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    return updated;
+  } catch (err) {
+    console.error("⚠️ Error updating distribution:", err);
+    setError(err.message);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
 
 
  
@@ -191,7 +195,7 @@ function useProvideSubsidy() {
     loadFarmersPerSubsidy,
     loadAvailableFarmer,
     addFarmerSubsidy,
-    updateDistributeSubsidy,
+    updateDistribution,
 
     clearFarmers,
     clearSubsidy,
