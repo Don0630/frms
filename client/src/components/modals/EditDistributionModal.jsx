@@ -3,15 +3,18 @@ import { X, AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function EditDistributionModal({
   open,
-  title = "Confirm Distribution",
-  message = "Are you sure you want to distribute this subsidy to this farmer?",
-  confirmText = "Distribute",
+  type = "distribute", // "distribute" | "cancel"
+  title = "Confirm Action",
+  message = "Are you sure you want to proceed?",
+  confirmText = "Confirm",
   loadingText = "Processing...",
   onCancel,
   onConfirm,
   loading = false,
 }) {
   if (!open) return null;
+
+  const isCancel = type === "cancel";
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
@@ -28,8 +31,16 @@ export default function EditDistributionModal({
 
         {/* ICON */}
         <div className="flex justify-center mb-3">
-          <div className="bg-green-100 p-3 rounded-full">
-            <CheckCircle2 className="text-green-600" />
+          <div
+            className={`p-3 rounded-full ${
+              isCancel ? "bg-orange-100" : "bg-green-100"
+            }`}
+          >
+            {isCancel ? (
+              <AlertTriangle className="text-orange-600" />
+            ) : (
+              <CheckCircle2 className="text-green-600" />
+            )}
           </div>
         </div>
 
@@ -46,17 +57,17 @@ export default function EditDistributionModal({
         {/* BUTTONS */}
         <div className="flex justify-center gap-3 mt-5">
 
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
-          >
-            Cancel
-          </button>
+   
 
+          {/* CONFIRM BUTTON */}
           <button
             onClick={onConfirm}
             disabled={loading}
-            className="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700"
+            className={`px-4 py-2 rounded-lg text-white ${
+              isCancel
+                ? "bg-orange-600 hover:bg-orange-700"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
             {loading ? loadingText : confirmText}
           </button>

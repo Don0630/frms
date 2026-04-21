@@ -12,6 +12,10 @@ import {
   CheckCircle2,
   Plus,
   Search,
+  Check,
+  Trash2,
+  X,
+  Clock
 } from "lucide-react";
 
 export default function SubsidyDetails() {
@@ -209,7 +213,7 @@ const handleConfirm = async () => {
 
           <button
             onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
           >
             <Plus className="w-4 h-4" />
             Add Farmer
@@ -258,29 +262,43 @@ const handleConfirm = async () => {
                     ₱ {Number(f.Amount || 0).toLocaleString()}
                   </td>
 
-                  <td className="py-2 px-2 text-center">
-                    {f.IsDistributed ? (
-                      <span className="text-green-600 text-xs">Distributed</span>
-                    ) : (
-                      <span className="text-yellow-600 text-xs">Pending</span>
-                    )}
-                  </td>
-
+<td className="py-2 px-2 text-center">
+  {f.IsDistributed ? (
+    <span className="inline-flex items-center justify-center w-24 py-1 text-xs font-semibold text-white bg-green-600 rounded-md">
+      Distributed
+    </span>
+  ) : (
+    <span className="inline-flex items-center justify-center w-24 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-md">
+      Pending
+    </span>
+  )}
+</td>
                   <td className="py-2 px-2 text-center flex justify-center gap-2">
 
                     {!f.IsDistributed ? (
+                      <>
                       <button
                         onClick={() => openActionModal(f, "distribute")}
-                        className="px-2 py-1 bg-green-600 text-white rounded text-xs"
+                        className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
                       >
-                        Distribute
-                      </button>
+                        <Check className="w-3 h-3" />
+                      </button> 
+
+                      <button
+        onClick={() => openDeleteModal(f)}
+        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+      >
+        <Trash2 className="w-3 h-3" />
+      </button>
+
+                      </>
+
                     ) : (
                       <button
                         onClick={() => openActionModal(f, "cancel")}
-                        className="px-2 py-1 bg-red-600 text-white rounded text-xs"
+                        className="bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700"
                       >
-                        Cancel
+                        <X className="w-3 h-3" />
                       </button>
                     )}
 
@@ -313,25 +331,24 @@ const handleConfirm = async () => {
         />
       )}
 
-      {/* CONFIRM MODAL */}
-      <EditDistributionModal
-        open={confirmModal}
-        title={
-          actionType === "distribute"
-            ? "Confirm Distribution"
-            : "Cancel Distribution"
-        }
-        message={
-          actionType === "distribute"
-            ? "Are you sure you want to distribute this subsidy?"
-            : "Are you sure you want to cancel this distribution?"
-        }
-        confirmText={actionType === "distribute" ? "Distribute" : "Cancel"}
-        loading={loadingRow === selectedRow?.DistributionDetailsID}
-        onCancel={() => setConfirmModal(false)}
-        onConfirm={handleConfirm}
-      />
-
+<EditDistributionModal
+  open={confirmModal}
+  type={actionType}   // 👈 THIS IS THE KEY
+  title={
+    actionType === "distribute"
+      ? "Confirm Distribution"
+      : "Cancel Distribution"
+  }
+  message={
+    actionType === "distribute"
+      ? "Are you sure you want to distribute this subsidy?"
+      : "Are you sure you want to cancel this distribution?"
+  }
+  confirmText={actionType === "distribute" ? "Distribute" : "Cancel"}
+  loading={loadingRow === selectedRow?.DistributionDetailsID}
+  onCancel={() => setConfirmModal(false)}
+  onConfirm={handleConfirm}
+/>
     </div>
   );
 }

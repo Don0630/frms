@@ -52,7 +52,7 @@ export default function Subsidy() {
 
      
                     <button
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
             onClick={() => setAddSubsidyModal(true)}
           >
             <Plus className="w-4 h-4" /> Add Subsidy

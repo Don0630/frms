@@ -10,7 +10,7 @@ export default function AddStaffModal({ onClose, onSuccess }) {
     Position: "",
     Department: "",
     ContactNumber: "",
-    Email: "", // ✅ added
+    Email: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,6 @@ export default function AddStaffModal({ onClose, onSuccess }) {
       return "Email is required";
     }
 
-    // simple email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.Email)) {
       return "Invalid email format";
@@ -42,7 +41,8 @@ export default function AddStaffModal({ onClose, onSuccess }) {
     return "";
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setError("");
 
@@ -54,13 +54,10 @@ export default function AddStaffModal({ onClose, onSuccess }) {
     }
 
     try {
-      const res = await addStaff(form);
-      console.log("Staff added:", res);
-
-      onSuccess(); // reload staff list
-      onClose();   // close modal
+      await addStaff(form);
+      onSuccess?.();
+      onClose();
     } catch (err) {
-      console.error(err);
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -68,94 +65,169 @@ export default function AddStaffModal({ onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-      <div className="bg-white w-full max-w-md rounded-lg p-5 shadow-lg">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
 
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Add Staff</h2>
-          <button onClick={onClose}>
-            <X />
-          </button>
+        {/* CLOSE */}
+        <button onClick={onClose} className="absolute top-3 right-3">
+          <X />
+        </button>
+
+        {/* HEADER */}
+        <div className="mb-5">
+          <h2 className="text-xl font-semibold text-gray-800">
+            Add Staff
+          </h2>
+          <p className="text-sm text-gray-500">
+            Fill in staff information
+          </p>
         </div>
 
-        {/* Form */}
-        <div className="flex flex-col gap-3">
-          <input
-            name="FirstName"
-            placeholder="First Name"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+        {/* ERROR */}
+        {error && (
+          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
+            {error}
+          </div>
+        )}
 
-          <input
-            name="LastName"
-            placeholder="Last Name"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-          <input
-            name="Email"
-            type="email"
-            placeholder="Email"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+          {/* NAME */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs text-gray-500">First Name</label>
+              <input
+                name="FirstName"
+                value={form.FirstName}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
 
-          <select
-            name="Gender"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          >
-            <option>Male</option>
-            <option>Female</option>
-          </select>
+            <div>
+              <label className="text-xs text-gray-500">Last Name</label>
+              <input
+                name="LastName"
+                value={form.LastName}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
+          </div>
 
-          <input
-            name="Position"
-            placeholder="Position"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+          {/* EMAIL */}
+          <div>
+            <label className="text-xs text-gray-500">Email</label>
+            <input
+              type="email"
+              name="Email"
+              value={form.Email}
+              onChange={handleChange}
+              className="input"
+            />
+          </div>
 
-          <input
-            name="Department"
-            placeholder="Department"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+          {/* GENDER + CONTACT */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs text-gray-500">Gender</label>
+              <select
+                name="Gender"
+                value={form.Gender}
+                onChange={handleChange}
+                className="input"
+              >
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
 
-          <input
-            name="ContactNumber"
-            placeholder="Contact Number"
-            onChange={handleChange}
-            className="border p-2 rounded"
-          />
+            <div>
+              <label className="text-xs text-gray-500">Contact Number</label>
+              <input
+                name="ContactNumber"
+                value={form.ContactNumber}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
+          </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">{error}</p>
-          )}
-        </div>
+          {/* POSITION + DEPARTMENT */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs text-gray-500">Position</label>
+              <input
+                name="Position"
+                value={form.Position}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-2 mt-4">
-          <button
-            onClick={onClose}
-            className="px-3 py-1 bg-gray-200 rounded"
-          >
-            Cancel
-          </button>
+            <div>
+              <label className="text-xs text-gray-500">Department</label>
+              <input
+                name="Department"
+                value={form.Department}
+                onChange={handleChange}
+                className="input"
+              />
+            </div>
+          </div>
 
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="px-3 py-1 bg-green-600 text-white rounded"
-          >
-            {loading ? "Saving..." : "Save"}
-          </button>
-        </div>
+          {/* ACTIONS */}
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" onClick={onClose} className="btn-gray">
+              Cancel
+            </button>
+
+            <button type="submit" disabled={loading} className="btn-green">
+              {loading ? "Saving..." : "Save Staff"}
+            </button>
+          </div>
+
+        </form>
       </div>
+
+      {/* STYLES */}
+      <style>{`
+        .input {
+          width: 100%;
+          border: 1px solid #e5e7eb;
+          padding: 8px;
+          border-radius: 8px;
+          font-size: 14px;
+        }
+
+        .input:focus {
+          outline: none;
+          border-color: #16a34a;
+          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
+        }
+
+        .btn-green {
+          background: #16a34a;
+          color: white;
+          padding: 8px 14px;
+          border-radius: 8px;
+        }
+
+        .btn-gray {
+          background: #e5e7eb;
+          padding: 8px 14px;
+          border-radius: 8px;
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

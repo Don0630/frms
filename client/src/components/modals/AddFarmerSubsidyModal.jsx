@@ -168,9 +168,9 @@ export default function AddFarmerSubsidyModal({
             <button
               type="submit"
               disabled={loading}
-              className="btn-green"
+              className="btn-green hover:bg-green-700"
             >
-              {loading ? "Saving..." : "Assign Subsidy"}
+              Assign Subsidy
             </button>
           </div>
 
