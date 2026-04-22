@@ -8,7 +8,7 @@ export default function Pagination({
   totalItemsLength,
 }) {
   return (
-    <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
+    <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
 
       {/* INFO */}
       <span>

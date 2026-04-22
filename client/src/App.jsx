@@ -25,23 +25,39 @@ import NotFound from "./pages/NotFound.jsx";
 import SessionExpired from "./pages/SessionExpired.jsx"; 
 import { Outlet } from "react-router-dom";
 
-function Layout({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, darkMode, setDarkMode }) {
+function Layout({
+  sidebarOpen,
+  setSidebarOpen,
+  collapsed,
+  setCollapsed,
+  darkMode,
+  setDarkMode,
+}) {
   return (
-    <div className="flex h-screen w-screen bg-gray-100 dark:bg-gray-950">
-      <Sidebar collapsed={collapsed} />
+    <div className="flex h-screen w-full overflow-hidden bg-gray-100 dark:bg-gray-950">
+
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block">
+        <Sidebar collapsed={collapsed} />
+      </div>
+
+      {/* Mobile Sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-[1002] flex md:hidden">
           <div
             className="fixed inset-0 bg-black bg-opacity-50"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="relative w-64 bg-white dark:bg-gray-900 shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+
+          <div className="relative w-64 bg-white dark:bg-gray-900 shadow-lg z-50">
             <Sidebar collapsed={false} mobile />
           </div>
         </div>
       )}
 
-      <div className="flex-1 flex flex-col">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+
         <Navbar
           setSidebarOpen={setSidebarOpen}
           collapsed={collapsed}
@@ -49,10 +65,12 @@ function Layout({ sidebarOpen, setSidebarOpen, collapsed, setCollapsed, darkMode
           darkMode={darkMode}
           setDarkMode={setDarkMode}
         />
-        <div className="flex-1 overflow-y-auto p-4">
-          {/* This will render the nested routes */}
+
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
           <Outlet />
         </div>
+
       </div>
     </div>
   );

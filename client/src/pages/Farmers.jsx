@@ -1,221 +1,167 @@
 import { useState, useEffect } from "react";
-import { 
-  Search, Save, Plus, Mars, Venus, CheckCircle, Edit, SlidersHorizontal, Settings, Info, User, Users, X, Mail, Phone, Calendar, MapPin, FileText, MapPinned, Ruler, Eye
-} from "lucide-react";
+import { Search, Plus, Mars, Venus, Settings, Edit, Eye, SlidersHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useFarmer } from "../context/FarmerContext.jsx"; 
+
+import { useFarmer } from "../context/FarmerContext.jsx";
 import AddFarmerModal from "../components/modals/AddFarmerModal.jsx";
 import EditFarmerModal from "../components/modals/EditFarmerModal";
+
+import useTable from "../hooks/useTable";
+import usePagination from "../hooks/usePagination";
+
+import DataTable from "../components/common/DataTable";
+import Pagination from "../components/common/Pagination";
 
 export default function Farmers() {
   const { farmer, loadFarmer, loading, error } = useFarmer();
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("All"); 
-  const [addModal, setAddModal] = useState(false); 
-  const [editModal, setEditModal] = useState(null); 
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [filter, setFilter] = useState("All");
+  const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(null);
 
-  // Load farmers on mount
   useEffect(() => {
     loadFarmer();
   }, []);
 
-  // Reset page when search/filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, filter]);
-
-  // Filtered farmers
-  const filtered = farmer.filter((item) => {
-    const matchSearch =
-      item.FirstName.toLowerCase().includes(search.toLowerCase()) ||
-      item.LastName.toLowerCase().includes(search.toLowerCase());
-    const matchFilter = filter === "All" || item.Gender.toLowerCase() === filter.toLowerCase();
-    return matchSearch && matchFilter;
+  // reset page when filters change
+  const { search, setSearch, filteredData } = useTable({
+    data: farmer,
+    searchFields: ["FirstName", "LastName"],
+    filterFn: (item) =>
+      filter === "All" ||
+      item.Gender?.toLowerCase() === filter.toLowerCase(),
   });
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
- 
+  const { currentPage, setCurrentPage, currentItems, totalPages } =
+    usePagination(filteredData, 10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, setCurrentPage]);
 
   const getGenderIcon = (gender) => {
-    if (gender.toLowerCase() === "male") return <Mars className="w-4 h-4 text-blue-500 shrink-0" />;
-    if (gender.toLowerCase() === "female") return <Venus className="w-4 h-4 text-pink-500 shrink-0" />;
-    return <Users className="w-4 h-4 text-gray-500" />;
+    if (gender?.toLowerCase() === "male")
+      return <Mars className="w-4 h-4 text-blue-500" />;
+    if (gender?.toLowerCase() === "female")
+      return <Venus className="w-4 h-4 text-pink-500" />;
+    return null;
   };
 
+  // TABLE COLUMNS
+  const columns = [
+    {
+      key: "name",
+      label: "Name",
+      render: (item) => (
+        <div className="flex items-center gap-2">
+          {getGenderIcon(item.Gender)}
+          {item.FirstName} {item.MiddleName}. {item.LastName}
+        </div>
+      ),
+    },
+    { key: "Email", label: "Email" },
+    { key: "ContactNumber", label: "Contact No." },
+    { key: "RegistrationDate", label: "Registration Date" },
+    {
+      key: "actions",
+      label: "",
+      render: (item) => (
+        <div className="flex justify-center gap-1">
+          <button
+            onClick={() => setEditModal(item)}
+            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+          >
+            <Edit className="w-3 h-3" />
+          </button>
+
+          <button
+            onClick={() => navigate(`/farmerdetails/${item.FarmerID}`)}
+            className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+          >
+            <Eye className="w-3 h-3" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
+
   return (
-    <div className="w-full h-full p-4">
-      <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
+    <div className="w-full min-h-screen p-4 bg-gray-100">
 
-        {/* Header */}
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <h2 className="text-xl font-semibold text-gray-700">ALL FARMERS</h2>
-<button
-  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
-  onClick={() => setAddModal(true)}
->
-  <Plus className="w-4 h-4" /> Add New Farmer
-</button>
+      <div className="w-full bg-white/40 backdrop-blur-sm shadow-md rounded-xl p-6 flex flex-col gap-4">
+
+        {/* HEADER */}
+        <div className="flex flex-wrap justify-between items-center gap-3">
+          <h2 className="text-xl font-semibold text-gray-700">
+            ALL FARMERS
+          </h2>
+
+          <button
+            onClick={() => setAddModal(true)}
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+          >
+            <Plus className="w-4 h-4" /> Add New Farmer
+          </button>
         </div>
 
-        {/* Controls */}
-        <div className="flex flex-wrap gap-2 items-center mb-3">
-          <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
-            <Search className="w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search name..."
-              className="ml-2 outline-none text-sm w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+        {/* TABLE */}
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <>
+            <DataTable
+              columns={columns}
+              data={currentItems}
+              search={search}
+              setSearch={setSearch}
+              filters={
+                <div className="flex gap-4 text-sm items-center">
+                  {["All", "Male", "Female"].map((item) => (
+                    <label
+                      key={item}
+                      className="flex items-center gap-1 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        checked={filter === item}
+                        onChange={() => setFilter(item)}
+                      />
+                      {item}
+                    </label>
+                  ))}
+                </div>
+              }
             />
-          </div>
 
-          <button className="flex items-center gap-1 px-3 py-2 border rounded-lg bg-white text-sm">
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-          </button>
-
-          <button className="flex items-center gap-1 px-3 py-2 border rounded-lg bg-white text-sm">
-            <Settings className="w-4 h-4" /> Configurations
-          </button>
-        </div>
-
-        {/* Filter */}
-        <div className="flex gap-4 text-sm mb-4">
-          {["All", "Male","Female"].map((item) => (
-            <label key={item} className="flex items-center gap-1 cursor-pointer">
-              <input
-                type="radio"
-                checked={filter === item}
-                onChange={() => setFilter(item)}
-              />
-              {item}
-            </label>
-          ))}
-        </div>
-
-        {/* Table */}
-        <div className="w-full border rounded-lg">
-          <table className="w-full text-xs sm:text-sm">
-            <thead className="bg-gray-100 text-gray-600">
-              <tr>
-                <th className="py-3 px-2 text-left">Name</th>
-                <th className="py-3 px-2 text-left">Email</th>
-                <th className="py-3 px-2 text-left">Contact No.</th>
-                <th className="py-3 px-2 text-left">Registration Date</th>
-                <th className="py-3 px-2 text-center">
-                  <Settings className="text-gray-600 w-5 h-5 mx-auto" />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-4">Loading...</td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-4 text-red-500">{error}</td>
-                </tr>
-              ) : currentItems.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="text-center py-4">No farmers found</td>
-                </tr>
-              ) : (
-                currentItems.map((item, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="py-2 px-2 flex items-center gap-1">
-                      {getGenderIcon(item.Gender)}
-                      {item.FirstName} {item.MiddleName}. {item.LastName}
-                    
-                    </td>
-                    <td>{item.Email}</td>
-                    <td>{item.ContactNumber}</td>
-                    <td>{item.RegistrationDate}</td>
-                    <td className="py-2 px-2 flex items-center justify-center gap-1">
-                    <button onClick={() => setEditModal(item)} 
-                      className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
-                      <Edit className="w-3 h-3" />
-                    </button>
-
-<button
-  onClick={() => navigate(`/farmerdetails/${item.FarmerID}`)}
-  className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
->
-  <Eye className="w-3 h-3" />
-</button>
-              
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer */}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <span>
-            Showing {currentItems.length} of {filtered.length} farmers
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage(prev => prev + 1)}
-            >
-              Next
-            </button>
-          </div>
-        </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+              currentItemsLength={currentItems.length}
+              totalItemsLength={filteredData.length}
+            />
+          </>
+        )}
       </div>
 
- {/* Modal */} 
+      {/* MODALS */}
+      {addModal && (
+        <AddFarmerModal
+          onClose={() => setAddModal(false)}
+          onSuccess={loadFarmer}
+        />
+      )}
 
-{addModal && (
-  <AddFarmerModal
-    onClose={() => setAddModal(false)}
-    onSuccess={() => loadFarmer()} // reload farmers after adding
-  />
-)}
- 
-  {editModal && (
-    <EditFarmerModal
-      selectedFarmer={editModal}
-      onClose={() => setEditModal(null)}
-      onSuccess={loadFarmer}
-    />
-  )}
-
-
-
-
+      {editModal && (
+        <EditFarmerModal
+          selectedFarmer={editModal}
+          onClose={() => setEditModal(null)}
+          onSuccess={loadFarmer}
+        />
+      )}
     </div>
   );
 }

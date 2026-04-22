@@ -11,7 +11,7 @@ import {
   Calendar,
   Edit,
   Trash2,
-  Layers
+  Layers,
 } from "lucide-react";
 
 import AddFarmModal from "../components/modals/AddFarmModal";
@@ -28,28 +28,42 @@ export default function FarmerDetails() {
 
   const [addFarmModal, setAddFarmModal] = useState(false);
   const [editFarmModal, setEditFarmModal] = useState(null);
-
   const [deleteFarmModal, setDeleteFarmModal] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Load farmers
+  // ✅ LOAD ONLY ONCE
   useEffect(() => {
-    if (!farmer.length) loadFarmer();
-  }, [farmer]);
+    if (!farmer || farmer.length === 0) {
+      loadFarmer();
+    }
+  }, []);
 
-  // Find selected farmer
+  // ✅ SAFE FIND (prevents crash)
   useEffect(() => {
-    const found = farmer.find((f) => f.FarmerID == id);
+    if (!farmer || farmer.length === 0) return;
+
+    const found = farmer.find(
+      (f) => String(f?.FarmerID) === String(id)
+    );
+
     setSelectedFarmer(found || null);
   }, [farmer, id]);
 
+  // ✅ SAFE LOADING STATE
   if (!selectedFarmer) {
-    return <div className="p-6 text-gray-500">Loading farmer details...</div>;
+    return (
+      <div className="p-6 text-gray-500">
+        Loading farmer details...
+      </div>
+    );
   }
 
-  const farms = selectedFarmer.Farms || [];
+  // ✅ SAFE FARMS
+  const farms = selectedFarmer?.Farms ?? [];
 
-  const fullName = `${selectedFarmer.FirstName} ${selectedFarmer.MiddleName || ""} ${selectedFarmer.LastName}`;
+  const fullName = `${selectedFarmer.FirstName} ${
+    selectedFarmer.MiddleName || ""
+  } ${selectedFarmer.LastName}`;
 
   return (
     <>
@@ -66,7 +80,9 @@ export default function FarmerDetails() {
 
         {/* FARMER INFO */}
         <div className="bg-white rounded-2xl shadow p-6">
-          <h1 className="text-2xl font-bold text-gray-800">{fullName}</h1>
+          <h1 className="text-2xl font-bold text-gray-800">
+            {fullName}
+          </h1>
 
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
 
@@ -119,7 +135,9 @@ export default function FarmerDetails() {
 
           {/* TABLE */}
           {farms.length === 0 ? (
-            <p className="text-gray-500 text-sm">No farms registered yet.</p>
+            <p className="text-gray-500 text-sm">
+              No farms registered yet.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm border rounded-lg overflow-hidden">
@@ -134,28 +152,24 @@ export default function FarmerDetails() {
 
                 <tbody>
                   {farms.map((farm) => (
-                    <tr key={farm.FarmID} className="border-t hover:bg-gray-50">
+                    <tr key={farm?.FarmID} className="border-t hover:bg-gray-50">
 
-                      {/* LOCATION */}
                       <td className="p-3">
                         <p className="font-medium text-gray-800">
-                          {farm.FarmBarangay}
+                          {farm?.FarmBarangay}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {farm.FarmMunicipality}, {farm.FarmProvince}
+                          {farm?.FarmMunicipality}, {farm?.FarmProvince}
                         </p>
                       </td>
 
-                      {/* SIZE */}
                       <td className="p-3 font-semibold text-green-700">
-                        {farm.FarmSize} ha
+                        {farm?.FarmSize} ha
                       </td>
 
-                      {/* ACTIONS */}
                       <td className="p-3">
                         <div className="flex justify-center gap-2">
 
-                          {/* EDIT */}
                           <button
                             onClick={() => setEditFarmModal(farm)}
                             className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
@@ -163,7 +177,6 @@ export default function FarmerDetails() {
                             <Edit className="w-3 h-3" />
                           </button>
 
-                          {/* DELETE */}
                           <button
                             onClick={() => setDeleteFarmModal(farm)}
                             className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
@@ -184,7 +197,7 @@ export default function FarmerDetails() {
         </div>
       </div>
 
-      {/* ADD FARM MODAL */}
+      {/* MODALS */}
       {addFarmModal && (
         <AddFarmModal
           farmer={selectedFarmer}
@@ -196,7 +209,6 @@ export default function FarmerDetails() {
         />
       )}
 
-      {/* EDIT FARM MODAL */}
       {editFarmModal && (
         <EditFarmModal
           selectedFarm={{
@@ -211,7 +223,6 @@ export default function FarmerDetails() {
         />
       )}
 
-      {/* DELETE FARM MODAL */}
       {deleteFarmModal && (
         <DeleteFarmModal
           open={true}
@@ -225,8 +236,6 @@ export default function FarmerDetails() {
               await deleteFarm(deleteFarmModal.FarmID);
               setDeleteFarmModal(null);
               loadFarmer();
-            } catch (err) {
-              alert("Failed to delete farm");
             } finally {
               setDeleting(false);
             }
