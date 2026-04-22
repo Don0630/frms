@@ -8,7 +8,7 @@ export default function Pagination({
   totalItemsLength,
 }) {
   return (
-    <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
+    <div className="flex justify-between items-center mt-2 text-sm text-gray-700 dark:text-gray-300">
 
       {/* INFO */}
       <span>
@@ -22,7 +22,7 @@ export default function Pagination({
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage(currentPage - 1)}
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          className="px-3 py-1 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
         >
           Prev
         </button>
@@ -32,10 +32,10 @@ export default function Pagination({
           <button
             key={i}
             onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded ${
+            className={`px-3 py-1 rounded transition-colors ${
               currentPage === i + 1
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200"
+                ? "bg-blue-600 text-white dark:bg-blue-500"
+                : "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700"
             }`}
           >
             {i + 1}
@@ -46,7 +46,7 @@ export default function Pagination({
         <button
           disabled={currentPage === totalPages || totalPages === 0}
           onClick={() => setCurrentPage(currentPage + 1)}
-          className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
+          className="px-3 py-1 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
         >
           Next
         </button>

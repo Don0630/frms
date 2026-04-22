@@ -47,61 +47,83 @@ const menuItems = [
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {
-  const { user } = useAuth(); // get current logged-in user
+  const { user } = useAuth();
 
   return (
     <div
-      className={`${mobile ? "flex" : "hidden md:flex"} flex-col h-full 
-      bg-white dark:bg-gray-900 transition-all duration-300 
-      ${collapsed ? "w-20" : "w-64"} flex-shrink-0 relative z-40`}
+      className={`
+        ${mobile ? "flex" : "hidden md:flex"}
+        flex-col h-full
+        bg-white dark:bg-gray-900
+        transition-[width] duration-300 ease-in-out
+        ${collapsed ? "w-20" : "w-64"}
+        flex-shrink-0 relative z-40 overflow-hidden
+      `}
       style={{ boxShadow: "4px 0 10px rgba(0, 0, 0, 0.15)" }}
     >
-      {/* Header */}
+      {/* HEADER */}
       <div
-        className={`flex items-center ${
-          collapsed ? "justify-center" : "gap-6"
-        } px-4 py-2 border-b dark:border-gray-700`}
+        className={`flex items-center px-4 py-2 border-b dark:border-gray-700
+        ${collapsed ? "justify-center" : "gap-6"}`}
       >
         <img
           src={logo}
           alt="Logo"
           className="w-9 h-9 object-contain rounded-full"
-          style={{ boxShadow: "0 6px 12px rgba(0, 0, 0, 0.5)" }}
         />
-        {!collapsed && (
-          <h1 className="text-sm font-bold text-gray-600 dark:text-white whitespace-nowrap cursor-default">
-            MONITORING SYSTEM
-          </h1>
-        )}
+
+        <h1
+          className={`
+            text-sm font-bold text-gray-600 dark:text-white whitespace-nowrap
+            transition-opacity duration-200
+            ${collapsed ? "opacity-0" : "opacity-100"}
+          `}
+        >
+          MONITORING SYSTEM
+        </h1>
       </div>
 
-      {/* Menu */}
+      {/* MENU */}
       <nav className="flex-1 p-2">
         {menuItems
-          .filter((item) => {
-            // ✅ filter by role if roles property exists
-            if (!item.roles) return true; // no roles = everyone
-            return item.roles.includes(user?.Role);
-          })
+          .filter((item) => !item.roles || item.roles.includes(user?.Role))
           .map((item, idx) => (
             <div key={idx}>
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center rounded transition text-sm font-semibold no-underline ${
-                    collapsed ? "justify-center p-3" : "gap-4 p-4"
-                  } ${
+                  `
+                  flex items-center rounded text-sm font-semibold no-underline
+                  transition-colors duration-200
+
+                  /* 🔥 FIX: force consistent icon alignment */
+                  ${collapsed ? "justify-center py-3" : "gap-4 p-4"}
+
+                  ${
                     isActive
-                      ? "bg-green-500 text-white visited:text-white hover:bg-green-600 hover:text-white font-semibold shadow-md"
-                      : "text-gray-600 dark:text-gray-400 hover:bg-green-600 dark:hover:bg-green-600 hover:text-white dark:hover:text-white"
-                  }`
+                      ? "bg-green-500 text-white shadow-md"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-green-600 hover:text-white"
+                  }
+                  `
                 }
               >
-                {item.icon}
-                {!collapsed && <span>{item.name}</span>}
+                {/* 🔥 FIX: icon wrapper ensures stability */}
+                <div className="flex items-center justify-center w-6 h-6 shrink-0">
+                  {item.icon}
+                </div>
+
+                {/* TEXT ONLY (no layout shift) */}
+                <span
+                  className={`
+                    whitespace-nowrap
+                    transition-opacity duration-150
+                    ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}
+                  `}
+                >
+                  {item.name}
+                </span>
               </NavLink>
 
-              {/* Divider after "Livestock" */}
               {item.name === "Livestock" && (
                 <div className="my-2 border-t border-gray-300 dark:border-gray-700" />
               )}

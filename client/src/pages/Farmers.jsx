@@ -89,79 +89,80 @@ export default function Farmers() {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <div className="w-full min-h-screen p-4 bg-gray-100">
+  <div className="w-full min-h-screen p-4 bg-gray-100 dark:bg-gray-950">
 
-      <div className="w-full bg-white/40 backdrop-blur-sm shadow-md rounded-xl p-6 flex flex-col gap-4">
+    <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-        {/* HEADER */}
-        <div className="flex flex-wrap justify-between items-center gap-3">
-          <h2 className="text-xl font-semibold text-gray-700">
-            ALL FARMERS
-          </h2>
+      {/* HEADER */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+          ALL FARMERS
+        </h2>
 
-          <button
-            onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
-          >
-            <Plus className="w-4 h-4" /> Add New Farmer
-          </button>
-        </div>
-
-        {/* TABLE */}
-        {loading ? (
-          <p>Loading...</p>
-        ) : (
-          <>
-            <DataTable
-              columns={columns}
-              data={currentItems}
-              search={search}
-              setSearch={setSearch}
-              filters={
-                <div className="flex gap-4 text-sm items-center">
-                  {["All", "Male", "Female"].map((item) => (
-                    <label
-                      key={item}
-                      className="flex items-center gap-1 cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        checked={filter === item}
-                        onChange={() => setFilter(item)}
-                      />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-              }
-            />
-
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-              currentItemsLength={currentItems.length}
-              totalItemsLength={filteredData.length}
-            />
-          </>
-        )}
+        <button
+          onClick={() => setAddModal(true)}
+          className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Add New Farmer
+        </button>
       </div>
 
-      {/* MODALS */}
-      {addModal && (
-        <AddFarmerModal
-          onClose={() => setAddModal(false)}
-          onSuccess={loadFarmer}
-        />
-      )}
+      {/* TABLE */}
+      {loading ? (
+        <p className="text-gray-700 dark:text-gray-300">Loading Farmers...</p>
+      ) : (
+        <>
+          <DataTable
+            columns={columns}
+            data={currentItems}
+            search={search}
+            setSearch={setSearch}
+            filters={
+              <div className="flex gap-4 text-sm items-center text-gray-700 dark:text-gray-300">
+                {["All", "Male", "Female"].map((item) => (
+                  <label
+                    key={item}
+                    className="flex items-center gap-1 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      className="accent-green-600 dark:accent-green-400"
+                      checked={filter === item}
+                      onChange={() => setFilter(item)}
+                    />
+                    {item}
+                  </label>
+                ))}
+              </div>
+            }
+          />
 
-      {editModal && (
-        <EditFarmerModal
-          selectedFarmer={editModal}
-          onClose={() => setEditModal(null)}
-          onSuccess={loadFarmer}
-        />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            currentItemsLength={currentItems.length}
+            totalItemsLength={filteredData.length}
+          />
+        </>
       )}
     </div>
-  );
+
+    {/* MODALS */}
+    {addModal && (
+      <AddFarmerModal
+        onClose={() => setAddModal(false)}
+        onSuccess={loadFarmer}
+      />
+    )}
+
+    {editModal && (
+      <EditFarmerModal
+        selectedFarmer={editModal}
+        onClose={() => setEditModal(null)}
+        onSuccess={loadFarmer}
+      />
+    )}
+  </div>
+);
 }

@@ -95,81 +95,82 @@ export default function Programs() {
 
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
-  return (
-    <div className="w-full min-h-screen p-4 bg-gray-100">
+ return (
+  <div className="w-full p-4 bg-gray-50 dark:bg-gray-950 min-h-screen">
 
-      <div className="w-full bg-white/40 backdrop-blur-md shadow-md rounded-xl p-6 flex flex-col gap-4">
+    <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-        {/* HEADER */}
-        <div className="flex flex-wrap justify-between items-center gap-3">
-          <h2 className="text-xl font-semibold text-gray-700">
-            ALL PROGRAMS
-          </h2>
+      {/* HEADER */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+          ALL PROGRAMS
+        </h2>
 
-          <button
-            onClick={() => setAddProgramModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
-          >
-            <Plus className="w-4 h-4" /> Add Program
-          </button>
-        </div>
-
-        {/* TABLE */}
-        <DataTable
-          columns={columns}
-          data={currentItems}
-          search={search}
-          setSearch={setSearch}
-          filters={
-            <div className="flex gap-4 text-sm items-center">
-              {["All", "Active", "Completed", "Dropped"].map((item) => (
-                <label
-                  key={item}
-                  className="flex items-center gap-1 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    checked={filter === item}
-                    onChange={() => setFilter(item)}
-                  />
-                  {item}
-                </label>
-              ))}
-            </div>
-          }
-        />
-
-        {/* PAGINATION */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          currentItemsLength={currentItems.length}
-          totalItemsLength={filteredData.length}
-        />
-
+        <button
+          onClick={() => setAddProgramModal(true)}
+          className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
+        >
+          <Plus className="w-4 h-4" /> Add Program
+        </button>
       </div>
 
-      {/* MODALS */}
-      <ViewProgramModal
-        program={viewModal}
-        onClose={() => setViewModal(null)}
+      {/* TABLE */}
+      <DataTable
+        columns={columns}
+        data={currentItems}
+        search={search}
+        setSearch={setSearch}
+        filters={
+          <div className="flex gap-4 text-sm items-center text-gray-700 dark:text-gray-300">
+            {["All", "Active", "Completed", "Dropped"].map((item) => (
+              <label
+                key={item}
+                className="flex items-center gap-1 cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  className="accent-green-600 dark:accent-green-400"
+                  checked={filter === item}
+                  onChange={() => setFilter(item)}
+                />
+                {item}
+              </label>
+            ))}
+          </div>
+        }
       />
 
-      {addProgramModal && (
-        <AddProgramModal
-          onClose={() => setAddProgramModal(false)}
-          onSuccess={loadProgram}
-        />
-      )}
+      {/* PAGINATION */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+        currentItemsLength={currentItems.length}
+        totalItemsLength={filteredData.length}
+      />
 
-      {editModal && (
-        <EditProgramModal
-          selectedProgram={editModal}
-          onClose={() => setEditModal(null)}
-          onSuccess={loadProgram}
-        />
-      )}
     </div>
-  );
+
+    {/* MODALS */}
+    <ViewProgramModal
+      program={viewModal}
+      onClose={() => setViewModal(null)}
+    />
+
+    {addProgramModal && (
+      <AddProgramModal
+        onClose={() => setAddProgramModal(false)}
+        onSuccess={loadProgram}
+      />
+    )}
+
+    {editModal && (
+      <EditProgramModal
+        selectedProgram={editModal}
+        onClose={() => setEditModal(null)}
+        onSuccess={loadProgram}
+      />
+    )}
+  </div>
+);
 }

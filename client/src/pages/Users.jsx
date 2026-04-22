@@ -22,22 +22,15 @@ export default function Users() {
     loadUsers();
   }, []);
 
-  // TABLE LOGIC (search + filter)
   const { search, setSearch, filteredData } = useTable({
     data: users,
     searchFields: ["FirstName", "LastName", "Username"],
     filterFn: (item) => filter === "All" || item.Role === filter,
   });
 
-  // PAGINATION
-  const {
-    currentPage,
-    setCurrentPage,
-    currentItems,
-    totalPages,
-  } = usePagination(filteredData, 10);
+  const { currentPage, setCurrentPage, currentItems, totalPages } =
+    usePagination(filteredData, 10);
 
-  // RESET PAGE ON CHANGE (IMPORTANT FIX)
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filter, filteredData, setCurrentPage]);
@@ -47,29 +40,61 @@ export default function Users() {
       key: "name",
       label: "Name",
       render: (item) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           <User className="w-4 h-4 text-blue-500" />
           {item.FirstName} {item.LastName}
 
           <button
             onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 p-1 rounded"
+            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
           >
             <Info className="w-4 h-4 text-blue-500" />
           </button>
         </div>
       ),
     },
-    { key: "Username", label: "Username" },
-    { key: "Role", label: "Role" },
-    { key: "ContactNumber", label: "Contact" },
-    { key: "Email", label: "Email" },
+    {
+      key: "Username",
+      label: "Username",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.Username}
+        </span>
+      ),
+    },
+    {
+      key: "Role",
+      label: "Role",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.Role}
+        </span>
+      ),
+    },
+    {
+      key: "ContactNumber",
+      label: "Contact",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.ContactNumber}
+        </span>
+      ),
+    },
+    {
+      key: "Email",
+      label: "Email",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.Email}
+        </span>
+      ),
+    },
     {
       key: "actions",
       label: "",
       render: () => (
         <div className="flex justify-center">
-          <button className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
+          <button className="bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors">
             <Edit className="w-3 h-3" />
           </button>
         </div>
@@ -78,20 +103,24 @@ export default function Users() {
   ];
 
   if (error)
-    return <p className="text-red-500 p-4">Error: {error}</p>;
+    return (
+      <p className="text-red-600 dark:text-red-400 p-4">
+        Error: {error}
+      </p>
+    );
 
   return (
     <div className="w-full p-4">
-      <div className="w-full bg-white/30 backdrop-blur-sm shadow-md rounded-lg p-6 flex flex-col gap-4">
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
         {/* HEADER */}
         <div className="flex flex-wrap justify-between items-center gap-3">
-          <h2 className="text-xl font-semibold text-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             ALL USERS
           </h2>
 
           <button
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
+            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
             onClick={() => setAddModal(true)}
           >
             <Plus className="w-4 h-4" /> Add User
@@ -100,7 +129,9 @@ export default function Users() {
 
         {/* TABLE */}
         {loading ? (
-          <p>Loading users...</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            Loading users...
+          </p>
         ) : (
           <>
             <DataTable
@@ -109,11 +140,12 @@ export default function Users() {
               search={search}
               setSearch={setSearch}
               filters={
-                <div className="flex gap-4 text-sm">
+                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
                   {["All", "Admin", "Staff"].map((item) => (
                     <label key={item} className="flex items-center gap-1">
                       <input
                         type="radio"
+                        className="accent-green-600 dark:accent-green-400"
                         checked={filter === item}
                         onChange={() => setFilter(item)}
                       />
@@ -137,7 +169,10 @@ export default function Users() {
 
       {/* MODALS */}
       {viewModal && (
-        <ViewUserModal user={viewModal} onClose={() => setViewModal(null)} />
+        <ViewUserModal
+          user={viewModal}
+          onClose={() => setViewModal(null)}
+        />
       )}
 
       {addModal && (

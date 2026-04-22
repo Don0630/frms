@@ -82,50 +82,53 @@ export default function Subsidy() {
 
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
-  return (
-    <div className="w-full p-4">
+ return ( 
+  <div className="w-full p-4 bg-gray-50 dark:bg-gray-950 min-h-screen">
 
-      <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6 space-y-4">
+    <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-        <div className="flex flex-wrap justify-between items-center gap-3">
-          <h2 className="text-xl font-semibold text-gray-700">
-            SUBSIDY RECORDS
-          </h2>
+      {/* HEADER */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+          SUBSIDY RECORDS
+        </h2>
 
-          <button
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
-            onClick={() => setAddSubsidyModal(true)}
-          >
-            <Plus className="w-4 h-4" /> Add Subsidy
-          </button>
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={currentItems}
-          search={search}
-          setSearch={setSearch}
-        />
-
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          currentItemsLength={currentItems.length}
-          totalItemsLength={filteredData.length}
-        />
-
+        <button
+          className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
+          onClick={() => setAddSubsidyModal(true)}
+        >
+          <Plus className="w-4 h-4" /> Add Subsidy
+        </button>
       </div>
 
-      {addSubsidyModal && (
-        <AddSubsidyModal
-          onClose={() => setAddSubsidyModal(false)}
-          onSuccess={() => {
-            setAddSubsidyModal(false);
-            loadSubsidy();
-          }}
-        />
-      )}
+      {/* TABLE */}
+      <DataTable
+        columns={columns}
+        data={currentItems}
+        search={search}
+        setSearch={setSearch}
+      />
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        setCurrentPage={setCurrentPage}
+        currentItemsLength={currentItems.length}
+        totalItemsLength={filteredData.length}
+      />
+
     </div>
-  );
+
+    {/* MODAL */}
+    {addSubsidyModal && (
+      <AddSubsidyModal
+        onClose={() => setAddSubsidyModal(false)}
+        onSuccess={() => {
+          setAddSubsidyModal(false);
+          loadSubsidy();
+        }}
+      />
+    )}
+  </div>
+);
 }

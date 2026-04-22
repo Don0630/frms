@@ -290,7 +290,7 @@ export default function SubsidyDetails() {
 </div>
 
       {/* TABLE */}
-      <div className="bg-white/40 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4">
+      <div className="bg-white/60 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4">
 
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold">

@@ -32,61 +32,72 @@ export default function Staff() {
   const [userModal, setUserModal] = useState(null);
   const [editModal, setEditModal] = useState(null);
 
-  // LOAD DATA
   useEffect(() => {
     loadStaff();
   }, []);
 
-  // SEARCH + FILTER ONLY
-  const {
-    search,
-    setSearch,
-    filteredData,
-  } = useTable({
+  const { search, setSearch, filteredData } = useTable({
     data: staff,
     searchFields: ["FirstName", "LastName"],
     filterFn: (item) => filter === "All" || item.Gender === filter,
   });
 
-  // PAGINATION ONLY
-  const {
-    currentPage,
-    setCurrentPage,
-    currentItems,
-    totalPages,
-  } = usePagination(filteredData, 10);
+  const { currentPage, setCurrentPage, currentItems, totalPages } =
+    usePagination(filteredData, 10);
 
-  // GENDER ICON
   const getGenderIcon = (gender) => {
     if (gender?.toLowerCase() === "male")
       return <Mars className="w-4 h-4 text-blue-500" />;
     if (gender?.toLowerCase() === "female")
       return <Venus className="w-4 h-4 text-pink-500" />;
-    return <Users className="w-4 h-4 text-gray-500" />;
+    return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
   };
 
-  // TABLE COLUMNS
   const columns = [
     {
       key: "name",
       label: "Name",
       render: (item) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
           {item.FirstName} {item.LastName}
 
           <button
             onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 p-1 rounded"
+            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
           >
             <Info className="w-4 h-4 text-blue-500" />
           </button>
         </div>
-      )
+      ),
     },
-    { key: "Position", label: "Position" },
-    { key: "Department", label: "Department" },
-    { key: "ContactNumber", label: "Contact" },
+    {
+      key: "Position",
+      label: "Position",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.Position}
+        </span>
+      ),
+    },
+    {
+      key: "Department",
+      label: "Department",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.Department}
+        </span>
+      ),
+    },
+    {
+      key: "ContactNumber",
+      label: "Contact",
+      render: (item) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {item.ContactNumber}
+        </span>
+      ),
+    },
     {
       key: "actions",
       label: "",
@@ -94,33 +105,37 @@ export default function Staff() {
         <div className="flex justify-center gap-1">
           <button
             onClick={() => setEditModal(item)}
-            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+            className="bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
           >
             <Edit className="w-3 h-3" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   if (error)
-    return <p className="p-4 text-red-500">Error: {error}</p>;
+    return (
+      <p className="p-4 text-red-600 dark:text-red-400">
+        Error: {error}
+      </p>
+    );
 
   return (
-    <div className="w-full h-full p-4">
+    <div className="w-full p-4">
 
-      <div className="w-full rounded-sm bg-white/30 backdrop-blur-sm shadow-md p-6">
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
         {/* HEADER */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
 
-          <h2 className="text-xl font-semibold text-gray-700">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             ALL STAFF
           </h2>
 
           <button
             onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow"
+            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
           >
             <Plus className="w-4 h-4" /> Add Staff
           </button>
@@ -129,7 +144,9 @@ export default function Staff() {
 
         {/* TABLE */}
         {loading ? (
-          <p className="p-4">Loading staff...</p>
+          <p className="text-gray-700 dark:text-gray-300 p-4">
+            Loading staff...
+          </p>
         ) : (
           <>
             <DataTable
@@ -138,7 +155,7 @@ export default function Staff() {
               search={search}
               setSearch={setSearch}
               filters={
-                <div className="flex gap-4 text-sm">
+                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
                   {["All", "Male", "Female"].map((item) => (
                     <label
                       key={item}
@@ -146,6 +163,7 @@ export default function Staff() {
                     >
                       <input
                         type="radio"
+                        className="accent-green-600 dark:accent-green-400"
                         checked={filter === item}
                         onChange={() => setFilter(item)}
                       />
@@ -168,11 +186,8 @@ export default function Staff() {
 
       </div>
 
-      {/* MODALS */}
-      <ViewStaffModal
-        data={viewModal}
-        onClose={() => setViewModal(null)}
-      />
+      {/* MODALS (unchanged) */}
+      <ViewStaffModal data={viewModal} onClose={() => setViewModal(null)} />
 
       <RegisterUserModal
         data={userModal}

@@ -14,10 +14,8 @@ export default function DataTable({
       {/* HEADER */}
       <div className="flex flex-col gap-3">
 
-        {/* TOP ROW: SEARCH + FILTERS */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 
-          {/* LEFT SIDE */}
           <div className="flex flex-wrap items-center gap-3 w-full">
 
             {/* SEARCH */}
@@ -26,20 +24,26 @@ export default function DataTable({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search..."
-                className="border rounded-lg px-3 py-2 bg-white w-full md:w-64 text-sm"
+                className="
+                  border rounded-lg px-3 py-2 w-full md:w-64 text-sm
+                  bg-white dark:bg-gray-800
+                  text-gray-800 dark:text-gray-100
+                  border-gray-300 dark:border-gray-700
+                  focus:outline-none focus:ring-2 focus:ring-green-500
+                "
               />
             )}
 
-            {/* RADIO FILTERS (rightActions used here) */}
+            {/* RIGHT ACTIONS */}
             {rightActions && (
-              <div className="flex items-center gap-4 text-sm flex-nowrap">
+              <div className="flex items-center gap-4 text-sm text-gray-700 dark:text-gray-300">
                 {rightActions}
               </div>
             )}
 
-            {/* EXTRA FILTERS (optional) */}
+            {/* FILTERS */}
             {filters && (
-              <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
                 {filters}
               </div>
             )}
@@ -50,11 +54,15 @@ export default function DataTable({
       </div>
 
       {/* TABLE */}
-      <div className="w-full overflow-x-auto border rounded-lg bg-white">
+      <div className="
+        w-full overflow-x-auto rounded-lg border
+        bg-white dark:bg-gray-900
+        border-gray-200 dark:border-gray-800
+      ">
 
         <table className="w-full text-sm">
 
-          <thead className="bg-gray-100 text-gray-600">
+          <thead className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300">
             <tr>
               {columns.map((col) => (
                 <th key={col.key} className="text-left px-3 py-3">
@@ -69,21 +77,30 @@ export default function DataTable({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="text-center py-6 text-gray-500"
+                  className="text-center py-6 text-gray-500 dark:text-gray-400"
                 >
                   {emptyText}
                 </td>
               </tr>
             ) : (
               data.map((row, i) => (
-                <tr key={i} className="border-t hover:bg-gray-50">
-
+                <tr
+                  key={i}
+                  className="
+                    border-t
+                    border-gray-200 dark:border-gray-800
+                    hover:bg-gray-50 dark:hover:bg-gray-800
+                    transition-colors
+                  "
+                >
                   {columns.map((col) => (
-                    <td key={col.key} className="px-3 py-2">
+                    <td
+                      key={col.key}
+                      className="px-3 py-2 text-gray-700 dark:text-gray-200"
+                    >
                       {col.render ? col.render(row) : row[col.key]}
                     </td>
                   ))}
-
                 </tr>
               ))
             )}

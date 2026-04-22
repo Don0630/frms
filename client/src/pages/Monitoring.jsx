@@ -22,7 +22,6 @@ export default function Monitoring() {
     loadMonitoring();
   }, []);
 
-  // TABLE LOGIC
   const { search, setSearch, filteredData } = useTable({
     data: monitoring,
     searchFields: ["FirstName", "LastName", "CropName", "Breed"],
@@ -33,31 +32,61 @@ export default function Monitoring() {
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
 
-  // ICON
   const getGenderIcon = (gender) => {
     if (gender?.toLowerCase() === "male")
       return <Mars className="w-4 h-4 text-blue-500" />;
     if (gender?.toLowerCase() === "female")
       return <Venus className="w-4 h-4 text-pink-500" />;
-    return <Users className="w-4 h-4 text-gray-500" />;
+    return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
   };
 
-  // COLUMNS
   const columns = [
     {
       key: "farmer",
       label: "Farmer",
       render: (item) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
           {item.FirstName ? `${item.FirstName} ${item.LastName}` : "N/A"}
         </div>
       ),
     },
-    { key: "CropName", label: "Crop", render: (i) => i.CropName || "-" },
-    { key: "Breed", label: "Livestock", render: (i) => i.Breed || "-" },
-    { key: "ProductionVolume", label: "Production" },
-    { key: "ReportDate", label: "Date" },
+    {
+      key: "CropName",
+      label: "Crop",
+      render: (i) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {i.CropName || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "Breed",
+      label: "Livestock",
+      render: (i) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {i.Breed || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "ProductionVolume",
+      label: "Production",
+      render: (i) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {i.ProductionVolume || "-"}
+        </span>
+      ),
+    },
+    {
+      key: "ReportDate",
+      label: "Date",
+      render: (i) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {i.ReportDate || "-"}
+        </span>
+      ),
+    },
     {
       key: "actions",
       label: "",
@@ -65,7 +94,7 @@ export default function Monitoring() {
         <div className="flex justify-center">
           <button
             onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 p-1 rounded"
+            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
           >
             <Info className="w-4 h-4 text-blue-500" />
           </button>
@@ -74,30 +103,39 @@ export default function Monitoring() {
     },
   ];
 
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (error)
+    return (
+      <div className="p-4 text-red-600 dark:text-red-400">
+        {error}
+      </div>
+    );
 
   return (
-    <div className="w-full min-h-screen p-4 bg-gray-100">
+    <div className="w-full p-4">
 
-      <div className="w-full bg-white/40 backdrop-blur-md shadow-md rounded-xl p-6 flex flex-col gap-4">
+     <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
         {/* HEADER */}
         <div className="flex flex-wrap justify-between items-center gap-3">
-          <h2 className="text-xl font-semibold text-gray-700">
+
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             MONITORING RECORDS
           </h2>
 
           <button
             onClick={() => setAddMonitoringModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
+            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
           >
             <Plus className="w-4 h-4" /> New Report
           </button>
+
         </div>
 
         {/* TABLE */}
         {loading ? (
-          <p>Loading monitoring records...</p>
+          <p className="text-gray-700 dark:text-gray-300">
+            Loading monitoring records...
+          </p>
         ) : (
           <>
             <DataTable
@@ -106,11 +144,12 @@ export default function Monitoring() {
               search={search}
               setSearch={setSearch}
               filters={
-                <div className="flex gap-4 text-sm items-center">
+                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300 items-center">
                   {["All", "Male", "Female"].map((item) => (
                     <label key={item} className="flex items-center gap-1 cursor-pointer">
                       <input
                         type="radio"
+                        className="accent-green-600 dark:accent-green-400"
                         checked={filter === item}
                         onChange={() => setFilter(item)}
                       />
@@ -130,6 +169,7 @@ export default function Monitoring() {
             />
           </>
         )}
+
       </div>
 
       {/* MODALS */}
