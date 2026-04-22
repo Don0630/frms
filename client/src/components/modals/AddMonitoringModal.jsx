@@ -31,31 +31,52 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // SEARCH
+  // ================= FARMER SEARCH (SUBSIDY STYLE) =================
   useEffect(() => {
-    const t = setTimeout(async () => {
-      const data = await loadSearchFarmer(searchFarmer);
-      setAvailableFarmers(data || []);
-    }, 300);
-    return () => clearTimeout(t);
+    const fetchFarmers = async () => {
+      try {
+        const data = await loadSearchFarmer(searchFarmer);
+        setAvailableFarmers(data || []);
+      } catch {
+        setAvailableFarmers([]);
+      }
+    };
+
+    const timeout = setTimeout(fetchFarmers, 300);
+    return () => clearTimeout(timeout);
   }, [searchFarmer]);
 
+  // ================= CROP SEARCH =================
   useEffect(() => {
-    const t = setTimeout(async () => {
-      const data = await loadSearchCrop(searchCrop);
-      setAvailableCrops(data || []);
-    }, 300);
-    return () => clearTimeout(t);
+    const fetchCrops = async () => {
+      try {
+        const data = await loadSearchCrop(searchCrop);
+        setAvailableCrops(data || []);
+      } catch {
+        setAvailableCrops([]);
+      }
+    };
+
+    const timeout = setTimeout(fetchCrops, 300);
+    return () => clearTimeout(timeout);
   }, [searchCrop]);
 
+  // ================= LIVESTOCK SEARCH =================
   useEffect(() => {
-    const t = setTimeout(async () => {
-      const data = await loadSearchLivestock(searchLivestock);
-      setAvailableLivestock(data || []);
-    }, 300);
-    return () => clearTimeout(t);
+    const fetchLivestock = async () => {
+      try {
+        const data = await loadSearchLivestock(searchLivestock);
+        setAvailableLivestock(data || []);
+      } catch {
+        setAvailableLivestock([]);
+      }
+    };
+
+    const timeout = setTimeout(fetchLivestock, 300);
+    return () => clearTimeout(timeout);
   }, [searchLivestock]);
 
+  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -116,9 +137,10 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* FARMER */}
-          <div>
+          {/* ================= FARMER ================= */}
+          <div className="relative">
             <label className="text-xs text-gray-500">Farmer *</label>
+
             <input
               className="input"
               value={searchFarmer}
@@ -130,16 +152,16 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
             />
 
             {availableFarmers.length > 0 && (
-              <div className="dropdown">
+              <div className="border rounded-md mt-1 max-h-32 overflow-y-auto bg-white">
                 {availableFarmers.map((f) => (
                   <div
                     key={f.FarmerID}
-                    className="item"
                     onClick={() => {
                       setSelectedFarmer(f);
                       setSearchFarmer(`${f.FirstName} ${f.LastName}`);
                       setAvailableFarmers([]);
                     }}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                   >
                     {f.FirstName} {f.LastName}
                   </div>
@@ -148,11 +170,13 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
             )}
           </div>
 
-          {/* CROP + LIVESTOCK ROW */}
+          {/* ================= CROP + LIVESTOCK ================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-            <div>
+            {/* CROP */}
+            <div className="relative">
               <label className="text-xs text-gray-500">Crop</label>
+
               <input
                 className="input"
                 value={searchCrop}
@@ -164,16 +188,16 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
               />
 
               {availableCrops.length > 0 && (
-                <div className="dropdown">
+                <div className="border rounded-md mt-1 max-h-32 overflow-y-auto bg-white">
                   {availableCrops.map((c) => (
                     <div
                       key={c.CropID}
-                      className="item"
                       onClick={() => {
                         setSelectedCrop(c);
                         setSearchCrop(c.CropName);
                         setAvailableCrops([]);
                       }}
+                      className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                     >
                       {c.CropName}
                     </div>
@@ -182,8 +206,10 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
               )}
             </div>
 
-            <div>
+            {/* LIVESTOCK */}
+            <div className="relative">
               <label className="text-xs text-gray-500">Livestock</label>
+
               <input
                 className="input"
                 value={searchLivestock}
@@ -195,16 +221,16 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
               />
 
               {availableLivestock.length > 0 && (
-                <div className="dropdown">
+                <div className="border rounded-md mt-1 max-h-32 overflow-y-auto bg-white">
                   {availableLivestock.map((l) => (
                     <div
                       key={l.LivestockID}
-                      className="item"
                       onClick={() => {
                         setSelectedLivestock(l);
                         setSearchLivestock(l.Type);
                         setAvailableLivestock([]);
                       }}
+                      className="px-3 py-2 cursor-pointer hover:bg-gray-100"
                     >
                       {l.Type} - {l.Breed || "Unknown"}
                     </div>
@@ -215,7 +241,7 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
 
           </div>
 
-          {/* DATE + PRODUCTION */}
+          {/* ================= DATE + PRODUCTION ================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
             <div>
@@ -240,7 +266,7 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
 
           </div>
 
-          {/* ISSUES + REMARKS */}
+          {/* ================= ISSUES + REMARKS ================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
             <textarea
@@ -261,7 +287,7 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
 
           </div>
 
-          {/* ACTIONS */}
+          {/* ================= ACTIONS ================= */}
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose} className="btn-gray">
               Cancel
@@ -279,7 +305,7 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
         </form>
       </div>
 
-      {/* STYLE SYSTEM (same as EditFarmerModal) */}
+      {/* STYLE */}
       <style>{`
         .input {
           width: 100%;
@@ -294,24 +320,6 @@ export default function AddMonitoringModal({ onClose, onSuccess }) {
           outline: none;
           border-color: #16a34a;
           box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
-
-        .dropdown {
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          margin-top: 4px;
-          max-height: 120px;
-          overflow-y: auto;
-          background: white;
-        }
-
-        .item {
-          padding: 8px;
-          cursor: pointer;
-        }
-
-        .item:hover {
-          background: #f3f4f6;
         }
 
         .btn-green {

@@ -100,52 +100,48 @@ export default function AddUserModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-          {/* ================= STAFF SEARCH ================= */}
-          <div>
-            <label className="text-xs text-gray-500">Select Staff</label>
+    {/* ================= STAFF SEARCH ================= */}
+<div className="relative">
+  <label className="text-xs text-gray-500">Select Staff</label>
 
-            <input
-              type="text"
-              placeholder="Search staff..."
-              value={searchStaff}
-              onChange={(e) => setSearchStaff(e.target.value)}
-              className="input"
-            />
+  <input
+    type="text"
+    placeholder="Search staff..."
+    value={searchStaff}
+    onChange={(e) => {
+      setSearchStaff(e.target.value);
+      setSelectedStaff(null);
+    }}
+    className="input"
+  />
 
-            {/* LIST */}
-            <div className="max-h-32 overflow-y-auto border rounded-md mt-2">
-              {loadingStaff ? (
-                <p className="text-xs text-gray-400 p-2">Searching...</p>
-              ) : availableStaff.length === 0 ? (
-                <p className="text-xs text-gray-400 p-2">No staff found</p>
-              ) : (
-                availableStaff.map((s) => (
-                  <div
-                    key={s.StaffID}
-                    onClick={() => setSelectedStaff(s)}
-                    className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                      selectedStaff?.StaffID === s.StaffID
-                        ? "bg-green-100 font-semibold"
-                        : ""
-                    }`}
-                  >
-                    {s.FirstName} {s.LastName}
-                  </div>
-                ))
-              )}
-            </div>
+  {/* dropdown */}
+  {loadingStaff && (
+    <p className="text-xs text-gray-400 mt-1">Searching...</p>
+  )}
 
-            {/* SELECTED */}
-            {selectedStaff && (
-              <p className="text-xs text-gray-600 mt-1">
-                Selected:{" "}
-                <span className="font-medium">
-                  {selectedStaff.FirstName} {selectedStaff.LastName}
-                </span>
-              </p>
-            )}
-          </div>
-
+  {availableStaff.length > 0 && (
+    <div className="border rounded-md mt-1 max-h-32 overflow-y-auto bg-white">
+      {availableStaff.map((s) => (
+        <div
+          key={s.StaffID}
+          onClick={() => {
+            setSelectedStaff(s);
+            setSearchStaff(`${s.FirstName} ${s.LastName}`);
+            setAvailableStaff([]);
+          }}
+          className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+            selectedStaff?.StaffID === s.StaffID
+              ? "bg-green-100 font-semibold"
+              : ""
+          }`}
+        >
+          {s.FirstName} {s.LastName}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
           {/* ================= USERNAME ================= */}
           <div>
             <label className="text-xs text-gray-500">Username</label>

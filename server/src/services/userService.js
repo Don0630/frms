@@ -15,7 +15,5 @@ export async function createUser({ staffId, username, password, role }) {
 
   // 2️⃣ Insert user with hashed password
   const user = await userModel.insertUser({ staffId, username, hashedPassword, role });
-
- 
   return user;
 }

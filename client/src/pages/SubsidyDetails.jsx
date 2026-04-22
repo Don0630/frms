@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSubsidy } from "../context/SubsidyContext.jsx";
+import useDebounce from "../hooks/useDebounce";
+import usePagination from "../hooks/usePagination";
+import Pagination from "../components/common/Pagination";
+
 import AddFarmerSubsidyModal from "../components/modals/AddFarmerSubsidyModal";
 import EditDistributionModal from "../components/modals/EditDistributionModal";
+import DeleteDistributionModal from "../components/modals/DeleteDistributionModal";
 
 import {
   ArrowLeft,
   Calendar,
   DollarSign,
   Users,
-  CheckCircle2,
   Plus,
   Search,
   Check,
   Trash2,
   X,
-  Clock
 } from "lucide-react";
 
 export default function SubsidyDetails() {
@@ -29,24 +32,26 @@ export default function SubsidyDetails() {
     loadFarmersPerSubsidy,
     clearFarmers,
     updateDistribution,
+    deleteDistribution,
   } = useSubsidy();
 
+  // ---------------- STATE ----------------
   const [selectedSubsidy, setSelectedSubsidy] = useState(null);
   const [addModal, setAddModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
 
   const [loadingRow, setLoadingRow] = useState(null);
 
-  // modal states
   const [confirmModal, setConfirmModal] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-  const [actionType, setActionType] = useState(null); // distribute | cancel
+  const [actionType, setActionType] = useState(null);
 
-  // search + pagination
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const debouncedSearch = useDebounce(search, 300);
 
-  // LOAD DATA
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // ---------------- LOAD DATA ----------------
   useEffect(() => {
     loadSubsidy();
   }, []);
@@ -58,7 +63,7 @@ export default function SubsidyDetails() {
     return () => clearFarmers();
   }, [id]);
 
-  // FIND SUBSIDY
+  // ---------------- SELECT SUBSIDY ----------------
   useEffect(() => {
     if (!subsidy?.length) return;
 
@@ -69,67 +74,91 @@ export default function SubsidyDetails() {
     setSelectedSubsidy(found || null);
   }, [subsidy, id]);
 
+  // ---------------- RESET PAGE ----------------
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, farmers]);
+  }, [debouncedSearch, farmers]);
+
+  // ---------------- FILTER ----------------
+  const filteredFarmers = farmers.filter((f) =>
+    `${f.FirstName} ${f.LastName}`
+      .toLowerCase()
+      .includes(debouncedSearch.toLowerCase()) ||
+    f.ContactNumber?.toLowerCase().includes(debouncedSearch.toLowerCase())
+  );
+
+  // ---------------- PAGINATION ----------------
+  const { currentItems, totalPages } = usePagination(
+    filteredFarmers,
+    10,
+    currentPage,
+    setCurrentPage
+  );
 
   if (!selectedSubsidy) {
     return <div className="p-6 text-gray-500">Loading subsidy...</div>;
   }
 
+  // ---------------- CALCULATIONS ----------------
   const totalAmount = Number(selectedSubsidy.TotalAmount || 0);
   const distributed = Number(selectedSubsidy.TotalDistributed || 0);
   const remaining = totalAmount - distributed;
 
-  // FILTER
-  const filteredFarmers = farmers.filter((f) =>
-    `${f.FirstName} ${f.LastName}`
-      .toLowerCase()
-      .includes(search.toLowerCase()) ||
-    f.ContactNumber?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // PAGINATION
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredFarmers.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredFarmers.length / itemsPerPage);
-
-  // OPEN MODAL (DISRIBUTE / CANCEL)
+  // ---------------- ACTIONS ----------------
   const openActionModal = (f, type) => {
     setSelectedRow(f);
     setActionType(type);
     setConfirmModal(true);
   };
 
-const handleConfirm = async () => {
-  if (!selectedRow) return;
+  const openDeleteModal = (f) => {
+    setSelectedRow(f);
+    setDeleteModal(true);
+  };
 
-  try {
-    setLoadingRow(selectedRow.DistributionDetailsID);
+  const handleDelete = async () => {
+    if (!selectedRow) return;
 
-    await updateDistribution({
-      DistributionDetailsID: selectedRow.DistributionDetailsID,
-      IsDistributed: actionType === "distribute" ? 1 : 0,
-    });
+    try {
+      setLoadingRow(selectedRow.DistributionDetailsID);
 
-    await loadFarmersPerSubsidy(id);
+      await deleteDistribution(selectedRow.DistributionDetailsID);
+      await loadFarmersPerSubsidy(id);
+      await loadSubsidy();
 
-    // 🔥 ADD THIS
-    await loadSubsidy();
+      setDeleteModal(false);
+      setSelectedRow(null);
+    } finally {
+      setLoadingRow(null);
+    }
+  };
 
-    setConfirmModal(false);
-    setSelectedRow(null);
-    setActionType(null);
+  const handleConfirm = async () => {
+    if (!selectedRow) return;
 
-  } finally {
-    setLoadingRow(null);
-  }
-};
+    try {
+      setLoadingRow(selectedRow.DistributionDetailsID);
+
+      await updateDistribution({
+        DistributionDetailsID: selectedRow.DistributionDetailsID,
+        IsDistributed: actionType === "distribute" ? 1 : 0,
+      });
+
+      await loadFarmersPerSubsidy(id);
+      await loadSubsidy();
+
+      setConfirmModal(false);
+      setSelectedRow(null);
+      setActionType(null);
+    } finally {
+      setLoadingRow(null);
+    }
+  };
+
   return (
     <div className="w-full min-h-screen p-4 space-y-6 bg-gray-100">
 
-      {/* BACK HEADER */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
@@ -139,19 +168,17 @@ const handleConfirm = async () => {
           Back
         </button>
 
-        <span className="text-sm text-gray-500">
-          Subsidy Details
-        </span>
+        <span className="text-sm text-gray-500">Subsidy Details</span>
       </div>
 
       {/* SUBSIDY CARD */}
-      <div className="w-full bg-white/40 backdrop-blur-md shadow-md rounded-xl p-6 border">
+      <div className="w-full bg-white/40 backdrop-blur-md shadow-md rounded-xl p-6 border space-y-4">
 
         <h1 className="text-2xl font-bold text-gray-800">
           {selectedSubsidy.ProgramName}
         </h1>
 
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
 
           <div className="flex items-center gap-3 p-3 bg-white rounded-lg border">
             <Calendar className="text-green-600" size={18} />
@@ -180,7 +207,7 @@ const handleConfirm = async () => {
         </div>
 
         {/* SUMMARY */}
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
 
           <div className="p-5 rounded-lg bg-green-50 border">
             <p className="text-sm text-gray-500">Distributed</p>
@@ -199,29 +226,28 @@ const handleConfirm = async () => {
         </div>
       </div>
 
-      {/* FARMERS TABLE */}
-      <div className="w-full bg-white/30 backdrop-blur-sm shadow-md p-6 rounded-sm">
+      {/* FARMERS CARD */}
+      <div className="w-full bg-white/40 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4">
 
         {/* HEADER */}
-        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
-          <div className="flex items-center gap-2">
-            <Users className="text-green-600" size={18} />
-            <h2 className="text-xl font-semibold text-gray-700">
-              FARMERS DISTRIBUTION
-            </h2>
-          </div>
+        <div className="flex items-center justify-between">
+
+          <h2 className="text-lg font-semibold text-gray-700">
+            FARMERS DISTRIBUTION
+          </h2>
 
           <button
             onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700"
           >
-            <Plus className="w-4 h-4" />
+            <Plus size={16} />
             Add Farmer
           </button>
+
         </div>
 
         {/* SEARCH */}
-        <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64 mb-3">
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
           <Search className="w-4 h-4 text-gray-500" />
           <input
             type="text"
@@ -233,93 +259,113 @@ const handleConfirm = async () => {
         </div>
 
         {/* TABLE */}
-        <div className="w-full border rounded-lg overflow-x-auto">
-          <table className="w-full text-sm">
+ {/* TABLE */}
+<div className="border rounded-lg bg-white overflow-x-auto">
 
-            <thead className="bg-gray-100 text-gray-600">
-              <tr>
-                <th className="py-3 px-2 text-left">Farmer</th>
-                <th className="py-3 px-2 text-left">Contact</th>
-                <th className="py-3 px-2 text-left">Amount</th>
-                <th className="py-3 px-2 text-center">Status</th>
-                <th className="py-3 px-2 text-center">Action</th>
-              </tr>
-            </thead>
+  <table className="w-full min-w-[700px] text-sm">
 
-            <tbody>
-              {currentItems.map((f) => (
-                <tr key={f.DistributionDetailsID} className="border-t">
+    <thead className="bg-gray-100 text-gray-600">
+      <tr>
+        <th className="py-3 px-2 text-left">Farmer</th>
+        <th className="py-3 px-2 text-left">Contact</th>
+        <th className="py-3 px-2 text-left">Amount</th>
+        <th className="py-3 px-2 text-left">Status</th>
+        <th className="py-3 px-2 text-center">Action</th>
+      </tr>
+    </thead>
 
-                  <td className="py-2 px-2">
-                    {f.FirstName} {f.LastName}
-                  </td>
-
-                  <td className="py-2 px-2 text-gray-600">
-                    {f.ContactNumber || "N/A"}
-                  </td>
-
-                  <td className="py-2 px-2 font-semibold text-green-700">
-                    ₱ {Number(f.Amount || 0).toLocaleString()}
-                  </td>
-
-<td className="py-2 px-2 text-center">
-  {f.IsDistributed ? (
-    <span className="inline-flex items-center justify-center w-24 py-1 text-xs font-semibold text-white bg-green-600 rounded-md">
-      Distributed
-    </span>
-  ) : (
-    <span className="inline-flex items-center justify-center w-24 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-md">
-      Pending
-    </span>
-  )}
-</td>
-                  <td className="py-2 px-2 text-center flex justify-center gap-2">
-
-                    {!f.IsDistributed ? (
-                      <>
-                      <button
-                        onClick={() => openActionModal(f, "distribute")}
-                        className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
-                      >
-                        <Check className="w-3 h-3" />
-                      </button> 
-
-                      <button
-        onClick={() => openDeleteModal(f)}
-        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+   <tbody>
+  {currentItems.length === 0 ? (
+    <tr>
+      <td
+        colSpan={5}
+        className="text-center py-6 text-gray-500"
       >
-        <Trash2 className="w-3 h-3" />
-      </button>
+        No farmers found.
+      </td>
+    </tr>
+  ) : (
+    currentItems.map((f) => (
+      <tr
+        key={f.DistributionDetailsID}
+        className="border-t hover:bg-gray-50"
+      >
 
-                      </>
+        <td className="py-2 px-2 font-medium">
+          {f.FirstName} {f.LastName}
+        </td>
 
-                    ) : (
-                      <button
-                        onClick={() => openActionModal(f, "cancel")}
-                        className="bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    )}
+        <td className="py-2 px-2 text-gray-600">
+          {f.ContactNumber || "N/A"}
+        </td>
 
-                  </td>
+        <td className="py-2 px-2 text-green-700 font-semibold">
+          ₱ {Number(f.Amount || 0).toLocaleString()}
+        </td>
 
-                </tr>
-              ))}
-            </tbody>
+        <td className="py-2 px-2">
+          {f.IsDistributed ? (
+            <span className="text-green-600 font-medium">
+              Distributed
+            </span>
+          ) : (
+            <span className="text-yellow-600 font-medium">
+              Pending
+            </span>
+          )}
+        </td>
 
-          </table>
-        </div>
+        <td className="py-2 px-2">
+          <div className="flex justify-center gap-2">
+
+            {!f.IsDistributed ? (
+              <>
+                <button
+                  onClick={() => openActionModal(f, "distribute")}
+                  className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+                >
+                  <Check className="w-3 h-3" />
+                </button>
+
+                <button
+                  onClick={() => openDeleteModal(f)}
+                  className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => openActionModal(f, "cancel")}
+                className="bg-orange-600 text-white px-2 py-1 rounded hover:bg-orange-700"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            )}
+
+          </div>
+        </td>
+
+      </tr>
+    ))
+  )}
+</tbody>
+
+  </table>
+</div>
 
         {/* PAGINATION */}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <span>
-            Showing {currentItems.length} of {filteredFarmers.length}
-          </span>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          currentItemsLength={currentItems.length}
+          totalItemsLength={filteredFarmers.length}
+        />
+
       </div>
 
-      {/* ADD MODAL */}
+      {/* MODALS */}
       {addModal && (
         <AddFarmerSubsidyModal
           distributionID={id}
@@ -331,24 +377,19 @@ const handleConfirm = async () => {
         />
       )}
 
-<EditDistributionModal
-  open={confirmModal}
-  type={actionType}   // 👈 THIS IS THE KEY
-  title={
-    actionType === "distribute"
-      ? "Confirm Distribution"
-      : "Cancel Distribution"
-  }
-  message={
-    actionType === "distribute"
-      ? "Are you sure you want to distribute this subsidy?"
-      : "Are you sure you want to cancel this distribution?"
-  }
-  confirmText={actionType === "distribute" ? "Distribute" : "Cancel"}
-  loading={loadingRow === selectedRow?.DistributionDetailsID}
-  onCancel={() => setConfirmModal(false)}
-  onConfirm={handleConfirm}
-/>
+      <EditDistributionModal
+        open={confirmModal}
+        type={actionType}
+        onCancel={() => setConfirmModal(false)}
+        onConfirm={handleConfirm}
+      />
+
+      <DeleteDistributionModal
+        open={deleteModal}
+        onCancel={() => setDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
+
     </div>
   );
 }

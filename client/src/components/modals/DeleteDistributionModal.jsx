@@ -1,20 +1,17 @@
 import React from "react";
-import { X, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { X, Trash2, AlertTriangle } from "lucide-react";
 
-export default function EditDistributionModal({
+export default function DeleteModal({
   open,
-  type = "distribute", // "distribute" | "cancel"
-  title = "Confirm Action",
-  message = "Are you sure you want to proceed?",
-  confirmText = "Confirm",
-  loadingText = "Processing...",
+  title = "Delete Record",
+  message = "This action cannot be undone. Are you sure you want to delete this item?",
+  confirmText = "Delete",
+  loadingText = "Deleting...",
   onCancel,
   onConfirm,
   loading = false,
 }) {
   if (!open) return null;
-
-  const isCancel = type === "cancel";
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
@@ -31,16 +28,8 @@ export default function EditDistributionModal({
 
         {/* ICON */}
         <div className="flex justify-center mb-3">
-          <div
-            className={`p-3 rounded-full ${
-              isCancel ? "bg-orange-100" : "bg-green-100"
-            }`}
-          >
-            {isCancel ? (
-              <AlertTriangle className="text-orange-600" />
-            ) : (
-              <CheckCircle2 className="text-green-600" />
-            )}
+          <div className="bg-red-100 p-3 rounded-full">
+            <AlertTriangle className="text-red-600" />
           </div>
         </div>
 
@@ -54,27 +43,25 @@ export default function EditDistributionModal({
           {message}
         </p>
 
-        {/* BUTTONS */}
+        {/* ACTIONS */}
         <div className="flex justify-center gap-3 mt-5">
 
-            {/* CLOSE BUTTON */}
-  <button
-    onClick={onCancel}
-    className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
-  >
-    Cancel
-  </button>
+          {/* CANCEL */}
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700"
+          >
+            Cancel
+          </button>
 
-          {/* CONFIRM BUTTON */}
+          {/* DELETE */}
           <button
             onClick={onConfirm}
             disabled={loading}
-            className={`px-4 py-2 rounded-lg text-white ${
-              isCancel
-                ? "bg-orange-600 hover:bg-orange-700"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
+            className="flex items-center gap-1 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white"
           >
+            <Trash2 size={14} />
             {loading ? loadingText : confirmText}
           </button>
 

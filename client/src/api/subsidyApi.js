@@ -69,3 +69,14 @@ export async function updateDistribution(distribution) {
 
   return res.data;
 }
+
+
+
+// ------------ DELETE DISTRIBUTION ------------
+export async function deleteDistribution(id) {
+  const res = await apiFetch(`/subsidy/deleteDistribution/${id}`, {
+    method: "DELETE",
+  });
+
+  return res.data;
+}

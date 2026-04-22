@@ -12,5 +12,6 @@ router.get("/subsidyData/:distributionID/farmers", authenticateToken, subsidyCon
 router.get("/availableFarmer", authenticateToken, subsidyController.getAvailableFarmer);
 router.post("/addFarmerSubsidy", authenticateToken, subsidyController.saveFarmerSubsidy);
 router.put("/updateDistribution/:id", authenticateToken, subsidyController.updateDistribution);
+router.delete("/deleteDistribution/:id", authenticateToken, subsidyController.deleteDistribution);
 
 export default router;

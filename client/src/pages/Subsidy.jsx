@@ -4,39 +4,47 @@ import {
   Plus,
   SlidersHorizontal,
   Settings,
-  Info,
   Eye
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useSubsidy } from "../context/SubsidyContext"; 
+import { useSubsidy } from "../context/SubsidyContext";
 import AddSubsidyModal from "../components/modals/AddSubsidyModal";
+import usePagination from "../hooks/usePagination";
+import useDebounce from "../hooks/useDebounce";
+import Pagination from "../components/common/Pagination";
 
 export default function Subsidy() {
   const { subsidy, loadSubsidy, error } = useSubsidy();
   const navigate = useNavigate();
-  const [search, setSearch] = useState(""); 
+
+  const [search, setSearch] = useState("");
   const [addSubsidyModal, setAddSubsidyModal] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  // 🔥 debounce search input
+  const debouncedSearch = useDebounce(search, 300);
 
   useEffect(() => {
     loadSubsidy();
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
-
+  // 🔍 FILTER using debounced value
   const filtered = subsidy.filter((item) =>
-    item.ProgramName?.toLowerCase().includes(search.toLowerCase()) ||
-    item.Remarks?.toLowerCase().includes(search.toLowerCase())
+    item.ProgramName?.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+    item.Remarks?.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  // 📄 pagination hook
+  const {
+    currentItems,
+    currentPage,
+    setCurrentPage,
+    totalPages
+  } = usePagination(filtered, 10);
+
+  // reset page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
 
   if (error) return <p className="p-4 text-red-500">{error}</p>;
 
@@ -50,36 +58,24 @@ export default function Subsidy() {
             SUBSIDY RECORDS
           </h2>
 
-     
-                    <button
+          <button
             className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
             onClick={() => setAddSubsidyModal(true)}
           >
             <Plus className="w-4 h-4" /> Add Subsidy
           </button>
-
         </div>
 
-        {/* CONTROLS */}
-        <div className="flex flex-wrap gap-2 items-center mb-3">
-          <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64">
-            <Search className="w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search program or remarks..."
-              className="ml-2 outline-none text-sm w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <button className="flex items-center gap-1 px-3 py-2 border rounded-lg bg-white text-sm">
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-          </button>
-
-          <button className="flex items-center gap-1 px-3 py-2 border rounded-lg bg-white text-sm">
-            <Settings className="w-4 h-4" /> Configurations
-          </button>
+        {/* SEARCH */}
+        <div className="flex items-center border rounded-lg px-3 py-2 bg-white w-64 mb-3">
+          <Search className="w-4 h-4 text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search program or remarks..."
+            className="ml-2 outline-none text-sm w-full"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         {/* TABLE */}
@@ -104,11 +100,9 @@ export default function Subsidy() {
               {currentItems.map((item, i) => (
                 <tr key={i} className="border-t hover:bg-gray-50">
 
-                  {/* PROGRAM + INFO BUTTON */}
-                    <td className="py-2 px-2 flex items-center gap-1">
-                      {item.ProgramName}
-         
-                    </td>
+                  <td className="py-2 px-2">
+                    {item.ProgramName}
+                  </td>
 
                   <td className="py-2 px-2">
                     ₱ {Number(item.TotalAmount).toLocaleString()}
@@ -130,15 +124,17 @@ export default function Subsidy() {
                     {item.Remarks}
                   </td>
 
-                  {/* EMPTY ACTION COLUMN (keeps alignment clean) */}
-<td className="px-2 py-2 text-center">
- <button
-  onClick={() => navigate(`/subsidydetails/${item.DistributionID}`)}
-  className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
->
-  <Eye className="w-3 h-3" />
-</button>
-</td>
+                  <td className="px-2 py-2 text-center">
+                    <button
+                      onClick={() =>
+                        navigate(`/subsidydetails/${item.DistributionID}`)
+                      }
+                      className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+                    >
+                      <Eye className="w-3 h-3" />
+                    </button>
+                  </td>
+
                 </tr>
               ))}
             </tbody>
@@ -147,49 +143,17 @@ export default function Subsidy() {
         </div>
 
         {/* PAGINATION */}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <span>
-            Showing {currentItems.length} of {filtered.length} records
-          </span>
-
-          <div className="flex gap-2">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(prev => prev - 1)}
-              className="px-3 py-1 bg-gray-200 rounded"
-            >
-              Prev
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded ${
-                  currentPage === i + 1
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-
-            <button
-              disabled={currentPage === totalPages || totalPages === 0}
-              onClick={() => setCurrentPage(prev => prev + 1)}
-              className="px-3 py-1 bg-gray-200 rounded"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+<Pagination
+  currentPage={currentPage}
+  totalPages={totalPages}
+  setCurrentPage={setCurrentPage}
+  currentItemsLength={currentItems.length}
+  totalItemsLength={filtered.length}
+/>
 
       </div>
- 
- 
 
-
+      {/* MODAL */}
       {addSubsidyModal && (
         <AddSubsidyModal
           onClose={() => setAddSubsidyModal(false)}

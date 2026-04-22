@@ -179,7 +179,29 @@ const updateDistribution = async (distributionData) => {
 };
 
 
+// ------ DELETE DISTRIBUTION ------
+const deleteDistribution = async (DistributionDetailsID) => {
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await subsidyApi.deleteDistribution(DistributionDetailsID);
+
+    console.log("🗑️ Distribution deleted:", res);
  
+    return res;
+  } catch (err) {
+    console.error("⚠️ Error deleting Distribution:", err);
+    setError(err.message);
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
 
   // ================= CLEAR FUNCTIONS =================
   const clearFarmers = () => setFarmers([]);
@@ -196,7 +218,7 @@ const updateDistribution = async (distributionData) => {
     loadAvailableFarmer,
     addFarmerSubsidy,
     updateDistribution,
-
+    deleteDistribution,
     clearFarmers,
     clearSubsidy,
 

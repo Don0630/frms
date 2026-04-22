@@ -114,3 +114,17 @@ export async function updateDistribution(req, res) {
 
 
 
+// ------------- DELETE DISTRIBUTION -------------
+export async function deleteDistribution(req, res) {
+  try {
+    const deleted = await subsidyService.removeDistribution(req.params.id);
+
+    if (!deleted.deleted) {
+      return errorResponse(res, "Distribution not found", 404);
+    }
+
+    return successResponse(res, "Distribution deleted successfully", deleted);
+  } catch (err) {
+    return errorResponse(res, err.message, 500);
+  }
+}

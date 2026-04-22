@@ -181,4 +181,20 @@ export async function updateDistribution(id, distribution) {
   };
 }
 
- 
+
+
+
+// --------- DELETE DISTRIBUTION ---------
+export async function deleteDistribution(id) {
+  const query = `
+    DELETE FROM tblSubsidyDistributionDetails
+    WHERE DistributionDetailsID = ?
+  `;
+
+  const [result] = await db.query(query, [id]);
+
+  return {
+    DistributionDetailsID: id,
+    deleted: result.affectedRows > 0
+  };
+}

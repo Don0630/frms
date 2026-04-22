@@ -235,7 +235,7 @@ export async function updateFarm(id, farm) {
 
 
 
-// --------- UPDATE FARM ---------
+// --------- DELETE FARM ---------
 export async function deleteFarm(id) {
   const query = `
     DELETE FROM tblFarms

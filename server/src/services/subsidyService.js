@@ -33,3 +33,8 @@ export async function addFarmerSubsidy(farmerSubsidy) {
 export async function editDistribution(id, distribution) {
   return await subsidyModel.updateDistribution(id, distribution);
 }
+
+// ------------------ REMOVE DISTRIBUTION ------------------
+export async function removeDistribution(id) {
+  return await subsidyModel.deleteDistribution(id);
+}

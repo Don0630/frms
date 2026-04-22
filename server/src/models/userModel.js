@@ -25,10 +25,13 @@ export async function getAllUsers() {
 
 
 export async function insertUser({ staffId, username, hashedPassword, role }) { 
-  const [result] = await db.query(
-    `INSERT INTO tblUsers (StaffID, Username, PasswordHash, Role)
-     VALUES (?, ?, ?, ?)`,
-    [staffId, username, hashedPassword, role] // use hashedPassword, not plain password
-  );
-  return { id: result.insertId };
+    const query = `
+    INSERT INTO tblUsers (StaffID, Username, PasswordHash, Role)
+     VALUES (?, ?, ?, ?)
+    `;
+    const [result] = await db.query(query, [staffId, username, hashedPassword, role]);
+
+    return { id: result.insertId };
 }
+
+ 
