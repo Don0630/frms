@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 
 // ------------- GET ALL PROGRAM -------------
-export async function getAllProgram(req, res) {
+export async function getAllProgram(req, res, next) {
 
   try {
     const programsData = await programService.fetchPrograms();

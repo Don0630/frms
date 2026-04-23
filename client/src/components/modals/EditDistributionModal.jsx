@@ -1,20 +1,54 @@
 import React from "react";
 import { X, AlertTriangle, CheckCircle2 } from "lucide-react";
 
+/* =========================
+   CONFIG (PRO APPROACH)
+========================= */
+const MODAL_CONFIG = {
+  distribute: {
+    title: "Confirm Distribution",
+    message: "Are you sure you want to distribute this subsidy to the selected farmer?",
+    confirmText: "Distribute",
+    variant: "success",
+    icon: CheckCircle2,
+  },
+  cancel: {
+    title: "Cancel Distribution",
+    message: "This will remove the distribution record and revert its status. Do you want to continue?",
+    confirmText: "Cancel Distribution",
+    variant: "warning",
+    icon: AlertTriangle,
+  },
+  delete: {
+    title: "Delete Record",
+    message: "This action cannot be undone. The record will be permanently removed.",
+    confirmText: "Delete",
+    variant: "danger",
+    icon: AlertTriangle,
+  },
+};
+
+/* =========================
+   COMPONENT
+========================= */
 export default function EditDistributionModal({
   open,
   type = "distribute",
-  title = "Confirm Action",
-  message = "Are you sure you want to proceed?",
-  confirmText = "Confirm",
-  loadingText = "Processing...",
   onCancel,
   onConfirm,
   loading = false,
+  loadingText = "Processing...",
 }) {
   if (!open) return null;
 
-  const isCancel = type === "cancel";
+  const config = MODAL_CONFIG[type] || MODAL_CONFIG.distribute;
+  const Icon = config.icon;
+
+  const variantStyles = {
+    success: "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400",
+    warning: "bg-yellow-600 hover:bg-yellow-700 dark:bg-yellow-500 dark:hover:bg-yellow-400",
+    danger: "bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-400",
+  };
 
   return (
     <div className="fixed inset-0 bg-black/40 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
@@ -29,42 +63,45 @@ export default function EditDistributionModal({
         {/* CLOSE */}
         <button
           onClick={onCancel}
-          className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-red-500"
+          className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-red-500 transition"
         >
           <X size={18} />
         </button>
 
         {/* ICON */}
         <div className="flex justify-center mb-3">
-          <div
-            className={`p-3 rounded-full ${
-              isCancel
-                ? "bg-orange-100 dark:bg-orange-500/20"
-                : "bg-green-100 dark:bg-green-500/20"
-            }`}
-          >
-            {isCancel ? (
-              <AlertTriangle className="text-orange-600 dark:text-orange-400" />
-            ) : (
-              <CheckCircle2 className="text-green-600 dark:text-green-400" />
-            )}
+          <div className={`
+            p-3 rounded-full
+            ${type === "cancel"
+              ? "bg-yellow-100 dark:bg-yellow-500/20"
+              : type === "delete"
+              ? "bg-red-100 dark:bg-red-500/20"
+              : "bg-green-100 dark:bg-green-500/20"}
+          `}>
+            <Icon className={
+              type === "cancel"
+                ? "text-yellow-600 dark:text-yellow-400"
+                : type === "delete"
+                ? "text-red-600 dark:text-red-400"
+                : "text-green-600 dark:text-green-400"
+            } />
           </div>
         </div>
 
         {/* TITLE */}
         <h2 className="text-center text-lg font-semibold text-gray-800 dark:text-white">
-          {title}
+          {config.title}
         </h2>
 
         {/* MESSAGE */}
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-          {message}
+          {config.message}
         </p>
 
         {/* BUTTONS */}
         <div className="flex justify-center gap-3 mt-5">
 
-          {/* CANCEL */}
+          {/* CANCEL BUTTON */}
           <button
             onClick={onCancel}
             className="
@@ -78,17 +115,17 @@ export default function EditDistributionModal({
             Cancel
           </button>
 
-          {/* CONFIRM */}
+          {/* CONFIRM BUTTON */}
           <button
             onClick={onConfirm}
             disabled={loading}
-            className={`px-4 py-2 rounded-lg text-white transition ${
-              isCancel
-                ? "bg-orange-600 hover:bg-orange-700 dark:bg-orange-500 dark:hover:bg-orange-400"
-                : "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-400"
-            } disabled:opacity-60`}
+            className={`
+              px-4 py-2 rounded-lg text-white transition
+              ${variantStyles[config.variant]}
+              disabled:opacity-60
+            `}
           >
-            {loading ? loadingText : confirmText}
+            {loading ? loadingText : config.confirmText}
           </button>
 
         </div>

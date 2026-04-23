@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Check, Trash2, X, ArrowLeft } from "lucide-react";
+import { Plus, HandCoins, Trash2, X, ArrowLeft, BanknoteX } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useSubsidy } from "../context/SubsidyContext.jsx";
@@ -28,6 +28,7 @@ export default function SubsidyDetails() {
     deleteDistribution,
   } = useSubsidy();
 
+  const [filter, setFilter] = useState("All");
   const [selectedSubsidy, setSelectedSubsidy] = useState(null);
   const [addModal, setAddModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -37,6 +38,7 @@ export default function SubsidyDetails() {
   const [actionType, setActionType] = useState(null);
   const [loadingRow, setLoadingRow] = useState(null);
 
+  // ================= LOAD =================
   useEffect(() => {
     loadSubsidy();
   }, []);
@@ -55,18 +57,27 @@ export default function SubsidyDetails() {
     setSelectedSubsidy(found || null);
   }, [subsidy, id]);
 
+  // ================= SEARCH + FILTER (MATCH PROGRAMS PATTERN) =================
   const { search, setSearch, filteredData } = useTable({
     data: farmers,
     searchFields: ["FirstName", "LastName", "ContactNumber"],
+    filterFn: (f) => {
+      if (filter === "All") return true;
+      if (filter === "Distributed") return !!f.IsDistributed;
+      if (filter === "Pending") return !f.IsDistributed;
+      return true;
+    },
   });
 
+  // ================= PAGINATION =================
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, filteredData, setCurrentPage]);
+  }, [search, filter, setCurrentPage]);
 
+  // ================= ACTIONS =================
   const openActionModal = (f, type) => {
     setSelectedRow(f);
     setActionType(type);
@@ -85,6 +96,9 @@ export default function SubsidyDetails() {
       setLoadingRow(selectedRow.DistributionDetailsID);
 
       await deleteDistribution(selectedRow.DistributionDetailsID);
+
+      // reload data
+      await loadFarmersPerSubsidy(id);
       await loadSubsidy();
 
       setDeleteModal(false);
@@ -105,7 +119,8 @@ export default function SubsidyDetails() {
         IsDistributed: actionType === "distribute" ? 1 : 0,
       });
 
-      
+      // reload data
+      await loadFarmersPerSubsidy(id);
       await loadSubsidy();
 
       setConfirmModal(false);
@@ -116,6 +131,7 @@ export default function SubsidyDetails() {
     }
   };
 
+  // ================= LOADING =================
   if (!selectedSubsidy) {
     return (
       <div className="p-6 text-gray-500 dark:text-gray-400">
@@ -128,6 +144,7 @@ export default function SubsidyDetails() {
   const distributed = Number(selectedSubsidy.TotalDistributed || 0);
   const remaining = totalAmount - distributed;
 
+  // ================= TABLE =================
   const columns = [
     {
       key: "farmer",
@@ -181,22 +198,22 @@ export default function SubsidyDetails() {
                 onClick={() => openActionModal(f, "distribute")}
                 className="bg-green-600 dark:bg-green-500 text-white px-2 py-1 rounded"
               >
-                <Check className="w-3 h-3" />
+                <HandCoins className="w-4 h-4" />
               </button>
 
               <button
                 onClick={() => openDeleteModal(f)}
                 className="bg-red-600 dark:bg-red-500 text-white px-2 py-1 rounded"
               >
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="w-4 h-4" />
               </button>
             </>
           ) : (
             <button
               onClick={() => openActionModal(f, "cancel")}
-              className="bg-orange-600 dark:bg-orange-500 text-white px-2 py-1 rounded"
+              className="bg-yellow-500 dark:bg-yellow-600 text-white px-2 py-1 rounded"
             >
-              <X className="w-3 h-3" />
+              <BanknoteX className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -208,16 +225,15 @@ export default function SubsidyDetails() {
     <div className="w-full min-h-screen p-4 space-y-6 bg-gray-100 dark:bg-gray-950">
 
       {/* BACK */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
-        >
-          <ArrowLeft size={18} /> Back
-        </button>
-      </div>
+      <button
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
+      >
+        <ArrowLeft size={18} /> Back
+      </button>
 
-      {/* SUBSIDY INFO */}
+      
+ {/* SUBSIDY INFO */}
       <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-lg rounded-2xl p-6 border border-gray-200 dark:border-gray-800 space-y-6">
 
         <div className="flex items-start justify-between">
@@ -295,6 +311,7 @@ export default function SubsidyDetails() {
 
       </div>
 
+
       {/* TABLE */}
       <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4 border border-gray-200 dark:border-gray-800">
 
@@ -303,12 +320,25 @@ export default function SubsidyDetails() {
             FARMERS DISTRIBUTION
           </h2>
 
-          <button
-            onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
-          >
-            <Plus className="w-4 h-4" /> Add Farmer
-          </button>
+<button
+  onClick={() => setAddModal(true)}
+  className="
+    flex items-center gap-2
+    bg-green-600 dark:bg-green-500
+    text-white
+    px-3 sm:px-4 py-2
+    rounded-lg text-sm shadow
+    hover:bg-green-700 dark:hover:bg-green-400
+    transition-colors
+  "
+>
+  <Plus className="w-4 h-4" />
+
+  {/* TEXT ONLY ON SM+ */}
+  <span className="hidden sm:inline">
+    Add Farmer
+  </span>
+</button>
         </div>
 
         <DataTable
@@ -316,6 +346,21 @@ export default function SubsidyDetails() {
           data={currentItems}
           search={search}
           setSearch={setSearch}
+          filters={
+            <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
+              {["All", "Pending", "Distributed"].map((item) => (
+                <label key={item} className="flex items-center gap-1 cursor-pointer">
+                  <input
+                    type="radio"
+                    className="accent-green-600 dark:accent-green-400"
+                    checked={filter === item}
+                    onChange={() => setFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </div>
+          }
         />
 
         <Pagination
@@ -325,7 +370,6 @@ export default function SubsidyDetails() {
           currentItemsLength={currentItems.length}
           totalItemsLength={filteredData.length}
         />
-
       </div>
 
       {/* MODALS */}
@@ -352,7 +396,6 @@ export default function SubsidyDetails() {
         onCancel={() => setDeleteModal(false)}
         onConfirm={handleDelete}
       />
-
     </div>
   );
 }
