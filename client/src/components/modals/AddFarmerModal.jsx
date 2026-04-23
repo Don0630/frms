@@ -154,13 +154,14 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
 
             <div>
               <label className="text-xs text-gray-500">Date of Birth</label>
-              <input
-                type="date"
-                name="DateOfBirth"
-                value={form.DateOfBirth}
-                onChange={handleChange}
-                className="input"
-              />
+            <input
+  type="date"
+  name="DateOfBirth"
+  value={form.DateOfBirth}
+  onChange={handleChange}
+  max={new Date().toISOString().split("T")[0]}
+  className="input"
+/>
             </div>
 
           </div>
