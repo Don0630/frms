@@ -185,11 +185,15 @@ const deleteDistribution = async (DistributionDetailsID) => {
   setError(null);
 
   try {
-    const res = await subsidyApi.deleteDistribution(DistributionDetailsID);
+    await subsidyApi.deleteDistribution(DistributionDetailsID);
 
-    console.log("🗑️ Distribution deleted:", res);
- 
-    return res;
+    // ✅ REMOVE FROM STATE IMMEDIATELY
+    setFarmers((prev) =>
+      prev.filter(
+        (f) => Number(f.DistributionDetailsID) !== Number(DistributionDetailsID)
+      )
+    );
+
   } catch (err) {
     console.error("⚠️ Error deleting Distribution:", err);
     setError(err.message);

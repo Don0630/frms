@@ -85,7 +85,6 @@ export default function SubsidyDetails() {
       setLoadingRow(selectedRow.DistributionDetailsID);
 
       await deleteDistribution(selectedRow.DistributionDetailsID);
-      await loadFarmersPerSubsidy(id);
       await loadSubsidy();
 
       setDeleteModal(false);
@@ -106,7 +105,7 @@ export default function SubsidyDetails() {
         IsDistributed: actionType === "distribute" ? 1 : 0,
       });
 
-      await loadFarmersPerSubsidy(id);
+      
       await loadSubsidy();
 
       setConfirmModal(false);
