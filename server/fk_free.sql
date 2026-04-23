@@ -125,7 +125,7 @@ CREATE TABLE tblSubsidyDistributionDetails (
   FarmerID INT, 
   Amount DECIMAL(10,2),
   IsDistributed TINYINT(1) NOT NULL DEFAULT 0
- 
+
 );
 
 
