@@ -31,14 +31,18 @@ CREATE TABLE IF NOT EXISTS tblUsers (
 CREATE TABLE tblFarmers (
   FarmerID INT AUTO_INCREMENT PRIMARY KEY,
   FirstName VARCHAR(50) NOT NULL,
+  MiddleName VARCHAR(50),
   LastName VARCHAR(50) NOT NULL,
   Gender ENUM('Male', 'Female', 'Other'),
-  DateOfBirth DATE,
-  Address TEXT,
+  DateOfBirth DATE, 
+  Barangay VARCHAR(100),
+  Municipality VARCHAR(100),
+  Province VARCHAR(100),
   ContactNumber VARCHAR(20),
   Email VARCHAR(100),
   RegistrationDate DATE
 );
+
 
 
 -- =========================
@@ -49,7 +53,7 @@ CREATE TABLE tblFarms (
   FarmerID INT NOT NULL, 
   FarmBarangay VARCHAR(100),
   FarmMunicipality VARCHAR(100),
-
+  FarmProvince VARCHAR(100),
   FarmSize DECIMAL(10,2),
 
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID)

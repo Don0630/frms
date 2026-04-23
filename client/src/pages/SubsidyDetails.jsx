@@ -37,7 +37,6 @@ export default function SubsidyDetails() {
   const [actionType, setActionType] = useState(null);
   const [loadingRow, setLoadingRow] = useState(null);
 
-  // LOAD DATA
   useEffect(() => {
     loadSubsidy();
   }, []);
@@ -56,25 +55,18 @@ export default function SubsidyDetails() {
     setSelectedSubsidy(found || null);
   }, [subsidy, id]);
 
-  // TABLE LOGIC
   const { search, setSearch, filteredData } = useTable({
     data: farmers,
     searchFields: ["FirstName", "LastName", "ContactNumber"],
   });
 
-  const {
-    currentPage,
-    setCurrentPage,
-    currentItems,
-    totalPages,
-  } = usePagination(filteredData, 10);
+  const { currentPage, setCurrentPage, currentItems, totalPages } =
+    usePagination(filteredData, 10);
 
-  // ✅ FIX: reset pagination properly
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filteredData, setCurrentPage]);
 
-  // ACTIONS
   const openActionModal = (f, type) => {
     setSelectedRow(f);
     setActionType(type);
@@ -126,7 +118,11 @@ export default function SubsidyDetails() {
   };
 
   if (!selectedSubsidy) {
-    return <div className="p-6 text-gray-500">Loading subsidy...</div>;
+    return (
+      <div className="p-6 text-gray-500 dark:text-gray-400">
+        Loading subsidy...
+      </div>
+    );
   }
 
   const totalAmount = Number(selectedSubsidy.TotalAmount || 0);
@@ -138,17 +134,25 @@ export default function SubsidyDetails() {
       key: "farmer",
       label: "Farmer",
       render: (f) => (
-        <div className="font-medium">
+        <div className="font-medium text-gray-800 dark:text-gray-200">
           {f.FirstName} {f.LastName}
         </div>
       ),
     },
-    { key: "ContactNumber", label: "Contact" },
+    {
+      key: "ContactNumber",
+      label: "Contact",
+      render: (f) => (
+        <span className="text-gray-700 dark:text-gray-300">
+          {f.ContactNumber}
+        </span>
+      ),
+    },
     {
       key: "Amount",
       label: "Amount",
       render: (f) => (
-        <span className="text-green-700 font-semibold">
+        <span className="text-green-700 dark:text-green-400 font-semibold">
           ₱ {Number(f.Amount || 0).toLocaleString()}
         </span>
       ),
@@ -158,9 +162,13 @@ export default function SubsidyDetails() {
       label: "Status",
       render: (f) =>
         f.IsDistributed ? (
-          <span className="text-green-600 font-medium">Distributed</span>
+          <span className="text-green-600 dark:text-green-400 font-medium">
+            Distributed
+          </span>
         ) : (
-          <span className="text-yellow-600 font-medium">Pending</span>
+          <span className="text-yellow-600 dark:text-yellow-400 font-medium">
+            Pending
+          </span>
         ),
     },
     {
@@ -172,14 +180,14 @@ export default function SubsidyDetails() {
             <>
               <button
                 onClick={() => openActionModal(f, "distribute")}
-                className="bg-green-600 text-white px-2 py-1 rounded"
+                className="bg-green-600 dark:bg-green-500 text-white px-2 py-1 rounded"
               >
                 <Check className="w-3 h-3" />
               </button>
 
               <button
                 onClick={() => openDeleteModal(f)}
-                className="bg-red-600 text-white px-2 py-1 rounded"
+                className="bg-red-600 dark:bg-red-500 text-white px-2 py-1 rounded"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -187,7 +195,7 @@ export default function SubsidyDetails() {
           ) : (
             <button
               onClick={() => openActionModal(f, "cancel")}
-              className="bg-orange-600 text-white px-2 py-1 rounded"
+              className="bg-orange-600 dark:bg-orange-500 text-white px-2 py-1 rounded"
             >
               <X className="w-3 h-3" />
             </button>
@@ -198,108 +206,107 @@ export default function SubsidyDetails() {
   ];
 
   return (
-    <div className="w-full min-h-screen p-4 space-y-6 bg-gray-100">
+    <div className="w-full min-h-screen p-4 space-y-6 bg-gray-100 dark:bg-gray-950">
 
+      {/* BACK */}
       <div className="flex items-center justify-between">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
         >
           <ArrowLeft size={18} /> Back
         </button>
       </div>
 
       {/* SUBSIDY INFO */}
-{/* SUBSIDY INFO - CLEAN PRO SINGLE CARD */}
-<div className="bg-white/60 backdrop-blur-md shadow-lg rounded-2xl p-6 border space-y-6">
+      <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-lg rounded-2xl p-6 border border-gray-200 dark:border-gray-800 space-y-6">
 
-  {/* HEADER */}
-  <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between">
 
-    <div>
-      <h1 className="text-2xl font-bold text-gray-800">
-        {selectedSubsidy.ProgramName}
-      </h1>
-      <p className="text-sm text-gray-500 mt-1">
-        Financial overview & distribution summary
-      </p>
-    </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              {selectedSubsidy.ProgramName}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Financial overview & distribution summary
+            </p>
+          </div>
 
-    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-      Active
-    </span>
+<span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-500/30">
+  <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400"></span>
+  Active
+</span>
 
-  </div>
+        </div>
 
-  {/* MAIN INFO ROW */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
 
-    <div>
-      <p className="text-xs text-gray-500">Distribution Date</p>
-      <p className="font-medium text-gray-800 mt-1">
-        {selectedSubsidy.DistributionDate}
-      </p>
-    </div>
+          <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Distribution Date
+            </p>
+            <p className="font-medium text-gray-800 dark:text-gray-200 mt-1">
+              {selectedSubsidy.DistributionDate}
+            </p>
+          </div>
 
-    <div>
-      <p className="text-xs text-gray-500">Total Budget</p>
-      <p className="font-semibold text-gray-800 mt-1">
-        ₱ {totalAmount.toLocaleString()}
-      </p>
-    </div>
+          <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Total Budget
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-200 mt-1">
+              ₱ {totalAmount.toLocaleString()}
+            </p>
+          </div>
 
-    <div>
-      <p className="text-xs text-gray-500">Farmers Benefited</p>
-      <p className="font-semibold text-gray-800 mt-1">
-        {selectedSubsidy.TotalFarmers}
-      </p>
-    </div>
+          <div>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Farmers Benefited
+            </p>
+            <p className="font-semibold text-gray-800 dark:text-gray-200 mt-1">
+              {selectedSubsidy.TotalFarmers}
+            </p>
+          </div>
 
-  </div>
+        </div>
 
-  {/* DIVIDER */}
-  <div className="border-t"></div>
+        <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
-  {/* FINANCIAL SUMMARY (CLEAN GRID) */}
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-    {/* DISTRIBUTED */}
-    <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-      <p className="text-xs text-gray-500">Distributed Amount</p>
-      <p className="text-xl font-bold text-green-700 mt-1">
-        ₱ {distributed.toLocaleString()}
-      </p>
-      <p className="text-xs text-gray-500 mt-2">
-        Funds already released to beneficiaries
-      </p>
-    </div>
+          <div className="bg-green-600 dark:bg-green-600 rounded-xl p-4">
+            <p className="text-xs text-gray-100 dark:text-gray-100">
+              Distributed Amount
+            </p>
+            <p className="text-xl font-bold text-gray-100 dark:text-gray-100 mt-1">
+              ₱ {distributed.toLocaleString()}
+            </p>
+          </div>
 
-    {/* REMAINING */}
-    <div className="bg-red-50 border border-red-100 rounded-xl p-4">
-      <p className="text-xs text-gray-500">Remaining Balance</p>
-      <p className="text-xl font-bold text-red-600 mt-1">
-        ₱ {remaining.toLocaleString()}
-      </p>
-      <p className="text-xs text-gray-500 mt-2">
-        Pending allocation for distribution
-      </p>
-    </div>
+          <div className="bg-red-500 dark:bg-red-800 rounded-xl p-4">
+            <p className="text-xs text-gray-100 dark:text-gray-100">
+              Remaining Balance
+            </p>
+            <p className="text-xl font-bold text-gray-100 dark:text-gray-100 mt-1">
+              ₱ {remaining.toLocaleString()}
+            </p>
+          </div>
 
-  </div>
+        </div>
 
-</div>
+      </div>
 
       {/* TABLE */}
-      <div className="bg-white/60 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4">
+      <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4 border border-gray-200 dark:border-gray-800">
 
         <div className="flex justify-between">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
             FARMERS DISTRIBUTION
           </h2>
 
           <button
             onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700"
+            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
           >
             <Plus className="w-4 h-4" /> Add Farmer
           </button>

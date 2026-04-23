@@ -9,7 +9,7 @@
 -- 9. USERS (linked to Farmers and Staff)
 -- =========================
 CREATE TABLE IF NOT EXISTS tblUsers (
-  ID INT AUTO_INCREMENT PRIMARY KEY,
+  UserID INT AUTO_INCREMENT PRIMARY KEY,
   Username VARCHAR(50) NOT NULL UNIQUE,
   PasswordHash VARCHAR(255) NOT NULL,
   Email VARCHAR(100) UNIQUE,
@@ -36,7 +36,7 @@ CREATE TABLE tblFarmers (
   DateOfBirth DATE, 
   Barangay VARCHAR(100),
   Municipality VARCHAR(100),
-
+  Province VARCHAR(100),
   ContactNumber VARCHAR(20),
   Email VARCHAR(100),
   RegistrationDate DATE
@@ -50,6 +50,7 @@ CREATE TABLE tblFarms (
   FarmerID INT NOT NULL, 
   FarmBarangay VARCHAR(100),
   FarmMunicipality VARCHAR(100),
+  FarmProvince VARCHAR(100),
   FarmSize DECIMAL(10,2)
 );
 

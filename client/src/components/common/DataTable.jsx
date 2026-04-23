@@ -1,3 +1,4 @@
+import { Search } from "lucide-react";
 export default function DataTable({
   columns = [],
   data = [],
@@ -20,18 +21,26 @@ export default function DataTable({
 
             {/* SEARCH */}
             {setSearch && (
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search..."
-                className="
-                  border rounded-lg px-3 py-2 w-full md:w-64 text-sm
-                  bg-white dark:bg-gray-800
-                  text-gray-800 dark:text-gray-100
-                  border-gray-300 dark:border-gray-700
-                  focus:outline-none focus:ring-2 focus:ring-green-500
-                "
-              />
+              <div className="relative w-full md:w-64">
+
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
+                />
+
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search..."
+                  className="
+                    border rounded-lg pl-9 pr-3 py-2 w-full text-sm
+                    bg-white dark:bg-gray-800
+                    text-gray-800 dark:text-gray-100
+                    border-gray-300 dark:border-gray-700
+                    focus:outline-none focus:ring-2 focus:ring-green-500
+                  "
+                />
+              </div>
             )}
 
             {/* RIGHT ACTIONS */}

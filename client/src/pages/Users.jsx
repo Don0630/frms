@@ -33,7 +33,7 @@ export default function Users() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, filter, filteredData, setCurrentPage]);
+  }, [search, filter, setCurrentPage]);
 
   const columns = [
     {
@@ -92,9 +92,12 @@ export default function Users() {
     {
       key: "actions",
       label: "",
-      render: () => (
+      render: (item) => (
         <div className="flex justify-center">
-          <button className="bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors">
+          <button
+            onClick={() => setViewModal(item)}
+            className="bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
+          >
             <Edit className="w-3 h-3" />
           </button>
         </div>
@@ -111,26 +114,41 @@ export default function Users() {
 
   return (
     <div className="w-full p-4">
+
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
-        {/* HEADER */}
-        <div className="flex flex-wrap justify-between items-center gap-3">
+        {/* HEADER (MATCHED WITH STAFF PAGE) */}
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             ALL USERS
           </h2>
 
           <button
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
             onClick={() => setAddModal(true)}
+            className="
+              flex items-center gap-2
+              bg-green-600 dark:bg-green-500
+              text-white
+              px-3 sm:px-4 py-2
+              rounded-lg text-sm shadow
+              hover:bg-green-700 dark:hover:bg-green-400
+              transition-colors
+            "
           >
-            <Plus className="w-4 h-4" /> Add User
+            <Plus className="w-4 h-4" />
+
+            <span className="hidden sm:inline">
+              Add User
+            </span>
           </button>
+
         </div>
 
         {/* TABLE */}
         {loading ? (
-          <p className="text-gray-700 dark:text-gray-300">
-            Loading users...
+          <p className="text-gray-700 dark:text-gray-300 p-4">
+            Loading Users...
           </p>
         ) : (
           <>
@@ -165,6 +183,7 @@ export default function Users() {
             />
           </>
         )}
+
       </div>
 
       {/* MODALS */}
@@ -181,6 +200,7 @@ export default function Users() {
           onSuccess={loadUsers}
         />
       )}
+
     </div>
   );
 }

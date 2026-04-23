@@ -13,7 +13,7 @@ import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
 
 export default function Programs() {
-  const { program, loadProgram, error } = useProgram();
+  const { program, loadProgram, error, loading } = useProgram();
 
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
@@ -24,27 +24,34 @@ export default function Programs() {
     loadProgram();
   }, []);
 
-  // TABLE LOGIC
   const { search, setSearch, filteredData } = useTable({
     data: program,
     searchFields: ["ProgramName"],
     filterFn: (item) => filter === "All" || item.Status === filter,
   });
 
-  const { currentPage, setCurrentPage, currentItems, totalPages } =
-    usePagination(filteredData, 10);
+  const {
+    currentPage,
+    setCurrentPage,
+    currentItems,
+    totalPages,
+  } = usePagination(filteredData, 10);
 
-  // COLUMNS
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, setCurrentPage]);
+
   const columns = [
     {
       key: "ProgramName",
       label: "Program",
       render: (item) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {item.ProgramName}
+
           <button
             onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 p-1 rounded"
+            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
           >
             <Info className="w-4 h-4 text-blue-500" />
           </button>
@@ -56,7 +63,8 @@ export default function Programs() {
     {
       key: "Budget",
       label: "Budget",
-      render: (item) => `₱ ${Number(item.Budget || 0).toLocaleString()}`,
+      render: (item) =>
+        `₱ ${Number(item.Budget || 0).toLocaleString()}`,
     },
     {
       key: "Status",
@@ -84,7 +92,7 @@ export default function Programs() {
         <div className="flex justify-center">
           <button
             onClick={() => setEditModal(item)}
-            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+            className="bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
           >
             <Edit className="w-3 h-3" />
           </button>
@@ -93,84 +101,113 @@ export default function Programs() {
     },
   ];
 
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (error)
+    return (
+      <div className="p-4 text-red-600 dark:text-red-400">
+        {error}
+      </div>
+    );
 
- return (
-  <div className="w-full p-4 bg-gray-50 dark:bg-gray-950 min-h-screen">
+  return (
+    <div className="w-full p-4">
 
-    <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
-      {/* HEADER */}
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-          ALL PROGRAMS
-        </h2>
+        {/* HEADER */}
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
 
-        <button
-          onClick={() => setAddProgramModal(true)}
-          className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Program
-        </button>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+            ALL PROGRAMS
+          </h2>
+
+          <button
+            onClick={() => setAddProgramModal(true)}
+            className="
+              flex items-center gap-2
+              bg-green-600 dark:bg-green-500
+              text-white
+              px-3 sm:px-4 py-2
+              rounded-lg text-sm shadow
+              hover:bg-green-700 dark:hover:bg-green-400
+              transition-colors
+            "
+          >
+            <Plus className="w-4 h-4" />
+
+            <span className="hidden sm:inline">
+              Add Program
+            </span>
+          </button>
+
+        </div>
+
+        {/* TABLE + LOADING */}
+        {loading ? (
+          <p className="text-gray-700 dark:text-gray-300 p-4">
+            Loading Programs...
+          </p>
+        ) : (
+          <>
+            <DataTable
+              columns={columns}
+              data={currentItems}
+              search={search}
+              setSearch={setSearch}
+              filters={
+                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
+                  {["All", "Active", "Completed", "Dropped"].map((item) => (
+                    <label
+                      key={item}
+                      className="flex items-center gap-1 cursor-pointer"
+                    >
+                      <input
+                        type="radio"
+                        className="accent-green-600 dark:accent-green-400"
+                        checked={filter === item}
+                        onChange={() => setFilter(item)}
+                      />
+                      {item}
+                    </label>
+                  ))}
+                </div>
+              }
+            />
+
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+              currentItemsLength={currentItems.length}
+              totalItemsLength={filteredData.length}
+            />
+          </>
+        )}
+
       </div>
 
-      {/* TABLE */}
-      <DataTable
-        columns={columns}
-        data={currentItems}
-        search={search}
-        setSearch={setSearch}
-        filters={
-          <div className="flex gap-4 text-sm items-center text-gray-700 dark:text-gray-300">
-            {["All", "Active", "Completed", "Dropped"].map((item) => (
-              <label
-                key={item}
-                className="flex items-center gap-1 cursor-pointer"
-              >
-                <input
-                  type="radio"
-                  className="accent-green-600 dark:accent-green-400"
-                  checked={filter === item}
-                  onChange={() => setFilter(item)}
-                />
-                {item}
-              </label>
-            ))}
-          </div>
-        }
-      />
+      {/* MODALS */}
+      {viewModal && (
+        <ViewProgramModal
+          program={viewModal}
+          onClose={() => setViewModal(null)}
+        />
+      )}
 
-      {/* PAGINATION */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        setCurrentPage={setCurrentPage}
-        currentItemsLength={currentItems.length}
-        totalItemsLength={filteredData.length}
-      />
+      {addProgramModal && (
+        <AddProgramModal
+          onClose={() => setAddProgramModal(false)}
+          onSuccess={loadProgram}
+        />
+      )}
+
+      {editModal && (
+        <EditProgramModal
+          selectedProgram={editModal}
+          onClose={() => setEditModal(null)}
+          onSuccess={loadProgram}
+        />
+      )}
 
     </div>
-
-    {/* MODALS */}
-    <ViewProgramModal
-      program={viewModal}
-      onClose={() => setViewModal(null)}
-    />
-
-    {addProgramModal && (
-      <AddProgramModal
-        onClose={() => setAddProgramModal(false)}
-        onSuccess={loadProgram}
-      />
-    )}
-
-    {editModal && (
-      <EditProgramModal
-        selectedProgram={editModal}
-        onClose={() => setEditModal(null)}
-        onSuccess={loadProgram}
-      />
-    )}
-  </div>
-);
+  );
 }

@@ -21,22 +21,15 @@ export default function AddStaffModal({ onClose, onSuccess }) {
   };
 
   const validateForm = () => {
-    if (!form.FirstName || !form.LastName) {
+    if (!form.FirstName || !form.LastName)
       return "First and Last name are required";
-    }
 
-    if (!form.Email) {
-      return "Email is required";
-    }
+    if (!form.Email) return "Email is required";
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.Email)) {
-      return "Invalid email format";
-    }
+    if (!emailRegex.test(form.Email)) return "Invalid email format";
 
-    if (!form.ContactNumber) {
-      return "Contact number is required";
-    }
+    if (!form.ContactNumber) return "Contact number is required";
 
     return "";
   };
@@ -66,26 +59,37 @@ export default function AddStaffModal({ onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+
+      {/* MODAL */}
+      <div className="
+        w-full max-w-lg rounded-xl shadow-xl p-6 relative
+        bg-white dark:bg-gray-900
+        text-gray-800 dark:text-gray-100
+        border border-gray-200 dark:border-gray-800
+        animate-fadeIn
+      ">
 
         {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 dark:text-gray-300 hover:text-red-500"
+        >
           <X />
         </button>
 
         {/* HEADER */}
         <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold">
             Add Staff
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Fill in staff information
           </p>
         </div>
 
         {/* ERROR */}
         {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
+          <div className="bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
             {error}
           </div>
         )}
@@ -95,7 +99,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
           {/* NAME */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-gray-500">First Name</label>
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                First Name
+              </label>
               <input
                 name="FirstName"
                 value={form.FirstName}
@@ -105,7 +111,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Last Name</label>
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Last Name
+              </label>
               <input
                 name="LastName"
                 value={form.LastName}
@@ -117,7 +125,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
 
           {/* EMAIL */}
           <div>
-            <label className="text-xs text-gray-500">Email</label>
+            <label className="text-xs text-gray-500 dark:text-gray-400">
+              Email
+            </label>
             <input
               type="email"
               name="Email"
@@ -130,7 +140,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
           {/* GENDER + CONTACT */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-gray-500">Gender</label>
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Gender
+              </label>
               <select
                 name="Gender"
                 value={form.Gender}
@@ -143,7 +155,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Contact Number</label>
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Contact Number
+              </label>
               <input
                 name="ContactNumber"
                 value={form.ContactNumber}
@@ -156,7 +170,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
           {/* POSITION + DEPARTMENT */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs text-gray-500">Position</label>
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Position
+              </label>
               <input
                 name="Position"
                 value={form.Position}
@@ -166,7 +182,9 @@ export default function AddStaffModal({ onClose, onSuccess }) {
             </div>
 
             <div>
-              <label className="text-xs text-gray-500">Department</label>
+              <label className="text-xs text-gray-500 dark:text-gray-400">
+                Department
+              </label>
               <input
                 name="Department"
                 value={form.Department}
@@ -178,11 +196,19 @@ export default function AddStaffModal({ onClose, onSuccess }) {
 
           {/* ACTIONS */}
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+            >
               Cancel
             </button>
 
-            <button type="submit" disabled={loading} className="btn-green">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-3 py-2 rounded bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-400"
+            >
               {loading ? "Saving..." : "Save Staff"}
             </button>
           </div>
@@ -190,35 +216,8 @@ export default function AddStaffModal({ onClose, onSuccess }) {
         </form>
       </div>
 
-      {/* STYLES */}
+      {/* ANIMATION */}
       <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
-
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
-
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
         .animate-fadeIn {
           animation: fadeIn 0.2s ease-out;
         }
@@ -227,7 +226,31 @@ export default function AddStaffModal({ onClose, onSuccess }) {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
         }
+
+        .input {
+          width: 100%;
+          border-radius: 8px;
+          padding: 8px;
+          font-size: 14px;
+
+          background: white;
+          border: 1px solid #e5e7eb;
+          color: #111827;
+        }
+
+        .dark .input {
+          background: #111827;
+          border: 1px solid #374151;
+          color: #f3f4f6;
+        }
+
+        .input:focus {
+          outline: none;
+          border-color: #16a34a;
+          box-shadow: 0 0 0 2px rgba(22,163,74,0.25);
+        }
       `}</style>
+
     </div>
   );
 }

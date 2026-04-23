@@ -133,19 +133,32 @@ export default function Staff() {
             ALL STAFF
           </h2>
 
-          <button
-            onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
-          >
-            <Plus className="w-4 h-4" /> Add Staff
-          </button>
+<button
+  onClick={() => setAddModal(true)}
+  className="
+    flex items-center gap-2
+    bg-green-600 dark:bg-green-500
+    text-white
+    px-3 sm:px-4 py-2
+    rounded-lg text-sm shadow
+    hover:bg-green-700 dark:hover:bg-green-400
+    transition-colors
+  "
+>
+  <Plus className="w-4 h-4" />
+
+  {/* TEXT ONLY ON SM+ */}
+  <span className="hidden sm:inline">
+    Add Staff
+  </span>
+</button>
 
         </div>
 
         {/* TABLE */}
         {loading ? (
           <p className="text-gray-700 dark:text-gray-300 p-4">
-            Loading staff...
+            Loading Staff...
           </p>
         ) : (
           <>

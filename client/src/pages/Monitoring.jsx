@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, SlidersHorizontal, Settings, Info, Mars, Venus, Users } from "lucide-react";
+import { Plus, Info, Users, Mars, Venus } from "lucide-react";
 
 import { useMonitoring } from "../context/MonitoringContext";
 import ViewMonitoringModal from "../components/modals/ViewMonitoringModal";
@@ -32,6 +32,10 @@ export default function Monitoring() {
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, setCurrentPage]);
+
   const getGenderIcon = (gender) => {
     if (gender?.toLowerCase() === "male")
       return <Mars className="w-4 h-4 text-blue-500" />;
@@ -48,6 +52,13 @@ export default function Monitoring() {
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
           {item.FirstName ? `${item.FirstName} ${item.LastName}` : "N/A"}
+
+          <button
+            onClick={() => setViewModal(item)}
+            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
+          >
+            <Info className="w-4 h-4 text-blue-500" />
+          </button>
         </div>
       ),
     },
@@ -87,20 +98,6 @@ export default function Monitoring() {
         </span>
       ),
     },
-    {
-      key: "actions",
-      label: "",
-      render: (item) => (
-        <div className="flex justify-center">
-          <button
-            onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
-          >
-            <Info className="w-4 h-4 text-blue-500" />
-          </button>
-        </div>
-      ),
-    },
   ];
 
   if (error)
@@ -113,10 +110,10 @@ export default function Monitoring() {
   return (
     <div className="w-full p-4">
 
-     <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
-        {/* HEADER */}
-        <div className="flex flex-wrap justify-between items-center gap-3">
+        {/* HEADER (MATCHED WITH STAFF STYLE) */}
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
 
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
             MONITORING RECORDS
@@ -124,17 +121,29 @@ export default function Monitoring() {
 
           <button
             onClick={() => setAddMonitoringModal(true)}
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400 transition-colors"
+            className="
+              flex items-center gap-2
+              bg-green-600 dark:bg-green-500
+              text-white
+              px-3 sm:px-4 py-2
+              rounded-lg text-sm shadow
+              hover:bg-green-700 dark:hover:bg-green-400
+              transition-colors
+            "
           >
-            <Plus className="w-4 h-4" /> New Report
+            <Plus className="w-4 h-4" />
+
+            <span className="hidden sm:inline">
+              New Report
+            </span>
           </button>
 
         </div>
 
         {/* TABLE */}
         {loading ? (
-          <p className="text-gray-700 dark:text-gray-300">
-            Loading monitoring records...
+          <p className="text-gray-700 dark:text-gray-300 p-4">
+            Loading Records...
           </p>
         ) : (
           <>
@@ -144,9 +153,9 @@ export default function Monitoring() {
               search={search}
               setSearch={setSearch}
               filters={
-                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300 items-center">
+                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
                   {["All", "Male", "Female"].map((item) => (
-                    <label key={item} className="flex items-center gap-1 cursor-pointer">
+                    <label key={item} className="flex items-center gap-1">
                       <input
                         type="radio"
                         className="accent-green-600 dark:accent-green-400"
@@ -184,6 +193,7 @@ export default function Monitoring() {
           onSuccess={loadMonitoring}
         />
       )}
+
     </div>
   );
 }

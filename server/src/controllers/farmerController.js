@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 
 // ------------- GET ALL FARMER -------------
-export async function getAllFarmer(req, res) {
+export async function getAllFarmer(req, res, next) {
 
   try {
     const farmersData = await farmerService.fetchFarmers();
