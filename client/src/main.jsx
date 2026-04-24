@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from './App.jsx';
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { UserProvider } from "./context/UserContext.jsx";
@@ -12,8 +13,11 @@ import { CropProvider } from "./context/CropContext.jsx";
 import { LivestockProvider } from "./context/LivestockContext.jsx";
 import { MonitoringProvider } from "./context/MonitoringContext.jsx";
 
+const queryClient = new QueryClient();
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <UserProvider>
         <StaffProvider>
@@ -33,5 +37,6 @@ createRoot(document.getElementById('root')).render(
         </StaffProvider>
       </UserProvider>
     </AuthProvider>
+    </QueryClientProvider>
   </StrictMode>,
 )

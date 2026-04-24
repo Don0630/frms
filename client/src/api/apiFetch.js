@@ -1,4 +1,3 @@
-// src/api/apiFetch.js
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ||
   "http://localhost:5000";
@@ -6,27 +5,32 @@ const API_BASE =
 export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem("token");
 
-  // Add headers
-  options.headers = {
-    ...options.headers,
-    Authorization: token ? `Bearer ${token}` : "",
-    "Content-Type": "application/json",
-  };
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: token ? `Bearer ${token}` : "",
+      "Content-Type": "application/json",
+    },
+  });
 
-  const res = await fetch(`${API_BASE}${endpoint}`, options);
+  const data = await res.json().catch(() => null);
 
-  // ✅ Check for expired token
+  // 1. handle auth
   if (res.status === 401) {
-    // Token expired or invalid
-    localStorage.removeItem("token"); // optional: clear token
-    window.location.href = `${window.location.origin}/sessionexpired`;
-    throw new Error("Session expired. Please log in again.");
+    localStorage.removeItem("token");
+    window.location.href = "/sessionexpired";
+    throw new Error("Session expired");
   }
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || "API request failed");
+  // 2. handle errors (backend or HTTP)
+  if (!res.ok || data?.success === false) {
+    const err = new Error(data?.message || "Request failed");
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
 
-  return res.json();
+  // 3. return FULL backend response
+  return data;
 }

@@ -4,7 +4,8 @@ import bcrypt from "bcrypt";
 
 
 export async function fetchUsers() {
-  return await userModel.getAllUsers();
+   const user = await userModel.getAllUsers();
+   return user;
 }
 
 
@@ -16,4 +17,14 @@ export async function createUser({ staffId, username, password, role }) {
   // 2️⃣ Insert user with hashed password
   const user = await userModel.insertUser({ staffId, username, hashedPassword, role });
   return user;
+}
+
+
+export async function updateUserService({ userId, username, role }) {
+  const user = await userModel.updateUser({ userId, username, role });
+  return user;
+}
+
+export async function removeUser(userId) {
+  return await userModel.deleteUser(userId);
 }

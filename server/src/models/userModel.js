@@ -2,7 +2,7 @@
 import { db } from "../config/db.js";
 
 
-// Fetch all users with staff info
+// FETCH ALL USER
 export async function getAllUsers() {
   const [rows] = await db.query(`
     SELECT 
@@ -24,6 +24,8 @@ export async function getAllUsers() {
 }
 
 
+
+// INSERT USER
 export async function insertUser({ staffId, username, hashedPassword, role }) { 
     const query = `
     INSERT INTO tblUsers (StaffID, Username, PasswordHash, Role)
@@ -34,4 +36,28 @@ export async function insertUser({ staffId, username, hashedPassword, role }) {
     return { id: result.insertId };
 }
 
- 
+
+
+// UPDATE USER
+export async function updateUser({ userId, username, role }) {
+  const query = `
+    UPDATE tblUsers
+    SET Username = ?, Role = ?
+    WHERE UserID = ?
+  `;
+
+  const [result] = await db.query(query, [username, role, userId,]);
+
+  return { affectedRows: result.affectedRows, userId, };
+}
+
+
+export async function deleteUser(userId) {
+  const query = `
+    DELETE FROM tblUsers
+    WHERE UserID = ?
+  `;
+
+  const [result] = await db.query(query, [userId]);
+  return result;
+}
