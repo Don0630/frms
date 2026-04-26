@@ -9,7 +9,7 @@ export async function fetchUsers() {
 }
 
 
-export async function createUser({ staffId, username, password, role }) {
+export async function addUser({ staffId, username, password, role }) {
   // 1️⃣ Generate salt and hash password
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -20,11 +20,12 @@ export async function createUser({ staffId, username, password, role }) {
 }
 
 
-export async function updateUserService({ userId, username, role }) {
+export async function updateUser({ userId, username, role }) {
   const user = await userModel.updateUser({ userId, username, role });
   return user;
 }
 
 export async function removeUser(userId) {
-  return await userModel.deleteUser(userId);
+  const user = await userModel.deleteUser(userId);
+  return user;
 }

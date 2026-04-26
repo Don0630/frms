@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, Info, Edit, User, Trash2 } from "lucide-react";
 
-import useUsers from "../hooks/useUsers";
+import useUser from "../hooks/useUser";
 
 import ViewUserModal from "../components/modals/ViewUserModal.jsx";
 import AddUserModal from "../components/modals/AddUserModal.jsx";
@@ -24,16 +24,17 @@ export default function Users() {
   // ✅ ONLY CHANGE: data comes from hook now
   const {
     usersQuery,
-    createUser,
+    createUserMutation,
     updateUserMutation,
     deleteUserMutation,
-  } = useUsers();
+  } = useUser();
 
-  const users = usersQuery.data?.data || [];
+
+const users = usersQuery.data?.data || [];
 
   const { search, setSearch, filteredData } = useTable({
     data: users,
-    searchFields: ["FirstName", "LastName", "Username"],
+    searchFields: ["FirstName", "MiddleName", "LastName", "Username"],
     filterFn: (item) => filter === "All" || item.Role === filter,
   });
 
@@ -47,7 +48,7 @@ export default function Users() {
       render: (item) => (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           <User className="w-4 h-4 text-blue-500" />
-          {item.FirstName} {item.LastName}
+          {item.FirstName} {item.MiddleName} {item.LastName}
 
           <button
             onClick={() => setViewModal(item)}
@@ -204,29 +205,39 @@ export default function Users() {
         />
       )}
 
-      {addModal && (
-        <AddUserModal
-          onClose={() => setAddModal(false)}
-          onSuccess={() => {
-            usersQuery.refetch();
-            setAddModal(false);
-          }}
-        />
-      )}
+{addModal && (
+<AddUserModal
+  onClose={() => setAddModal(false)}
+  onSubmit={(data) =>
+    createUserMutation.mutate(data, {
+      onSuccess: () => setAddModal(false),
+    })
+  }
+  loading={createUserMutation.isPending}
+/>
+)}
 
-      {editModal && (
-        <EditUserModal
-          user={editModal}
-          onClose={() => setEditModal(null)}
-          onSave={(data) =>
-            updateUserMutation.mutate({
-              id: editModal.UserID,
-              data,
-            })
-          }
-          loading={updateUserMutation.isPending}
-        />
-      )}
+
+{editModal && (
+  <EditUserModal
+    user={editModal}
+    onClose={() => setEditModal(null)}
+    onSubmit={(data) =>
+      updateUserMutation.mutate(
+        {
+          id: editModal.UserID,
+          data,
+        },
+        {
+          onSuccess: () => setEditModal(null),
+        }
+      )
+    }
+    loading={updateUserMutation.isPending}
+  />
+)}
+
+
 
 {deleteModal && (
   <DeleteUserModal

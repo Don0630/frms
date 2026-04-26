@@ -136,6 +136,7 @@ CREATE TABLE tblSubsidyDistributionDetails (
 CREATE TABLE tblAgriculturalStaff (
   StaffID INT AUTO_INCREMENT PRIMARY KEY,
   FirstName VARCHAR(50),
+  MiddleName VARCHAR(50),
   LastName VARCHAR(50),
   Gender ENUM('Male', 'Female'),
   Position VARCHAR(50),

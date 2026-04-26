@@ -1,3 +1,4 @@
+// controllers/userController.js
 import * as userService from "../services/userService.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
@@ -23,7 +24,7 @@ export async function createUser(req, res, next) {
   try {
     const { staffId, username, password, role } = req.body;
 
-    const userData = await userService.createUser({
+    const userData = await userService.addUser({
       staffId,
       username,
       password,
@@ -54,7 +55,7 @@ export async function updateUser(req, res, next) {
       return errorResponse(res, "Missing required fields", 400);
     }
 
-    const updatedUser = await userService.updateUserService({
+    const updatedUser = await userService.updateUser({
       userId,
       username,
       role,

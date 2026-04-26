@@ -12,6 +12,7 @@ export async function getAllUsers() {
       u.Role,
       s.FirstName,
       s.LastName,
+      s.MiddleName,
       s.Department,
       s.ContactNumber,
       s.Email

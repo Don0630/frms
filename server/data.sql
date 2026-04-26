@@ -1,8 +1,7 @@
 INSERT INTO tblAgriculturalStaff
-(FirstName, LastName, Gender, Position, Department, ContactNumber, Email)
+(FirstName, MiddleName, LastName, Gender, Position, Department, ContactNumber, Email)
 VALUES
-('Admin', 'Admin', 'Male', 'System Administrator', 'Administrator', '', 'admin@example.com');
-
+('Admin', 'Admin', 'Admin', 'Male', 'System Administrator', 'Administrator', '', 'admin@example.com');
 
 
 INSERT INTO tblUsers

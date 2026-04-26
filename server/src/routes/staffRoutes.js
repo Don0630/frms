@@ -7,7 +7,7 @@ const router = express.Router();
 
 
 router.get("/staffsData", authenticateToken, staffController.getAllStaff);
-router.post("/addStaff", authenticateToken, staffController.saveStaff);
+router.post("/addStaff", authenticateToken, staffController.createStaff);
 router.put("/updateStaff/:id", authenticateToken, staffController.updateStaff);
 router.get("/availableStaff", authenticateToken, staffController.getAvailableStaff);
 

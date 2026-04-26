@@ -24,37 +24,68 @@ export async function getAllStaff() {
 
 
 // --------- CREATE STAFF ---------
-export async function createStaff(staff) {
-  const { FirstName, LastName, Gender, Position, Department, ContactNumber, Email, } = staff;
-
+export async function insertStaff(staff) {
   const query = `
     INSERT INTO tblAgriculturalStaff 
-    (FirstName, LastName, Gender, Position, Department, ContactNumber, Email)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    (FirstName, MiddleName, LastName, Gender, Position, Department, ContactNumber, Email)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  const values = [ FirstName, LastName, Gender, Position, Department, ContactNumber, Email,
+  const values = [
+    staff.FirstName,
+    staff.MiddleName,
+    staff.LastName,
+    staff.Gender,
+    staff.Position,
+    staff.Department,
+    staff.ContactNumber,
+    staff.Email,
   ];
 
   const [result] = await db.query(query, values);
 
   return {
     StaffID: result.insertId,
-    ...staff,
   };
 }
 
 
+ 
+// --------- UPDATE STAFF ---------
 export async function updateStaff(id, staff) {
-  const { FirstName, LastName, Gender, Position, Department, ContactNumber } = staff;
+  const {
+    FirstName,
+    MiddleName,
+    LastName,
+    Gender,
+    Position,
+    Department,
+    ContactNumber,
+  } = staff;
+
   const query = `
     UPDATE tblAgriculturalStaff
-    SET FirstName=?, LastName=?, Gender=?, Position=?, Department=?, ContactNumber=?
+    SET FirstName=?, MiddleName=?, LastName=?, Gender=?, Position=?, Department=?, ContactNumber=?
     WHERE StaffID=?
   `;
-  const values = [FirstName, LastName, Gender, Position, Department, ContactNumber, id];
+
+  const values = [
+    FirstName,
+    MiddleName,
+    LastName,
+    Gender,
+    Position,
+    Department,
+    ContactNumber,
+    id,
+  ];
+
   const [result] = await db.query(query, values);
-  return { StaffID: id, ...staff };
+
+  return {
+    StaffID: id,
+    ...staff,
+  };
 }
 
 

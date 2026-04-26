@@ -3,18 +3,22 @@ import * as staffModel from "../models/staffModel.js";
 
 
 export async function fetchStaffs() {
-  return await staffModel.getAllStaff();
+   const staff = await staffModel.getAllStaff();
+  return staff;
 }
 
-export async function addStaff(staff) {
-  return await staffModel.createStaff(staff);
+export async function addStaff(staffData) {
+  const staff =  await staffModel.insertStaff(staffData);
+  return staff;
 }
 
-export async function editStaff(id, staff) {
-  return await staffModel.updateStaff(id, staff);
+export async function editStaff(id, staffData) {
+  const staff = await staffModel.updateStaff(id, staffData);
+  return staff;
 }
 
 // Fetch available staff (not yet users), optional search
 export async function fetchAvailableStaff(search = "") {
-  return await staffModel.getAvailableStaff(search);
+  const staff = await staffModel.getAvailableStaff(search);
+  return staff;
 }

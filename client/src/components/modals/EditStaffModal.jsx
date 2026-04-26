@@ -1,10 +1,21 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import { updateStaff } from "../../api/staffApi.js";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/modalUI";
 
-export default function EditStaffModal({ data, onClose, onSuccess }) {
+export default function EditStaffModal({
+  staff,
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [form, setForm] = useState({
     FirstName: "",
+    MiddleName: "",
     LastName: "",
     Gender: "Male",
     Position: "",
@@ -13,211 +24,184 @@ export default function EditStaffModal({ data, onClose, onSuccess }) {
     Email: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (data) setForm({ ...data });
-  }, [data]);
+    if (staff) {
+      setForm({
+        FirstName: staff.FirstName || "",
+        MiddleName: staff.MiddleName || "",
+        LastName: staff.LastName || "",
+        Gender: staff.Gender || "Male",
+        Position: staff.Position || "",
+        Department: staff.Department || "",
+        ContactNumber: staff.ContactNumber || "",
+        Email: staff.Email || "",
+      });
+    }
+  }, [staff]);
 
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const validate = () => {
+    if (!form.FirstName || !form.LastName)
+      return "First and Last name are required";
+
+    if (!form.Email) return "Email is required";
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.Email)) return "Invalid email format";
+
+    if (!form.ContactNumber) return "Contact number is required";
+
+    return "";
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
 
-    try {
-      await updateStaff(form);
-      onSuccess();
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to update staff");
-    } finally {
-      setLoading(false);
-    }
+    const err = validate();
+    if (err) return setError(err);
+
+    // ✅ IMPORTANT: send ONLY form (like User modal style)
+    onSubmit(form);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal title="Edit Staff" onClose={onClose} width="max-w-lg">
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
-
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Edit Staff
-          </h2>
-          <p className="text-sm text-gray-500">
-            Update staff information
-          </p>
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
         </div>
+      )}
 
-        {/* ERROR */}
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+        {/* NAME */}
+        <div className="grid grid-cols-3 gap-2">
 
-          {/* NAME */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-gray-500">First Name</label>
-              <input
-                name="FirstName"
-                value={form.FirstName}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Last Name</label>
-              <input
-                name="LastName"
-                value={form.LastName}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-          </div>
-
-          {/* EMAIL */}
           <div>
-            <label className="text-xs text-gray-500">Email</label>
+            <label className={modalLabel}>First Name</label>
             <input
-              type="email"
-              name="Email"
-              value={form.Email}
+              name="FirstName"
+              value={form.FirstName}
               onChange={handleChange}
-              className="input"
-              required
+              className={modalInput}
             />
           </div>
 
-          {/* GENDER + POSITION */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-gray-500">Gender</label>
-              <select
-                name="Gender"
-                value={form.Gender}
-                onChange={handleChange}
-                className="input"
-              >
-                <option>Male</option>
-                <option>Female</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Position</label>
-              <input
-                name="Position"
-                value={form.Position}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+          <div>
+            <label className={modalLabel}>Middle Name</label>
+            <input
+              name="MiddleName"
+              value={form.MiddleName}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-          {/* DEPARTMENT + CONTACT */}
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs text-gray-500">Department</label>
-              <input
-                name="Department"
-                value={form.Department}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Contact Number</label>
-              <input
-                name="ContactNumber"
-                value={form.ContactNumber}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+          <div>
+            <label className={modalLabel}>Last Name</label>
+            <input
+              name="LastName"
+              value={form.LastName}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-gray"
+        </div>
+
+        {/* EMAIL */}
+        <div>
+          <label className={modalLabel}>Email</label>
+          <input
+            name="Email"
+            value={form.Email}
+            onChange={handleChange}
+            className={modalInput}
+          />
+        </div>
+
+        {/* GENDER + CONTACT */}
+        <div className="grid grid-cols-2 gap-2">
+
+          <div>
+            <label className={modalLabel}>Gender</label>
+            <select
+              name="Gender"
+              value={form.Gender}
+              onChange={handleChange}
+              className={modalInput}
             >
-              Cancel
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-green"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
+              <option>Male</option>
+              <option>Female</option>
+            </select>
           </div>
 
-        </form>
-      </div>
+          <div>
+            <label className={modalLabel}>Contact Number</label>
+            <input
+              name="ContactNumber"
+              value={form.ContactNumber}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
+        </div>
 
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
+        {/* POSITION + DEPARTMENT */}
+        <div className="grid grid-cols-2 gap-2">
 
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <div>
+            <label className={modalLabel}>Position</label>
+            <input
+              name="Position"
+              value={form.Position}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <div>
+            <label className={modalLabel}>Department</label>
+            <input
+              name="Department"
+              value={form.Department}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
+        </div>
 
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
+
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+
+        </div>
+
+      </form>
+    </Modal>
   );
 }

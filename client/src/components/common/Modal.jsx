@@ -1,15 +1,43 @@
 import { X } from "lucide-react";
+import { useEffect } from "react";
 
-export default function Modal({ title, children, onClose, width = "max-w-lg" }) {
+export default function Modal({
+  title,
+  children,
+  onClose,
+  width = "max-w-lg",
+}) {
+  // ESC key close (pro UX)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") onClose?.();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  // prevent background scroll
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-
-      <div className={`bg-white dark:bg-gray-900 w-full ${width} rounded-xl shadow-xl p-6 relative animate-fadeIn`}>
-
+    <div
+      className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+      onClick={onClose} // click outside closes
+    >
+      <div
+        className={`bg-white dark:bg-gray-900 w-full ${width} rounded-xl shadow-xl p-6 relative animate-fadeIn`}
+        onClick={(e) => e.stopPropagation()} // prevent closing when clicking modal
+      >
         {/* CLOSE BUTTON */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-red-500"
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition"
         >
           <X />
         </button>
@@ -22,8 +50,7 @@ export default function Modal({ title, children, onClose, width = "max-w-lg" }) 
         )}
 
         {/* CONTENT */}
-        {children}
-
+        <div>{children}</div>
       </div>
 
       {/* ANIMATION */}
