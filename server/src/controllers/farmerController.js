@@ -113,7 +113,7 @@ export async function getSearchFarmers(req, res, next) {
 
  
 
-export async function getFarmerById(req, res) {
+export async function getFarmerById(req, res, next) {
   try {
     const { id } = req.params;
 
@@ -124,10 +124,10 @@ export async function getFarmerById(req, res) {
         message: "Farmer not found",
       });
     }
-
+     
     res.json(farmer);
   } catch (err) {
     console.error("Get Farmer By ID Error:", err);
-    res.status(500).json({ message: "Server error" });
+    return next(err);
   }
 }

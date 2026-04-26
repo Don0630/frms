@@ -8,6 +8,8 @@ import usePagination from "../hooks/usePagination";
 
 import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
+import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
+
 
 import AddFarmerModal from "../components/modals/AddFarmerModal";
 import EditFarmerModal from "../components/modals/EditFarmerModal";
@@ -97,20 +99,9 @@ export default function Farmers() {
   }
 
   // ================= LOADING =================
-  if (farmersQuery.isLoading) {
-    return (
-      <div className="w-full p-4">
-        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow animate-pulse">
-          <div className="h-6 w-40 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
-            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+if (farmersQuery.isLoading) {
+  return <TablePageSkeleton />;
+}
 
   return (
     <div className="w-full min-h-screen p-4 bg-gray-100 dark:bg-gray-950">

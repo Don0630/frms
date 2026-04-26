@@ -1,28 +1,31 @@
 import { useState, useEffect } from "react";
-import { useCrop } from "../context/CropContext.jsx";
 import { Plus, Info, Edit } from "lucide-react";
 
+import useCrop from "../hooks/useCrop";
 import useTable from "../hooks/useTable";
 import usePagination from "../hooks/usePagination";
 
 import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
+import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 import ViewCropModal from "../components/modals/ViewCropModal";
 import AddCropModal from "../components/modals/AddCropModal";
 import EditCropModal from "../components/modals/EditCropModal";
 
 export default function Crops() {
-  const { crop, loadCrop, error, loading } = useCrop();
+  const {
+    cropsQuery,
+    createCropMutation,
+    updateCropMutation,
+  } = useCrop();
+
+  const crop = cropsQuery.data?.data || [];
 
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
-
-  useEffect(() => {
-    loadCrop();
-  }, []);
 
   const { search, setSearch, filteredData } = useTable({
     data: crop,
@@ -109,19 +112,27 @@ export default function Crops() {
     },
   ];
 
-  if (error)
+  // ================= LOADING =================
+ if (cropsQuery.isLoading) {
+  return <TablePageSkeleton />;
+}
+
+
+  // ================= ERROR =================
+  if (cropsQuery.isError) {
     return (
       <p className="text-red-600 dark:text-red-400 p-4">
-        Error: {error}
+        Error: {cropsQuery.error?.message}
       </p>
     );
+  }
 
   return (
     <div className="w-full p-4">
 
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-        {/* HEADER (STAFF STYLE) */}
+        {/* HEADER */}
         <div className="flex flex-wrap justify-between items-center gap-3">
 
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
@@ -130,70 +141,52 @@ export default function Crops() {
 
           <button
             onClick={() => setShowAddModal(true)}
-            className="
-              flex items-center gap-2
-              bg-green-600 dark:bg-green-500
-              text-white
-              px-3 sm:px-4 py-2
-              rounded-lg text-sm shadow
-              hover:bg-green-700 dark:hover:bg-green-400
-              transition-colors
-            "
+            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
           >
             <Plus className="w-4 h-4" />
-
-            <span className="hidden sm:inline">
-              Add Crop
-            </span>
+            <span className="hidden sm:inline">Add Crop</span>
           </button>
 
         </div>
 
         {/* TABLE */}
-        {loading ? (
-          <p className="text-gray-700 dark:text-gray-300">
-            Loading Crops...
-          </p>
-        ) : (
-          <>
-            <DataTable
-              columns={columns}
-              data={currentItems}
-              search={search}
-              setSearch={setSearch}
-              filters={
-                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
-                  {categories.map((item) => (
-                    <label
-                      key={item}
-                      className="flex items-center gap-1 cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        className="accent-green-600 dark:accent-green-400"
-                        checked={filter === item}
-                        onChange={() => setFilter(item)}
-                      />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-              }
-            />
+        <DataTable
+          columns={columns}
+          data={currentItems}
+          search={search}
+          setSearch={setSearch}
+          filters={
+            <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
+              {categories.map((item) => (
+                <label
+                  key={item}
+                  className="flex items-center gap-1 cursor-pointer"
+                >
+                  <input
+                    type="radio"
+                    className="accent-green-600 dark:accent-green-400"
+                    checked={filter === item}
+                    onChange={() => setFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </div>
+          }
+        />
 
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-              currentItemsLength={currentItems.length}
-              totalItemsLength={filteredData.length}
-            />
-          </>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          currentItemsLength={currentItems.length}
+          totalItemsLength={filteredData.length}
+        />
 
       </div>
 
       {/* MODALS */}
+
       {viewModal && (
         <ViewCropModal
           crop={viewModal}
@@ -201,22 +194,23 @@ export default function Crops() {
         />
       )}
 
-      {showAddModal && (
-        <AddCropModal
-          onClose={() => setShowAddModal(false)}
-          onSuccess={() => {
-            loadCrop();
-            setShowAddModal(false);
-          }}
-        />
-      )}
+  {showAddModal && (
+  <AddCropModal
+    onClose={() => setShowAddModal(false)}
+    onSubmit={(data) =>
+      createCropMutation.mutate(data, {
+        onSuccess: () => setShowAddModal(false),
+      })
+    }
+    loading={createCropMutation.isPending}
+  />
+)}
 
       {editModal && (
         <EditCropModal
           selectedCrop={editModal}
           onClose={() => setEditModal(null)}
           onSuccess={() => {
-            loadCrop();
             setEditModal(null);
           }}
         />

@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 
 // ------------- GET ALL CROP -------------
-export async function getAllCrop(req, res) {
+export async function getAllCrop(req, res, next) {
 
   try {
     const cropsData = await cropService.fetchCrops();
@@ -15,33 +15,34 @@ export async function getAllCrop(req, res) {
       return successResponse(res, "Crops record fetched successfully", cropsData, 200);
   } catch (err) {
     console.error("Error fetching Crops Data:", err);
-    next(err);
+    return next(err);
   }
 } 
 
 
 
 // ------------- ADD CROP -------------
-export async function saveCrop(req, res) {
+export async function saveCrop(req, res, next) {
   try {
     // console.log("req.body:", req.body);
     const newCrop = await cropService.addCrop(req.body);
     return successResponse(res, "Crop added successfully", newCrop, 201);
   } catch (err) {
     console.error("Error adding Crop:", err);
-    return errorResponse(res, err.message, 500);
+    return next(err);
   }
 }
 
 
 
 // --------- UPDATE CROP ---------
-export async function updateCrop(req, res) {
+export async function updateCrop(req, res, next) {
   try {
     const updated = await cropService.editCrop(req.params.id, req.body);
     return successResponse(res, "Crop updated successfully", updated);
   } catch (err) {
-    return errorResponse(res, err.message, 500);
+    console.error("Error updating Crop:", err);
+    return next(err);
   }
 }
 
@@ -60,6 +61,6 @@ export async function getSearchCrops(req, res, next) {
     return successResponse(res, "Crops fetched successfully", searchedCrops, 200);
   } catch (err) {
     console.error("Error fetching searched crops:", err);
-    next(err);
+    return next(err);
   }
 }

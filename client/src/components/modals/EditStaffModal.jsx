@@ -26,6 +26,7 @@ export default function EditStaffModal({
 
   const [error, setError] = useState("");
 
+  // hydrate form
   useEffect(() => {
     if (staff) {
       setForm({
@@ -66,7 +67,7 @@ export default function EditStaffModal({
     const err = validate();
     if (err) return setError(err);
 
-    // ✅ IMPORTANT: send ONLY form (like User modal style)
+    // 👇 SAME PATTERN AS USER MODAL
     onSubmit(form);
   };
 
@@ -120,6 +121,7 @@ export default function EditStaffModal({
         <div>
           <label className={modalLabel}>Email</label>
           <input
+            type="email"
             name="Email"
             value={form.Email}
             onChange={handleChange}

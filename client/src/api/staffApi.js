@@ -19,7 +19,7 @@ export async function addStaff(staff) {
  
 // ------------ UPDATE STAFF ------------
 export function updateStaff(staffId, staffData) {
-  return apiFetch(`/user/updateStaff/${staffId}`, {
+  return apiFetch(`/staff/updateStaff/${staffId}`, {
     method: "PUT",
     body: JSON.stringify(staffData),
   });

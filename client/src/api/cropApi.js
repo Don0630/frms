@@ -11,24 +11,20 @@ export async function fetchAllCrop() {
 
 // ------------ ADD CROP ------------
 export async function addCrop(crop) {
-  const data = await apiFetch("/crop/addCrop", {
+  return await apiFetch("/crop/addCrop", {
     method: "POST",
     body: JSON.stringify(crop),
   });
-
-  return data.data;
 }
 
 
 
 // ------------ UPDATE CROP ------------
 export async function updateCrop(crop) {
-  const data = await apiFetch(`/crop/updateCrop/${crop.CropID}`, {
+  return await apiFetch(`/crop/updateCrop/${crop.CropID}`, {
     method: "PUT",
     body: JSON.stringify(crop),
   });
-
-  return data.data;
 }
 
 
