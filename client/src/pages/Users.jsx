@@ -122,17 +122,33 @@ const users = usersQuery.data?.data || [];
   if (usersQuery.isLoading) {
     return (
       <div className="w-full p-4">
-        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow animate-pulse">
-          <div className="h-6 w-40 bg-gray-300 dark:bg-gray-700 mb-4 rounded"></div>
+        <div className="bg-white dark:bg-gray-900 p-6 rounded shadow animate-pulse border border-gray-200 dark:border-gray-800">
+
+          <div className="flex justify-between items-center mb-4">
+            <div className="h-6 w-40 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <div className="h-9 w-28 bg-gray-300 dark:bg-gray-700 rounded"></div>
+          </div>
+
+          <div className="flex gap-3 mb-4">
+            <div className="h-4 w-16 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 w-16 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 w-16 bg-gray-300 dark:bg-gray-700 rounded"></div>
+          </div>
+
           <div className="space-y-3">
             <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
             <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
             <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
+            <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded"></div>
           </div>
+
         </div>
       </div>
     );
   }
+
+
 
   if (usersQuery.isError) {
     return (

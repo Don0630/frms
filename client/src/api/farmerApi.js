@@ -10,58 +10,48 @@ export async function fetchAllFarmer() {
 
 // ------------ ADD FARMER ------------
 export async function addFarmer(farmer) {
-  const data = await apiFetch("/farmer/addFarmer", {
+  return await apiFetch("/farmer/addFarmer", {
     method: "POST",
     body: JSON.stringify(farmer),
   });
-
-  return data.data;
 }
 
 
 
 // ------------ UPDATE FARMER ------------
 export async function updateFarmer(farmer) {
-  const data = await apiFetch(`/farmer/updateFarmer/${farmer.FarmerID}`, {
+  return await apiFetch(`/farmer/updateFarmer/${farmer.FarmerID}`, {
     method: "PUT",
     body: JSON.stringify(farmer),
   });
-
-  return data.data;
 }
 
 
 
 // ------------ ADD FARM ------------
 export async function addFarm(farm) {
-  const data = await apiFetch("/farmer/addFarm", {
+  return await apiFetch("/farmer/addFarm", {
     method: "POST",
     body: JSON.stringify(farm),
   });
-
-  return data.data;
 }
 
 
 
 // ------------ UPDATE FARM ------------
 export async function updateFarm(farm) {
-  const data = await apiFetch(`/farmer/updateFarm/${farm.FarmID}`, {
+  return await apiFetch(`/farmer/updateFarm/${farm.FarmID}`, {
     method: "PUT",
     body: JSON.stringify(farm),
   });
-
-  return data.data;
 }
 
 
 // ------------ DELETE FARM ------------
 export async function deleteFarm(id) {
-  const data = await apiFetch(`/farmer/farm/${id}`, {
+  return await apiFetch(`/farmer/farm/${id}`, {
     method: "DELETE",
   });
-
-  return data.data;
 }
 
 
@@ -77,3 +67,7 @@ export async function fetchSearchFarmers(search = "") {
 }
 
  
+// ------------ FETCH FARMER BY ID------------
+ export async function fetchFarmerById(id) {
+  return apiFetch(`/farmer/farmerById/${id}`);
+}

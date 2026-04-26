@@ -1,19 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
-import { useFarmer } from "../../context/FarmerContext.jsx";
+import React, { useState, useEffect } from "react";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
 
-export default function EditFarmModal({ onClose, selectedFarm, onSuccess }) {
-  const { updateFarm, loading } = useFarmer();
+export default function EditFarmModal({
+  onClose,
+  onSubmit,
+  loading,
+  selectedFarm,
+}) {
+  const [form, setForm] = useState({
+    FarmBarangay: "",
+    FarmMunicipality: "",
+    FarmProvince: "",
+    FarmSize: "",
+  });
 
-  const [form, setForm] = useState({});
   const [error, setError] = useState("");
 
-  // Load selected farm into form
+  // ✅ Load selected farm into form
   useEffect(() => {
     if (selectedFarm) {
       setForm({
-        FarmID: selectedFarm.FarmID,
-        FarmerID: selectedFarm.FarmerID,
         FarmBarangay: selectedFarm.FarmBarangay || "",
         FarmMunicipality: selectedFarm.FarmMunicipality || "",
         FarmProvince: selectedFarm.FarmProvince || "",
@@ -23,156 +35,111 @@ export default function EditFarmModal({ onClose, selectedFarm, onSuccess }) {
   }, [selectedFarm]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const validate = () => {
+    if (!form.FarmBarangay) return "Barangay is required";
+    if (!form.FarmMunicipality) return "Municipality is required";
+    if (!form.FarmProvince) return "Province is required";
+    if (!form.FarmSize) return "Farm size is required";
+    if (Number(form.FarmSize) <= 0) return "Farm size must be greater than 0";
+    return "";
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    const { FarmBarangay, FarmMunicipality, FarmProvince, FarmSize } = form;
+    const err = validate();
+    if (err) return setError(err);
 
-    if (!FarmBarangay || !FarmMunicipality || !FarmProvince || !FarmSize) {
-      setError("Please fill all required fields");
-      return;
-    }
-
-    try {
-      await updateFarm(form);
-      onSuccess?.(); // reload data
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to update farm");
-    }
+    // ✅ ONLY send form upward
+    onSubmit(form);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal title="Edit Farm" onClose={onClose} width="max-w-lg">
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
-
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Edit Farm
-          </h2>
-          <p className="text-sm text-gray-500">
-            Update farm details
-          </p>
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
         </div>
+      )}
 
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* LOCATION */}
+        <div className="grid grid-cols-3 gap-2">
 
-          {/* LOCATION */}
-          <div className="grid grid-cols-3 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">Barangay</label>
-              <input
-                name="FarmBarangay"
-                value={form.FarmBarangay || ""}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Municipality</label>
-              <input
-                name="FarmMunicipality"
-                value={form.FarmMunicipality || ""}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Province</label>
-              <input
-                name="FarmProvince"
-                value={form.FarmProvince || ""}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-          </div>
-
-          {/* SIZE */}
           <div>
-            <label className="text-xs text-gray-500">Farm Size (hectares)</label>
+            <label className={modalLabel}>Barangay</label>
             <input
-              type="number"
-              step="0.01"
-              name="FarmSize"
-              value={form.FarmSize || ""}
+              name="FarmBarangay"
+              value={form.FarmBarangay}
               onChange={handleChange}
-              className="input"
+              className={modalInput}
             />
           </div>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
-              Cancel
-            </button>
-
-            <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Updating..." : "Update Farm"}
-            </button>
+          <div>
+            <label className={modalLabel}>Municipality</label>
+            <input
+              name="FarmMunicipality"
+              value={form.FarmMunicipality}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-        </form>
-      </div>
+          <div>
+            <label className={modalLabel}>Province</label>
+            <input
+              name="FarmProvince"
+              value={form.FarmProvince}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
+        </div>
 
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
+        {/* SIZE */}
+        <div>
+          <label className={modalLabel}>Farm Size (hectares)</label>
+          <input
+            type="number"
+            step="0.01"
+            name="FarmSize"
+            value={form.FarmSize}
+            onChange={handleChange}
+             className={`${modalInput} dark:[color-scheme:dark]`}
+          />
+        </div>
 
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
 
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
 
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Updating..." : "Update Farm"}
+          </button>
 
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+        </div>
+
+      </form>
+    </Modal>
   );
 }

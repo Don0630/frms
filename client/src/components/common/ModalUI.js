@@ -1,6 +1,5 @@
 export const modalInput =
-  "w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus-within:ring-2 focus-within:ring-green-500 focus-within:border-green-500 transition";
-
+  "w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition";
 export const modalSelect =
   "w-full border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition";
 

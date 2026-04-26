@@ -1,10 +1,13 @@
 import React, { useState } from "react";
-import { X } from "lucide-react";
-import { useFarmer } from "../../context/FarmerContext.jsx";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
 
-export default function AddFarmerModal({ onClose, onSuccess }) {
-  const { addFarmer } = useFarmer(); // ✅ no context loading
-
+export default function AddFarmerModal({ onClose, onSubmit, loading }) {
   const [form, setForm] = useState({
     FirstName: "",
     MiddleName: "",
@@ -19,16 +22,16 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
   });
 
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ local only
 
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
+  // ================= VALIDATION =================
+  const validate = () => {
     const {
       FirstName,
       LastName,
@@ -40,243 +43,204 @@ export default function AddFarmerModal({ onClose, onSuccess }) {
       Province,
     } = form;
 
-    if (
-      !FirstName ||
-      !LastName ||
-      !Gender ||
-      !DateOfBirth ||
-      !ContactNumber ||
-      !Barangay ||
-      !Municipality ||
-      !Province
-    ) {
-      setError("Please fill all required fields");
-      return;
-    }
+    if (!FirstName?.trim() || !LastName?.trim())
+      return "First and Last name are required";
 
-    try {
-      setLoading(true);
+    if (!Gender) return "Gender is required";
 
-      const currentDate = new Date().toISOString().split("T")[0];
+    if (!DateOfBirth) return "Date of birth is required";
 
-      await addFarmer({
-        ...form,
-        RegistrationDate: currentDate,
-      });
+    if (!ContactNumber?.trim())
+      return "Contact number is required";
 
-      onSuccess?.();
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to add farmer");
-    } finally {
-      setLoading(false);
-    }
+    if (!Barangay?.trim() || !Municipality?.trim() || !Province?.trim())
+      return "Complete address is required";
+
+    return "";
+  };
+
+  // ================= SUBMIT =================
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+
+    const err = validate();
+    if (err) return setError(err);
+
+    const currentDate = new Date().toISOString().split("T")[0];
+
+    onSubmit({
+      ...form,
+      RegistrationDate: currentDate,
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal title="Add Farmer" onClose={onClose} width="max-w-lg">
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
+      {/* ERROR */}
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
+        </div>
+      )}
 
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Add Farmer
-          </h2>
-          <p className="text-sm text-gray-500">
-            Fill in the details below to register a farmer
-          </p>
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+
+        {/* NAME */}
+        <div className="grid grid-cols-3 gap-2">
+
+          <div>
+            <label className={modalLabel}>First Name</label>
+            <input
+              name="FirstName"
+              value={form.FirstName || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
+
+          <div>
+            <label className={modalLabel}>Middle Name</label>
+            <input
+              name="MiddleName"
+              value={form.MiddleName || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
+
+          <div>
+            <label className={modalLabel}>Last Name</label>
+            <input
+              name="LastName"
+              value={form.LastName || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
+
         </div>
 
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+        {/* GENDER + DOB */}
+        <div className="grid grid-cols-2 gap-2">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          {/* NAME */}
-          <div className="grid grid-cols-3 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">First Name</label>
-              <input
-                name="FirstName"
-                value={form.FirstName}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Middle Name</label>
-              <input
-                name="MiddleName"
-                value={form.MiddleName}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Last Name</label>
-              <input
-                name="LastName"
-                value={form.LastName}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
+          <div>
+            <label className={modalLabel}>Gender</label>
+            <select
+              name="Gender"
+              value={form.Gender}
+              onChange={handleChange}
+              className={modalInput}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
           </div>
 
-          {/* GENDER + DOB */}
-          <div className="grid grid-cols-2 gap-2">
+  
+<div className="date-input-wrapper">
+  <label className={modalLabel}>Date of Birth</label>
 
-            <div>
-              <label className="text-xs text-gray-500">Gender</label>
-              <select
-                name="Gender"
-                value={form.Gender}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-              </select>
-            </div>
+  <input
+    type="date"
+    name="DateOfBirth"
+    value={form.DateOfBirth || ""}
+    onChange={handleChange}
+     max={new Date().toISOString().split("T")[0]}
+    className={`${modalInput} dark:[color-scheme:dark]`}
+  />
+</div>
 
-            <div>
-              <label className="text-xs text-gray-500">Date of Birth</label>
+
+        </div>
+
+        {/* CONTACT + EMAIL */}
+        <div className="grid grid-cols-2 gap-2">
+
+          <div>
+            <label className={modalLabel}>Contact Number</label>
             <input
-  type="date"
-  name="DateOfBirth"
-  value={form.DateOfBirth}
-  onChange={handleChange}
-  max={new Date().toISOString().split("T")[0]}
-  className="input"
-/>
-            </div>
-
+              name="ContactNumber"
+              value={form.ContactNumber || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-          {/* CONTACT + EMAIL */}
-          <div className="grid grid-cols-2 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">Contact Number</label>
-              <input
-                name="ContactNumber"
-                value={form.ContactNumber}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Email Address</label>
-              <input
-                name="Email"
-                value={form.Email}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
+          <div>
+            <label className={modalLabel}>Email</label>
+            <input
+              name="Email"
+              value={form.Email || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-          {/* ADDRESS */}
-          <div className="grid grid-cols-3 gap-2">
+        </div>
 
-            <div>
-              <label className="text-xs text-gray-500">Barangay</label>
-              <input
-                name="Barangay"
-                value={form.Barangay}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+        {/* ADDRESS */}
+        <div className="grid grid-cols-3 gap-2">
 
-            <div>
-              <label className="text-xs text-gray-500">Municipality</label>
-              <input
-                name="Municipality"
-                value={form.Municipality}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Province</label>
-              <input
-                name="Province"
-                value={form.Province}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
+          <div>
+            <label className={modalLabel}>Barangay</label>
+            <input
+              name="Barangay"
+              value={form.Barangay || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
-              Cancel
-            </button>
-
-            <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Saving..." : "Save Farmer"}
-            </button>
+          <div>
+            <label className={modalLabel}>Municipality</label>
+            <input
+              name="Municipality"
+              value={form.Municipality || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-        </form>
-      </div>
+          <div>
+            <label className={modalLabel}>Province</label>
+            <input
+              name="Province"
+              value={form.Province || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
+        </div>
 
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
 
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
 
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Saving..." : "Save Farmer"}
+          </button>
 
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
+        </div>
 
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+      </form>
+ 
+
+
+    </Modal>
   );
 }

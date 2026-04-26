@@ -127,12 +127,11 @@ export default function AddUserModal({ onClose, onSubmit, loading }) {
         <div>
           <label className={modalLabel}>Username</label>
 
-          <div className={modalInput}>
-            <User size={14} className="text-gray-400" />
-            <input
+          <div>
+             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="flex-1 bg-transparent outline-none"
+              className={modalInput}
             />
           </div>
         </div>
@@ -142,13 +141,13 @@ export default function AddUserModal({ onClose, onSubmit, loading }) {
           <div>
             <label className={modalLabel}>Password</label>
 
-            <div className={modalInput}>
-              <Key size={14} className="text-gray-400" />
+            <div>
+            
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="flex-1 bg-transparent outline-none"
+                 className={modalInput}
               />
             </div>
           </div>
@@ -156,13 +155,13 @@ export default function AddUserModal({ onClose, onSubmit, loading }) {
           <div>
             <label className={modalLabel}>Confirm</label>
 
-            <div className={modalInput}>
-              <ShieldCheck size={14} className="text-gray-400" />
+            <div>
+              
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="flex-1 bg-transparent outline-none"
+                className={modalInput}
               />
             </div>
           </div>

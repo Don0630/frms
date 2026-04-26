@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
-import { useFarmer } from "../../context/FarmerContext.jsx";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
 
-export default function EditFarmerModal({ onClose, selectedFarmer }) {
-  const { updateFarmer, loading } = useFarmer();
-
+export default function EditFarmerModal({
+  onClose,
+  selectedFarmer,
+  onSubmit,
+  loading,
+}) {
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
 
-  // Load selected farmer into form
+  // ================= LOAD DATA =================
   useEffect(() => {
     if (selectedFarmer) {
       setForm({
@@ -27,227 +35,190 @@ export default function EditFarmerModal({ onClose, selectedFarmer }) {
     }
   }, [selectedFarmer]);
 
+  // ================= HANDLE =================
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
+  // ================= VALIDATE =================
+  const validate = () => {
+    if (!form.FirstName || !form.LastName) return "Name is required";
+    if (!form.Gender) return "Gender is required";
+    if (!form.DateOfBirth) return "Date of birth is required";
+    if (!form.ContactNumber) return "Contact number is required";
+    return "";
+  };
+
+  // ================= SUBMIT =================
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    try {
-      await updateFarmer(form);
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to update farmer");
-    }
+    const err = validate();
+    if (err) return setError(err);
+
+    onSubmit(form);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal title="Edit Farmer" onClose={onClose} width="max-w-lg">
+      {/* ERROR */}
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
+        </div>
+      )}
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-        {/* Header */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Edit Farmer
-          </h2>
-          <p className="text-sm text-gray-500">
-            Edit the details below to update a farmer
-          </p>
+        {/* NAME */}
+        <div className="grid grid-cols-3 gap-2">
+
+          <div>
+            <label className={modalLabel}>First Name</label>
+            <input
+              name="FirstName"
+              value={form.FirstName || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
+
+          <div>
+            <label className={modalLabel}>Middle Name</label>
+            <input
+              name="MiddleName"
+              value={form.MiddleName || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
+
+          <div>
+            <label className={modalLabel}>Last Name</label>
+            <input
+              name="LastName"
+              value={form.LastName || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
+
         </div>
 
+        {/* GENDER + DOB */}
+        <div className="grid grid-cols-2 gap-2">
 
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          {/* NAME */}
-          <div className="grid grid-cols-3 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">First Name</label>
-              <input name="FirstName" value={form.FirstName || ""} onChange={handleChange} className="input" />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Middle Name</label>
-              <input name="MiddleName" value={form.MiddleName || ""} onChange={handleChange} className="input" />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Last Name</label>
-              <input name="LastName" value={form.LastName || ""} onChange={handleChange} className="input" />
-            </div>
-
+          <div>
+            <label className={modalLabel}>Gender</label>
+            <select
+              name="Gender"
+              value={form.Gender || ""}
+              onChange={handleChange}
+              className={modalInput}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
           </div>
 
-          {/* GENDER + DOB */}
-          <div className="grid grid-cols-2 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">Gender</label>
-              <select
-                name="Gender"
-                value={form.Gender || ""}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Gender</option>
-                <option>Male</option>
-                <option>Female</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Date of Birth</label>
-              <input
-                type="date"
-                name="DateOfBirth"
-                value={form.DateOfBirth || ""}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
+          <div>
+            <label className={modalLabel}>Date of Birth</label>
+            <input
+              type="date"
+              name="DateOfBirth"
+              value={form.DateOfBirth || ""}
+              onChange={handleChange}
+              className={`${modalInput} dark:[color-scheme:dark]`}
+            />
           </div>
 
+        </div>
 
-            {/* CONTACT + EMAIL ROW */}
-            <div className="grid grid-cols-2 gap-2">
+        {/* CONTACT + EMAIL */}
+        <div className="grid grid-cols-2 gap-2">
 
-              <div>
-                <label className="text-xs text-gray-500">Contact Number</label>
-                <input
-                  name="ContactNumber"
-                  value={form.ContactNumber || ""}
-                  onChange={handleChange}
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500">Email Address</label>
-                <input
-                  name="Email"
-                  value={form.Email || ""}
-                  onChange={handleChange}
-                  className="input"
-                />
-              </div>
-
-            </div>
-
-
-
-
-
-
-
-
-          {/* ADDRESS */}
-          <div className="grid grid-cols-1 gap-3">
-
-            {/* ADDRESS ROW */}
-            <div className="grid grid-cols-3 gap-2">
-
-              <div>
-                <label className="text-xs text-gray-500">Barangay</label>
-                <input
-                  name="Barangay"
-                  value={form.Barangay || ""}
-                  onChange={handleChange}
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500">Municipality</label>
-                <input
-                  name="Municipality"
-                  value={form.Municipality || ""}
-                  onChange={handleChange}
-                  className="input"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs text-gray-500">Province</label>
-                <input
-                  name="Province"
-                  value={form.Province || ""}
-                  onChange={handleChange}
-                  className="input"
-                />
-              </div>
-
-            </div>
-
-
+          <div>
+            <label className={modalLabel}>Contact Number</label>
+            <input
+              name="ContactNumber"
+              value={form.ContactNumber || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
-              Cancel
-            </button>
-
-            <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Updating..." : "Update"}
-            </button>
+          <div>
+            <label className={modalLabel}>Email</label>
+            <input
+              name="Email"
+              value={form.Email || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
           </div>
 
-        </form>
-      </div>
+        </div>
 
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
+        {/* ADDRESS */}
+        <div className="grid grid-cols-3 gap-2">
 
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
+          <div>
+            <label className={modalLabel}>Barangay</label>
+            <input
+              name="Barangay"
+              value={form.Barangay || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <div>
+            <label className={modalLabel}>Municipality</label>
+            <input
+              name="Municipality"
+              value={form.Municipality || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
+          <div>
+            <label className={modalLabel}>Province</label>
+            <input
+              name="Province"
+              value={form.Province || ""}
+              onChange={handleChange}
+              className={modalInput}
+            />
+          </div>
 
+        </div>
 
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
 
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Updating..." : "Update Farmer"}
+          </button>
+
+        </div>
+
+      </form>
+    </Modal>
   );
 }

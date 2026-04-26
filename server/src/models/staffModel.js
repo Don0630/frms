@@ -22,9 +22,20 @@ export async function getAllStaff() {
 }
 
 
-
+ 
 // --------- CREATE STAFF ---------
 export async function insertStaff(staff) {
+  const {
+    FirstName,
+    MiddleName,
+    LastName,
+    Gender,
+    Position,
+    Department,
+    ContactNumber,
+    Email,
+  } = staff;
+
   const query = `
     INSERT INTO tblAgriculturalStaff 
     (FirstName, MiddleName, LastName, Gender, Position, Department, ContactNumber, Email)
@@ -32,20 +43,28 @@ export async function insertStaff(staff) {
   `;
 
   const values = [
-    staff.FirstName,
-    staff.MiddleName,
-    staff.LastName,
-    staff.Gender,
-    staff.Position,
-    staff.Department,
-    staff.ContactNumber,
-    staff.Email,
+    FirstName,
+    MiddleName,
+    LastName,
+    Gender,
+    Position,
+    Department,
+    ContactNumber,
+    Email,
   ];
 
   const [result] = await db.query(query, values);
 
   return {
     StaffID: result.insertId,
+    FirstName,
+    MiddleName,
+    LastName,
+    Gender,
+    Position,
+    Department,
+    ContactNumber,
+    Email,
   };
 }
 

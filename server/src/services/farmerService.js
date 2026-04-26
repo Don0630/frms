@@ -34,3 +34,8 @@ export async function removeFarm(id) {
 export async function fetchSearchFarmers(search = "") {
   return await farmerModel.getSearchFarmers(search);
 }
+
+ 
+export async function fetchFarmerById(id) {
+  return await farmerModel.getFarmerById(id);
+}
