@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 
 // ------------- GET ALL LIVESTOCK -------------
-export async function getAllLivestock(req, res) {
+export async function getAllLivestock(req, res, next) {
 
   try {
     const livestocksData = await livestockService.fetchLivestocks();
@@ -15,32 +15,33 @@ export async function getAllLivestock(req, res) {
       return successResponse(res, "Livestocks record fetched successfully", livestocksData, 200);
   } catch (err) {
     console.error("Error fetching Livestocks Data:", err);
-    next(err);
+    return next(err);
   }
 
 }
 
 
 // ------------- ADD LIVESTOCK -------------
-export async function saveLivestock(req, res) {
+export async function saveLivestock(req, res, next) {
   try {
     // console.log("req.body:", req.body);
     const newLivestock = await livestockService.addLivestock(req.body);
     return successResponse(res, "Livestock added successfully", newLivestock, 201);
   } catch (err) {
     console.error("Error adding Livestock:", err);
-    return errorResponse(res, err.message, 500);
+    return next(err);
   }
 }
 
 
 // ------------- UPDATE LIVESTOCK -------------
-export async function updateLivestock(req, res) {
+export async function updateLivestock(req, res, next) {
   try {
     const updated = await livestockService.editLivestock(req.params.id, req.body);
     return successResponse(res, "Livestock updated successfully", updated);
   } catch (err) {
-    return errorResponse(res, err.message, 500);
+    console.error("Error updating Livestock:", err);
+    return next(err);
   }
 }
 
@@ -57,7 +58,7 @@ export async function getSearchLivestock(req, res, next) {
     return successResponse(res, "Livestock fetched successfully", searchedLivestock, 200);
   } catch (err) {
     console.error("Error fetching searched Livestock:", err);
-    next(err);
+    return next(err);
   }
 }
 

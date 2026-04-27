@@ -1,11 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
-import { useCrop } from "../../context/CropContext.jsx";
+import { useEffect, useState } from "react";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
 
-export default function EditCropModal({ onClose, onSuccess, selectedCrop }) {
-  const { updateCrop } = useCrop();
-
-  const [formData, setFormData] = useState({
+export default function EditCropModal({
+  onClose,
+  onSubmit,
+  loading,
+  selectedCrop,
+}) {
+  const [form, setForm] = useState({
     CropID: "",
     CropName: "",
     Category: "",
@@ -14,13 +22,12 @@ export default function EditCropModal({ onClose, onSuccess, selectedCrop }) {
     MarketPrice: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Load selected crop
+  // hydrate form
   useEffect(() => {
     if (selectedCrop) {
-      setFormData({
+      setForm({
         CropID: selectedCrop.CropID,
         CropName: selectedCrop.CropName || "",
         Category: selectedCrop.Category || "",
@@ -33,207 +40,142 @@ export default function EditCropModal({ onClose, onSuccess, selectedCrop }) {
   }, [selectedCrop]);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
+  const validate = () => {
+    if (!form.CropName?.trim()) return "Crop name is required";
+    if (!form.Category) return "Category is required";
+    if (!form.Season) return "Season is required";
+    return "";
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    try {
-      await updateCrop({
-        ...formData,
-        AverageYieldPerHectare: parseFloat(
-          formData.AverageYieldPerHectare
-        ),
-        MarketPrice: parseFloat(formData.MarketPrice),
-      });
+    const err = validate();
+    if (err) return setError(err);
 
-      onSuccess?.();
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to update crop");
-    } finally {
-      setLoading(false);
-    }
+    onSubmit({
+      ...form,
+      AverageYieldPerHectare: parseFloat(form.AverageYieldPerHectare),
+      MarketPrice: parseFloat(form.MarketPrice),
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal title="Edit Crop" onClose={onClose} width="max-w-lg">
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
+        </div>
+      )}
 
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Edit Crop
-          </h2>
-          <p className="text-sm text-gray-500">
-            Update crop information
-          </p>
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+
+        {/* CROP NAME */}
+        <div>
+          <label className={modalLabel}>Crop Name</label>
+          <input
+            name="CropName"
+            value={form.CropName}
+            onChange={handleChange}
+            className={modalInput}
+          />
         </div>
 
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+        {/* CATEGORY + SEASON */}
+        <div className="grid grid-cols-2 gap-2">
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-
-          {/* CROP NAME */}
           <div>
-            <label className="text-xs text-gray-500">Crop Name</label>
-            <input
-              name="CropName"
-              value={formData.CropName}
+            <label className={modalLabel}>Category</label>
+            <select
+              name="Category"
+              value={form.Category}
               onChange={handleChange}
-              className="input"
+              className={modalInput}
+            >
+              <option value="">Select Category</option>
+              <option>Grain</option>
+              <option>Vegetable</option>
+              <option>Fruit</option>
+              <option>Root Crop</option>
+              <option>Legume</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={modalLabel}>Season</label>
+            <select
+              name="Season"
+              value={form.Season}
+              onChange={handleChange}
+              className={modalInput}
+            >
+              <option value="">Select Season</option>
+              <option>Wet</option>
+              <option>Dry</option>
+              <option>All Year</option>
+            </select>
+          </div>
+
+        </div>
+
+        {/* YIELD + PRICE */}
+        <div className="grid grid-cols-2 gap-2">
+
+          <div>
+            <label className={modalLabel}>Yield per Hectare</label>
+            <input
+              type="number"
+              step="0.01"
+              name="AverageYieldPerHectare"
+              value={form.AverageYieldPerHectare}
+              onChange={handleChange}
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
-          {/* CATEGORY + SEASON */}
-          <div className="grid grid-cols-2 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">
-                Category
-              </label>
-              <select
-                name="Category"
-                value={formData.Category}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Category</option>
-                <option>Grain</option>
-                <option>Vegetable</option>
-                <option>Fruit</option>
-                <option>Root Crop</option>
-                <option>Legume</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">
-                Season
-              </label>
-              <select
-                name="Season"
-                value={formData.Season}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Season</option>
-                <option>Wet</option>
-                <option>Dry</option>
-                <option>All Year</option>
-              </select>
-            </div>
-
+          <div>
+            <label className={modalLabel}>Market Price</label>
+            <input
+              type="number"
+              step="0.01"
+              name="MarketPrice"
+              value={form.MarketPrice}
+              onChange={handleChange}
+              className={`${modalInput} dark:[color-scheme:dark]`}
+            />
           </div>
 
-          {/* YIELD + PRICE (SAME ROW) */}
-          <div className="grid grid-cols-2 gap-2">
+        </div>
 
-            <div>
-              <label className="text-xs text-gray-500">
-                Yield per Hectare
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="AverageYieldPerHectare"
-                value={formData.AverageYieldPerHectare}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
 
-            <div>
-              <label className="text-xs text-gray-500">
-                Market Price
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="MarketPrice"
-                value={formData.MarketPrice}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
 
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Updating..." : "Update Crop"}
+          </button>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-gray"
-            >
-              Cancel
-            </button>
+        </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-green"
-            >
-              {loading ? "Updating..." : "Update Crop"}
-            </button>
-          </div>
-
-        </form>
-      </div>
-
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
-
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
-
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+      </form>
+    </Modal>
   );
 }

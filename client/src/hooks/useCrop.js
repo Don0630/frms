@@ -33,13 +33,14 @@ export default function useCrop(search = "") {
   });
 
   // ================= UPDATE CROP =================
-  const updateCropMutation = useMutation({
-    mutationFn: (crop) => updateCrop(crop),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crops"] });
-      queryClient.invalidateQueries({ queryKey: ["search-crops"] });
-    },
-  });
+ const updateCropMutation = useMutation({
+  mutationFn: ({ id, data }) => updateCrop({ CropID: id, ...data }),
+
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["crops"] });
+    queryClient.invalidateQueries({ queryKey: ["search-crops"] });
+  },
+});
 
   return {
     cropsQuery,

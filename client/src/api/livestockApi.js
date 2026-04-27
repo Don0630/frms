@@ -10,24 +10,20 @@ export async function fetchAllLivestock() {
 
 // ------------ ADD LIVESTOCK ------------
 export async function addLivestock(livestock) {
-  const data = await apiFetch("/livestock/addLivestock", {
+return await apiFetch("/livestock/addLivestock", {
     method: "POST",
     body: JSON.stringify(livestock),
   });
-
-  return data.data;
 }
 
 
 
 // ------------ UPDATE LIVESTOCK ------------
 export async function updateLivestock(livestock) {
-  const data = await apiFetch(`/livestock/updateLivestock/${livestock.LivestockID}`, {
+return await apiFetch(`/livestock/updateLivestock/${livestock.LivestockID}`, {
     method: "PUT",
     body: JSON.stringify(livestock),
   });
-
-  return data.data;
 }
 
 

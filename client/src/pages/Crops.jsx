@@ -206,15 +206,24 @@ export default function Crops() {
   />
 )}
 
-      {editModal && (
-        <EditCropModal
-          selectedCrop={editModal}
-          onClose={() => setEditModal(null)}
-          onSuccess={() => {
-            setEditModal(null);
-          }}
-        />
-      )}
+    {editModal && (
+  <EditCropModal
+    selectedCrop={editModal}
+    onClose={() => setEditModal(null)}
+    onSubmit={(data) =>
+      updateCropMutation.mutate(
+        {
+          id: editModal.CropID,
+          data,
+        },
+        {
+          onSuccess: () => setEditModal(null),
+        }
+      )
+    }
+    loading={updateCropMutation.isPending}
+  />
+)}
 
     </div>
   );
