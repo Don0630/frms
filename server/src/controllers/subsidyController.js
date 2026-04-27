@@ -22,14 +22,14 @@ export async function getAllSubsidy(req, res, next) {
 
 
 // ------------- ADD SUBSIDY -------------
-export async function saveSubsidy(req, res) {
+export async function saveSubsidy(req, res, next) {
   try {
-    // console.log("req.body:", req.body);
+    console.log("req.body:", req.body);
     const newSubsidy = await subsidyService.addSubsidy(req.body);
     return successResponse(res, "Subsidy added successfully", newSubsidy, 201);
   } catch (err) {
     console.error("Error adding Subsidy:", err);
-    return errorResponse(res, err.message, 500);
+    return next(err);
   }
 }
 
@@ -53,7 +53,7 @@ export async function getAllFarmerPerSubsidy(req, res, next) {
     return successResponse(res, "Farmers fetched successfully", farmers, 200);
   } catch (err) {
     console.error(`Error fetching farmers for DistributionID ${distributionID}:`, err);
-    next(err);
+    return next(err);
   }
 }
 
@@ -82,33 +82,34 @@ export async function getAvailableFarmer(req, res, next) {
 
   } catch (err) {
     console.error("Error fetching available farmer:", err);
-    next(err);
+    return next(err);
   }
 }
 
 
 // ------------- ADD FARMER SUBSIDY -------------
-export async function saveFarmerSubsidy(req, res) {
+export async function saveFarmerSubsidy(req, res, next) {
   try {
     // console.log("req.body:", req.body);
     const newFarmerSubsidy = await subsidyService.addFarmerSubsidy(req.body);
     return successResponse(res, "Farmer Subsidy added successfully", newFarmerSubsidy, 201);
   } catch (err) {
     console.error("Error adding Farmer Subsidy:", err);
-    return errorResponse(res, err.message, 500);
+    return next(err);
   }
 }
 
 
 
 // ------------- UPDATE DISTRIBUTION  -------------
-export async function updateDistribution(req, res) {
+export async function updateDistribution(req, res, next) {
   try {
     console.log("req.body:", req.body);
     const updated = await subsidyService.editDistribution(req.params.id, req.body);
     return successResponse(res, "Distribute Subsidy updated successfully", updated, 200);
   } catch (err) {
-    return errorResponse(res, err.message, 500);
+    console.error("Error updating Farmer Subsidy:", err);
+    return next(err);
   }
 }
 
@@ -125,6 +126,7 @@ export async function deleteDistribution(req, res) {
 
     return successResponse(res, "Distribution deleted successfully", deleted);
   } catch (err) {
-    return errorResponse(res, err.message, 500);
+    console.error("Error deleting Farmer Subsidy:", err);
+    return next(err);
   }
 }

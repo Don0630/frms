@@ -1,131 +1,116 @@
-import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import { useSubsidy } from "../../context/SubsidyContext.jsx";
-import { useProgram } from "../../context/ProgramContext.jsx";
+import React, { useState } from "react";
+import Modal from "../common/Modal";
 
-export default function AddSubsidyModal({ onClose, onSuccess }) {
-  const { addSubsidy } = useSubsidy();
-  const { loadAvailableProgram } = useProgram();
+import useDebounce from "../../hooks/useDebounce";
+import useProgram from "../../hooks/useProgram";
 
-  const [availablePrograms, setAvailablePrograms] = useState([]);
+import {
+  modalInput,
+  modalDropdown,
+  modalDropdownItem,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
+
+export default function AddSubsidyModal({
+  onClose,
+  onSubmit,
+  loading,
+}) {
   const [searchProgram, setSearchProgram] = useState("");
   const [selectedProgram, setSelectedProgram] = useState(null);
 
-  const [formData, setFormData] = useState({
-    TotalAmount: "",
-    DistributionDate: "",
-    Remarks: "",
-  });
+  const [totalAmount, setTotalAmount] = useState("");
+  const [distributionDate, setDistributionDate] = useState("");
+  const [remarks, setRemarks] = useState("");
 
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [loadingPrograms, setLoadingPrograms] = useState(false);
 
-  // LOAD PROGRAMS (debounced)
-  useEffect(() => {
-    const fetchPrograms = async () => {
-      setLoadingPrograms(true);
-      try {
-        const programs = await loadAvailableProgram(searchProgram);
-        setAvailablePrograms(programs);
-      } catch {
-        setAvailablePrograms([]);
-      } finally {
-        setLoadingPrograms(false);
-      }
-    };
+  const debouncedSearch = useDebounce(searchProgram, 300);
+  const { availableProgramsQuery } = useProgram(debouncedSearch);
 
-    const timeout = setTimeout(fetchPrograms, 300);
-    return () => clearTimeout(timeout);
-  }, [searchProgram]);
+  const availablePrograms =
+    availableProgramsQuery.data?.data || [];
+  const loadingPrograms = availableProgramsQuery.isLoading;
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  // ================= VALIDATION =================
+  const validate = () => {
+    if (!selectedProgram) return "Please select a program";
+    if (!totalAmount) return "Total amount is required";
+    if (!distributionDate)
+      return "Distribution date is required";
+
+    const amount = Number(totalAmount);
+    if (isNaN(amount) || amount <= 0)
+      return "Enter a valid amount";
+
+    return "";
   };
 
-  const handleSubmit = async (e) => {
+  // ================= SUBMIT =================
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    const { TotalAmount, DistributionDate } = formData;
+    const err = validate();
+    if (err) return setError(err);
 
-    if (!selectedProgram || !TotalAmount || !DistributionDate) {
-      setError("Please fill all required fields");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      await addSubsidy({
-        ProgramID: selectedProgram.ProgramID,
-        TotalAmount: parseFloat(TotalAmount),
-        DistributionDate,
-        Remarks: formData.Remarks,
-      });
-
-      onSuccess?.();
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to add subsidy");
-    } finally {
-      setLoading(false);
-    }
+    onSubmit({
+      ProgramID: selectedProgram.ProgramID,
+      TotalAmount: Number(totalAmount),
+      DistributionDate: distributionDate,
+      Remarks: remarks?.trim() || "",
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
-
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
-
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Add Subsidy
-          </h2>
-          <p className="text-sm text-gray-500">
-            Assign subsidy to a program
-          </p>
+    <Modal
+      title="Add Subsidy"
+      onClose={onClose}
+      width="max-w-lg"
+    >
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
         </div>
+      )}
 
-        {/* ERROR */}
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+        {/* PROGRAM SEARCH (UNCHANGED) */}
+        <div>
+          <label className={modalLabel}>Program</label>
 
-          {/* PROGRAM SEARCH */}
-          <div className="relative">
-            <label className="text-xs text-gray-500">Program</label>
+          <input
+            type="text"
+            placeholder="Search program..."
+            value={searchProgram}
+            onChange={(e) => {
+              setSearchProgram(e.target.value);
+              setSelectedProgram(null);
+            }}
+            className={modalInput}
+          />
 
-            <input
-              type="text"
-              placeholder="Search program..."
-              className="input"
-              value={searchProgram}
-              onChange={(e) => {
-                setSearchProgram(e.target.value);
-                setSelectedProgram(null);
-              }}
-            />
+          {loadingPrograms && (
+            <div className="mt-2 text-xs text-gray-500">
+              Searching programs...
+            </div>
+          )}
 
-            {/* dropdown */}
-            {loadingPrograms && (
-              <p className="text-xs text-gray-400 mt-1">Searching...</p>
+          {!loadingPrograms &&
+            !selectedProgram &&
+            availablePrograms.length === 0 &&
+            searchProgram.length > 0 && (
+              <p className="text-xs text-gray-400 mt-1">
+                No programs found
+              </p>
             )}
 
-            {availablePrograms.length > 0 && (
-              <div className="border rounded-md mt-1 max-h-28 overflow-y-auto bg-white">
+          {!selectedProgram &&
+            availablePrograms.length > 0 && (
+              <div className={modalDropdown}>
                 {availablePrograms.map((p) => (
                   <div
                     key={p.ProgramID}
@@ -133,110 +118,78 @@ export default function AddSubsidyModal({ onClose, onSuccess }) {
                       setSelectedProgram(p);
                       setSearchProgram(p.ProgramName);
                     }}
-                    className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
-                      selectedProgram?.ProgramID === p.ProgramID
-                        ? "bg-green-600 text-white"
-                        : ""
-                    }`}
+                    className={modalDropdownItem}
                   >
                     {p.ProgramName}
                   </div>
                 ))}
               </div>
             )}
-          </div>
+        </div>
 
-          {/* AMOUNT + DATE */}
-          <div className="grid grid-cols-2 gap-2">
-
-            <div>
-              <label className="text-xs text-gray-500">Total Amount</label>
-              <input
-                type="number"
-                name="TotalAmount"
-                value={formData.TotalAmount}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Distribution Date</label>
-              <input
-                type="date"
-                name="DistributionDate"
-                value={formData.DistributionDate}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
-
-          </div>
-
-          {/* REMARKS */}
+        {/* AMOUNT + DATE */}
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-gray-500">Remarks</label>
-            <textarea
-              name="Remarks"
-              value={formData.Remarks}
-              onChange={handleChange}
-              className="input"
-              rows={3}
+            <label className={modalLabel}>
+              Total Amount
+            </label>
+            <input
+              type="number"
+              value={totalAmount}
+              onChange={(e) =>
+                setTotalAmount(e.target.value)
+              }
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
-              Cancel
-            </button>
-
-            <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Saving..." : "Save Subsidy"}
-            </button>
+          <div>
+            <label className={modalLabel}>
+              Distribution Date
+            </label>
+            <input
+              type="date"
+              value={distributionDate}
+              onChange={(e) =>
+                setDistributionDate(e.target.value)
+              }
+              className={`${modalInput} dark:[color-scheme:dark]`}
+            />
           </div>
+        </div>
 
-        </form>
-      </div>
+        {/* REMARKS */}
+        <div>
+          <label className={modalLabel}>Remarks</label>
+          <textarea
+            value={remarks}
+            onChange={(e) =>
+              setRemarks(e.target.value)
+            }
+            className={modalInput}
+            rows={3}
+          />
+        </div>
 
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
 
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
-
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Saving..." : "Save Subsidy"}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

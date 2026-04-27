@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
-import { useLivestock } from "../../context/LivestockContext.jsx";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
 
 export default function EditLivestockModal({
   onClose,
-  onSuccess,
+  onSubmit,
+  loading,
   selectedLivestock,
 }) {
-  const { updateLivestock, loading } = useLivestock();
-
-  const [formData, setFormData] = useState({
-    LivestockID: "",
+  const [form, setForm] = useState({
     Type: "",
     Breed: "",
     AverageProduction: "",
@@ -19,201 +22,155 @@ export default function EditLivestockModal({
 
   const [error, setError] = useState("");
 
-  // LOAD SELECTED DATA
+  // ================= LOAD SELECTED DATA =================
   useEffect(() => {
     if (selectedLivestock) {
-      setFormData({
-        LivestockID: selectedLivestock.LivestockID,
+      setForm({
         Type: selectedLivestock.Type || "",
         Breed: selectedLivestock.Breed || "",
-        AverageProduction: selectedLivestock.AverageProduction || "",
+        AverageProduction:
+          selectedLivestock.AverageProduction || "",
         MarketPrice: selectedLivestock.MarketPrice || "",
       });
     }
   }, [selectedLivestock]);
 
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
-    setFormData((prev) => ({
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+
+    if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
+  // ================= VALIDATION =================
+  const validate = () => {
+    if (
+      !form.Type?.trim() ||
+      !form.Breed?.trim() ||
+      !form.AverageProduction ||
+      !form.MarketPrice
+    ) {
+      return "Please fill in all fields";
+    }
+
+    return "";
+  };
+
+  // ================= SUBMIT =================
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    if (
-      !formData.Type ||
-      !formData.Breed ||
-      !formData.AverageProduction ||
-      !formData.MarketPrice
-    ) {
-      setError("Please fill in all fields");
-      return;
-    }
+    const err = validate();
+    if (err) return setError(err);
 
-    try {
-      await updateLivestock({
-        LivestockID: formData.LivestockID,
-        Type: formData.Type,
-        Breed: formData.Breed,
-        AverageProduction: parseFloat(formData.AverageProduction),
-        MarketPrice: parseFloat(formData.MarketPrice),
-      });
-
-      onSuccess?.();
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to update livestock");
-    }
+    onSubmit({
+      Type: form.Type,
+      Breed: form.Breed,
+      AverageProduction: parseFloat(form.AverageProduction),
+      MarketPrice: parseFloat(form.MarketPrice),
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal
+      title="Edit Livestock"
+      onClose={onClose}
+      width="max-w-lg"
+    >
+      {/* ERROR */}
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
+        </div>
+      )}
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Edit Livestock
-          </h2>
-          <p className="text-sm text-gray-500">
-            Update livestock information
-          </p>
+        {/* TYPE */}
+        <div>
+          <label className={modalLabel}>Type</label>
+          <input
+            type="text"
+            name="Type"
+            value={form.Type}
+            onChange={handleChange}
+            className={modalInput}
+          />
         </div>
 
-        {/* ERROR */}
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+        {/* BREED */}
+        <div>
+          <label className={modalLabel}>Breed</label>
+          <input
+            type="text"
+            name="Breed"
+            value={form.Breed}
+            onChange={handleChange}
+            className={modalInput}
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+        {/* PRODUCTION + PRICE */}
+        <div className="grid grid-cols-2 gap-2">
 
-          {/* TYPE */}
           <div>
-            <label className="text-xs text-gray-500">Type</label>
+            <label className={modalLabel}>
+              Avg Production
+            </label>
             <input
-              type="text"
-              name="Type"
-              value={formData.Type}
+              type="number"
+              step="0.01"
+              name="AverageProduction"
+              value={form.AverageProduction}
               onChange={handleChange}
-              className="input"
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
-          {/* BREED */}
           <div>
-            <label className="text-xs text-gray-500">Breed</label>
+            <label className={modalLabel}>
+              Market Price
+            </label>
             <input
-              type="text"
-              name="Breed"
-              value={formData.Breed}
+              type="number"
+              step="0.01"
+              name="MarketPrice"
+              value={form.MarketPrice}
               onChange={handleChange}
-              className="input"
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
-          {/* PRODUCTION + PRICE */}
-          <div className="grid grid-cols-2 gap-2">
+        </div>
 
-            <div>
-              <label className="text-xs text-gray-500">
-                Avg Production
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="AverageProduction"
-                value={formData.AverageProduction}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
 
-            <div>
-              <label className="text-xs text-gray-500">
-                Market Price
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                name="MarketPrice"
-                value={formData.MarketPrice}
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
 
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Updating..." : "Update Livestock"}
+          </button>
 
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-gray"
-            >
-              Cancel
-            </button>
+        </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-green"
-            >
-              {loading ? "Updating..." : "Update Livestock"}
-            </button>
-          </div>
-
-        </form>
-      </div>
-
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
-
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
-
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+      </form>
+    </Modal>
   );
 }

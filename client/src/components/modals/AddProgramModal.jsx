@@ -1,11 +1,18 @@
-import { useState } from "react";
-import { X } from "lucide-react";
-import { useProgram } from "../../context/ProgramContext.jsx";
+import React, { useState } from "react";
+import Modal from "../common/Modal";
+import {
+  modalInput,
+  modalLabel,
+  modalButtonPrimary,
+  modalButtonSecondary,
+} from "../common/ModalUI";
 
-export default function AddProgramModal({ onClose, onSuccess }) {
-  const { addProgram } = useProgram();
-
-  const [formData, setFormData] = useState({
+export default function AddProgramModal({
+  onClose,
+  onSubmit,
+  loading,
+}) {
+  const [form, setForm] = useState({
     ProgramName: "",
     Description: "",
     StartDate: "",
@@ -14,216 +21,197 @@ export default function AddProgramModal({ onClose, onSuccess }) {
     TargetBeneficiaries: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
-    setFormData((prev) => ({
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
+
+    if (error) setError("");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
+  // ================= VALIDATION =================
+  const validate = () => {
     const {
       ProgramName,
       StartDate,
       EndDate,
       Budget,
       TargetBeneficiaries,
-    } = formData;
+    } = form;
 
-    // VALIDATION
-    if (!ProgramName || !StartDate || !EndDate || !Budget || !TargetBeneficiaries) {
-      setError("Please fill all required fields");
-      setLoading(false);
+    if (!ProgramName?.trim())
+      return "Program name is required";
+
+    if (!StartDate || !EndDate)
+      return "Start and End date are required";
+
+    if (!Budget)
+      return "Budget is required";
+
+    if (!TargetBeneficiaries)
+      return "Target beneficiaries is required";
+
+    if (new Date(EndDate) < new Date(StartDate))
+      return "End date cannot be earlier than start date";
+
+    return "";
+  };
+
+  // ================= SUBMIT =================
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+
+    const err = validate();
+
+    if (err) {
+      setError(err);
       return;
     }
 
-    try {
-      await addProgram({
-        ...formData,
-        Budget: parseFloat(Budget),
-        TargetBeneficiaries: parseFloat(TargetBeneficiaries),
-        Status: "Active",
-      });
-
-      onSuccess?.();
-      onClose();
-    } catch (err) {
-      setError(err.message || "Failed to add program");
-    } finally {
-      setLoading(false);
-    }
+    onSubmit({
+      ...form,
+      Budget: parseFloat(form.Budget),
+      TargetBeneficiaries: parseInt(
+        form.TargetBeneficiaries
+      ),
+      Status: "Active",
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-xl p-6 relative animate-fadeIn">
+    <Modal
+      title="Add Program"
+      onClose={onClose}
+      width="max-w-lg"
+    >
+      {/* ERROR */}
+      {error && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
+          {error}
+        </div>
+      )}
 
-        {/* CLOSE */}
-        <button onClick={onClose} className="absolute top-3 right-3">
-          <X />
-        </button>
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 text-sm"
+      >
+        {/* PROGRAM NAME */}
+        <div>
+          <label className={modalLabel}>
+            Program Name
+          </label>
 
-        {/* HEADER */}
-        <div className="mb-5">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Add Program
-          </h2>
-          <p className="text-sm text-gray-500">
-            Fill in program information
-          </p>
+          <input
+            name="ProgramName"
+            value={form.ProgramName}
+            onChange={handleChange}
+            className={modalInput}
+          />
         </div>
 
-        {/* ERROR */}
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-            {error}
-          </div>
-        )}
+        {/* DESCRIPTION */}
+        <div>
+          <label className={modalLabel}>
+            Description
+          </label>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+          <textarea
+            name="Description"
+            value={form.Description}
+            onChange={handleChange}
+            rows={3}
+            className={modalInput}
+          />
+        </div>
 
-          {/* PROGRAM NAME */}
+        {/* DATES */}
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-xs text-gray-500">Program Name</label>
+            <label className={modalLabel}>
+              Start Date
+            </label>
+
             <input
-              type="text"
-              name="ProgramName"
-              value={formData.ProgramName}
+              type="date"
+              name="StartDate"
+              value={form.StartDate}
               onChange={handleChange}
-              className="input"
-              required
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
-          {/* DESCRIPTION */}
           <div>
-            <label className="text-xs text-gray-500">Description</label>
-            <textarea
-              name="Description"
-              value={formData.Description}
+            <label className={modalLabel}>
+              End Date
+            </label>
+
+            <input
+              type="date"
+              name="EndDate"
+              value={form.EndDate}
               onChange={handleChange}
-              className="input"
-              rows={3}
+              className={`${modalInput} dark:[color-scheme:dark]`}
+            />
+          </div>
+        </div>
+
+        {/* BUDGET + BENEFICIARIES */}
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className={modalLabel}>
+              Budget
+            </label>
+
+            <input
+              type="number"
+              name="Budget"
+              value={form.Budget}
+              onChange={handleChange}
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
-          {/* DATES */}
-          <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className={modalLabel}>
+              Target Beneficiaries
+            </label>
 
-            <div>
-              <label className="text-xs text-gray-500">Start Date</label>
-              <input
-                type="date"
-                name="StartDate"
-                value={formData.StartDate}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">End Date</label>
-              <input
-                type="date"
-                name="EndDate"
-                value={formData.EndDate}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
+            <input
+              type="number"
+              name="TargetBeneficiaries"
+              value={form.TargetBeneficiaries}
+              onChange={handleChange}
+              className={`${modalInput} dark:[color-scheme:dark]`}
+            />
           </div>
+        </div>
 
-          {/* BUDGET + BENEFICIARIES */}
-          <div className="grid grid-cols-2 gap-2">
+        {/* ACTIONS */}
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className={modalButtonSecondary}
+          >
+            Cancel
+          </button>
 
-            <div>
-              <label className="text-xs text-gray-500">Budget</label>
-              <input
-                type="number"
-                name="Budget"
-                value={formData.Budget}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="text-xs text-gray-500">Target Beneficiaries</label>
-              <input
-                type="number"
-                name="TargetBeneficiaries"
-                value={formData.TargetBeneficiaries}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
-
-          </div>
-
-          {/* ACTIONS */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={onClose} className="btn-gray">
-              Cancel
-            </button>
-
-            <button type="submit" disabled={loading} className="btn-green">
-              {loading ? "Saving..." : "Save Program"}
-            </button>
-          </div>
-
-        </form>
-      </div>
-
-      {/* STYLES */}
-      <style>{`
-        .input {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          padding: 8px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
-
-        .input:focus {
-          outline: none;
-          border-color: #16a34a;
-          box-shadow: 0 0 0 2px rgba(22,163,74,0.2);
-        }
-
-        .btn-green {
-          background: #16a34a;
-          color: white;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .btn-gray {
-          background: #e5e7eb;
-          padding: 8px 14px;
-          border-radius: 8px;
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
-    </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={modalButtonPrimary}
+          >
+            {loading ? "Saving..." : "Save Program"}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

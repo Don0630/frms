@@ -107,19 +107,19 @@ export default function AddUserModal({ onClose, onSubmit, loading }) {
           {/* RESULTS */}
           {availableStaff.length > 0 && (
            <div className={modalDropdown}>
-  {availableStaff.map((staff) => (
-    <div
-      key={staff.StaffID}
-      onClick={() => {
-        setSelectedStaff(staff);
-        setSearchStaff(`${staff.FirstName} ${staff.LastName}`);
-      }}
-      className={modalDropdownItem}
-    >
-      {staff.FirstName} {staff.LastName}
-    </div>
-  ))}
-</div>
+              {availableStaff.map((staff) => (
+                <div
+                  key={staff.StaffID}
+                  onClick={() => {
+                    setSelectedStaff(staff);
+                    setSearchStaff(`${staff.FirstName} ${staff.LastName}`);
+                  }}
+                  className={modalDropdownItem}
+                >
+                  {staff.FirstName} {staff.LastName}
+                </div>
+              ))}
+            </div>
           )}
         </div>
 

@@ -10,23 +10,20 @@ export async function fetchAllProgram() {
 
 // ------------ ADD PROGRAM ------------
 export async function addProgram(program) {
-  const data = await apiFetch("/program/addProgram", {
+  return await apiFetch("/program/addProgram", {
     method: "POST",
     body: JSON.stringify(program),
   });
-  return data.data;
 }
 
 
 
 // ------------ UPDATE PROGRAM ------------
 export async function updateProgram(program) {
-  const data = await apiFetch(`/program/updateProgram/${program.ProgramID}`, {
+  return await apiFetch(`/program/updateProgram/${program.ProgramID}`, {
     method: "PUT",
     body: JSON.stringify(program),
   });
-
-  return data.data;
 }
 
 

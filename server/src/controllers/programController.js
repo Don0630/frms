@@ -15,21 +15,21 @@ export async function getAllProgram(req, res, next) {
       return successResponse(res, "Programs record fetched successfully", programsData, 200);
   } catch (err) {
     console.error("Error fetching Programs Data:", err);
-    next(err);
+    return next(err);
   }
 
 }
 
 
 // ------------- ADD PROGRAM -------------
-export async function saveProgram(req, res) {
+export async function saveProgram(req, res, next) {
   try {
     // console.log("req.body:", req.body);
     const newProgram = await programService.addProgram(req.body);
     return successResponse(res, "Program added successfully", newProgram, 201);
   } catch (err) {
-    console.error("Error adding Program:", err);
-    return errorResponse(res, err.message, 500);
+    console.error("Error saving Program:", err);
+    return next(err);
   }
 }
 
@@ -37,18 +37,15 @@ export async function saveProgram(req, res) {
 
 
 // ------------- UPDATE PROGRAM -------------
-export async function updateProgram(req, res) {
+export async function updateProgram(req, res, next) {
   try {
     const updated = await programService.editProgram(req.params.id, req.body);
     return successResponse(res, "Program updated successfully", updated);
   } catch (err) {
-    return errorResponse(res, err.message, 500);
+     console.error("Error updating Program:", err);
+    return next(err);
   }
 }
-
-
-
-
 
 
 
@@ -58,14 +55,11 @@ export async function getAvailableProgram(req, res, next) {
   try {
     const search = req.query.search || "";
     const availableProgram = await programService.fetchAvailablePrograms(search);
-
-    if (!availableProgram || availableProgram.length === 0) {
-      return errorResponse(res, "No available program found", 404);
-    }
+ 
 
     return successResponse(res, "Available program fetched successfully", availableProgram, 200);
   } catch (err) {
     console.error("Error fetching available program:", err);
-    next(err);
+    return next(err);
   }
 }

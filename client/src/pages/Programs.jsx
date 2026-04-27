@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Plus, Info, Edit } from "lucide-react";
 
-import { useProgram } from "../context/ProgramContext";
+import useProgram from "../hooks/useProgram";
+
 import ViewProgramModal from "../components/modals/ViewProgramModal";
 import AddProgramModal from "../components/modals/AddProgramModal";
 import EditProgramModal from "../components/modals/EditProgramModal";
@@ -11,25 +12,32 @@ import usePagination from "../hooks/usePagination";
 
 import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
+import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function Programs() {
-  const { program, loadProgram, error, loading } = useProgram();
-
   const [filter, setFilter] = useState("All");
   const [viewModal, setViewModal] = useState(null);
   const [addProgramModal, setAddProgramModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
 
-  useEffect(() => {
-    loadProgram();
-  }, []);
+  // ================= PROGRAM HOOK =================
+  const {
+    programsQuery,
+    createProgramMutation,
+    updateProgramMutation,
+  } = useProgram();
 
+  const program = programsQuery.data?.data || [];
+
+  // ================= TABLE FILTER =================
   const { search, setSearch, filteredData } = useTable({
     data: program,
     searchFields: ["ProgramName"],
-    filterFn: (item) => filter === "All" || item.Status === filter,
+    filterFn: (item) =>
+      filter === "All" || item.Status === filter,
   });
 
+  // ================= PAGINATION =================
   const {
     currentPage,
     setCurrentPage,
@@ -41,6 +49,7 @@ export default function Programs() {
     setCurrentPage(1);
   }, [search, filter, setCurrentPage]);
 
+  // ================= TABLE COLUMNS =================
   const columns = [
     {
       key: "ProgramName",
@@ -58,14 +67,18 @@ export default function Programs() {
         </div>
       ),
     },
+
     { key: "StartDate", label: "Start" },
+
     { key: "EndDate", label: "End" },
+
     {
       key: "Budget",
       label: "Budget",
       render: (item) =>
         `₱ ${Number(item.Budget || 0).toLocaleString()}`,
     },
+
     {
       key: "Status",
       label: "Status",
@@ -85,6 +98,7 @@ export default function Programs() {
         </span>
       ),
     },
+
     {
       key: "actions",
       label: "",
@@ -101,15 +115,22 @@ export default function Programs() {
     },
   ];
 
-  if (error)
+  // ================= ERROR =================
+  if (programsQuery.isError) {
     return (
       <div className="p-4 text-red-600 dark:text-red-400">
-        {error}
+        {programsQuery.error.message}
       </div>
     );
+  }
+
+  // ================= LOADING =================
+  if (programsQuery.isLoading) {
+    return <TablePageSkeleton />;
+  }
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full min-h-screen p-4 bg-gray-100 dark:bg-gray-950">
 
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6">
 
@@ -122,18 +143,9 @@ export default function Programs() {
 
           <button
             onClick={() => setAddProgramModal(true)}
-            className="
-              flex items-center gap-2
-              bg-green-600 dark:bg-green-500
-              text-white
-              px-3 sm:px-4 py-2
-              rounded-lg text-sm shadow
-              hover:bg-green-700 dark:hover:bg-green-400
-              transition-colors
-            "
+            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
           >
             <Plus className="w-4 h-4" />
-
             <span className="hidden sm:inline">
               Add Program
             </span>
@@ -141,51 +153,46 @@ export default function Programs() {
 
         </div>
 
-        {/* TABLE + LOADING */}
-        {loading ? (
-          <p className="text-gray-700 dark:text-gray-300 p-4">
-            Loading Programs...
-          </p>
-        ) : (
-          <>
-            <DataTable
-              columns={columns}
-              data={currentItems}
-              search={search}
-              setSearch={setSearch}
-              filters={
-                <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
-                  {["All", "Active", "Completed", "Dropped"].map((item) => (
-                    <label
-                      key={item}
-                      className="flex items-center gap-1 cursor-pointer"
-                    >
-                      <input
-                        type="radio"
-                        className="accent-green-600 dark:accent-green-400"
-                        checked={filter === item}
-                        onChange={() => setFilter(item)}
-                      />
-                      {item}
-                    </label>
-                  ))}
-                </div>
-              }
-            />
+        {/* TABLE */}
+        <DataTable
+          columns={columns}
+          data={currentItems}
+          search={search}
+          setSearch={setSearch}
+          filters={
+            <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
+              {["All", "Active", "Completed", "Dropped"].map(
+                (item) => (
+                  <label
+                    key={item}
+                    className="flex items-center gap-1 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      className="accent-green-600 dark:accent-green-400"
+                      checked={filter === item}
+                      onChange={() => setFilter(item)}
+                    />
+                    {item}
+                  </label>
+                )
+              )}
+            </div>
+          }
+        />
 
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              setCurrentPage={setCurrentPage}
-              currentItemsLength={currentItems.length}
-              totalItemsLength={filteredData.length}
-            />
-          </>
-        )}
+        {/* PAGINATION */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          currentItemsLength={currentItems.length}
+          totalItemsLength={filteredData.length}
+        />
 
       </div>
 
-      {/* MODALS */}
+      {/* VIEW */}
       {viewModal && (
         <ViewProgramModal
           program={viewModal}
@@ -193,18 +200,36 @@ export default function Programs() {
         />
       )}
 
+      {/* ADD */}
       {addProgramModal && (
         <AddProgramModal
           onClose={() => setAddProgramModal(false)}
-          onSuccess={loadProgram}
+          onSubmit={(data) =>
+            createProgramMutation.mutate(data, {
+              onSuccess: () => setAddProgramModal(false),
+            })
+          }
+          loading={createProgramMutation.isPending}
         />
       )}
 
+      {/* EDIT */}
       {editModal && (
         <EditProgramModal
           selectedProgram={editModal}
           onClose={() => setEditModal(null)}
-          onSuccess={loadProgram}
+          onSubmit={(data) =>
+            updateProgramMutation.mutate(
+              {
+                id: editModal.ProgramID,
+                data,
+              },
+              {
+                onSuccess: () => setEditModal(null),
+              }
+            )
+          }
+          loading={updateProgramMutation.isPending}
         />
       )}
 

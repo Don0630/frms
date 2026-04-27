@@ -9,12 +9,10 @@ export async function fetchAllSubsidy() {
 
 // ------------ ADD SUBSIDY ------------
 export async function addSubsidy(subsidy) {
-  const data = await apiFetch("/subsidy/addSubsidy", {
+  return await apiFetch("/subsidy/addSubsidy", {
     method: "POST",
     body: JSON.stringify(subsidy),
   });
-
-  return data.data;
 }
 
 
@@ -37,46 +35,36 @@ export async function fetchAvailableFarmer(distributionID, search = "") {
   }
 
   const url = `/subsidy/availableFarmer?${params.toString()}`;
-
-  const res = await apiFetch(url);
-
-  // normalize response
-  return res?.data || res || [];
+  return await apiFetch(url); 
 }
 
 
 // ------------ ADD FARMER SUBSIDY ------------
 export async function addFarmerSubsidy(subsidy) {
-  const data = await apiFetch("/subsidy/addFarmerSubsidy", {
+  return await apiFetch("/subsidy/addFarmerSubsidy", {
     method: "POST",
     body: JSON.stringify(subsidy),
   });
-
-  return data.data;
 }
 
 
 
 // ------------ UPDATE DISTRIBUTION ------------
 export async function updateDistribution(distribution) {
-  const res = await apiFetch(
+  return await apiFetch(
     `/subsidy/updateDistribution/${distribution.DistributionDetailsID}`,
     {
       method: "PUT",
       body: JSON.stringify(distribution),
     }
   );
-
-  return res.data;
 }
 
 
 
 // ------------ DELETE DISTRIBUTION ------------
 export async function deleteDistribution(id) {
-  const res = await apiFetch(`/subsidy/deleteDistribution/${id}`, {
+  return await apiFetch(`/subsidy/deleteDistribution/${id}`, {
     method: "DELETE",
   });
-
-  return res.data;
 }

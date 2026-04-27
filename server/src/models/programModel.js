@@ -91,7 +91,7 @@ export async function getAvailablePrograms(search = "") {
     ORDER BY ProgramName
     LIMIT 5
     `,
-    [searchPattern]
+    [searchPattern, searchPattern]
   );
 
   return rows;
