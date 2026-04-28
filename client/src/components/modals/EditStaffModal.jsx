@@ -5,7 +5,7 @@ import {
   modalLabel,
   modalButtonPrimary,
   modalButtonSecondary,
-} from "../common/modalUI";
+} from "../common/ModalUI";
 
 export default function EditStaffModal({
   staff,
