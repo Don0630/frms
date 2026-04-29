@@ -73,7 +73,7 @@ export async function updateCrop(id, crop) {
 
 
 // --------------- SEARCH CROP (GENERAL) ---------------
-export async function getSearchCrops(search = "") {
+export async function getSearchCrop(search = "") {
   const searchPattern = `%${search}%`;
 
   const [rows] = await db.query(

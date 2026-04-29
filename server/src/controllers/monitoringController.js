@@ -15,20 +15,20 @@ export async function getAllMonitoring(req, res, next) {
       return successResponse(res, "Monitorings record fetched successfully", monitoringsData, 200);
   } catch (err) {
     console.error("Error fetching Monitorings Data:", err);
-    next(err);
+    return next(err);
   }
 
 }
 
 
 // ------------- ADD  MONITORING -------------
-export async function saveMonitoring(req, res) {
+export async function saveMonitoring(req, res, next) {
   try {
     // console.log("req.body:", req.body);
     const newMonitoring = await monitoringService.addMonitoring(req.body);
     return successResponse(res, "Monitoring added successfully", newMonitoring, 201);
   } catch (err) {
     console.error("Error adding Monitoring:", err);
-    return errorResponse(res, err.message, 500);
+     return next(err);
   }
 }

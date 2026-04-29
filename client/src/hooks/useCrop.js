@@ -3,8 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllCrop,
   addCrop,
-  updateCrop,
-  fetchSearchCrops,
+  updateCrop, 
 } from "../api/cropApi";
 
 export default function useCrop(search = "") {
@@ -16,12 +15,6 @@ export default function useCrop(search = "") {
     queryFn: fetchAllCrop,
   });
 
-  // ================= SEARCH CROPS =================
-  const searchCropsQuery = useQuery({
-    queryKey: ["search-crops", search],
-    queryFn: () => fetchSearchCrops(search),
-    enabled: !!search,
-  });
 
   // ================= CREATE CROP =================
   const createCropMutation = useMutation({
@@ -43,8 +36,7 @@ export default function useCrop(search = "") {
 });
 
   return {
-    cropsQuery,
-    searchCropsQuery,
+    cropsQuery, 
     createCropMutation,
     updateCropMutation,
   };

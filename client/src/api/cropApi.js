@@ -29,12 +29,11 @@ export async function updateCrop(crop) {
 
 
 // ------------ FETCH SEARCHED CROP ------------
-export async function fetchSearchCrops(search = "") {
-  // Construct query parameters
-  const params = new URLSearchParams();
-  if (search) params.append("search", search);
+export async function fetchSearchCrop(search = "") {
+  const url = search
+    ? `/crop/searchCrop?search=${encodeURIComponent(search)}`
+    : "/crop/searchCrop";
 
-  const url = `/crop/searchCrops?${params.toString()}`;
   return apiFetch(url);
 }
 

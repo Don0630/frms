@@ -31,8 +31,8 @@ export async function removeFarm(id) {
   return await farmerModel.deleteFarm(id);
 }
 
-export async function fetchSearchFarmers(search = "") {
-  return await farmerModel.getSearchFarmers(search);
+export async function fetchSearchFarmer(search = "") {
+  return await farmerModel.getSearchFarmer(search);
 }
 
  

@@ -14,7 +14,7 @@ router.post("/addFarm", authenticateToken, farmerController.saveFarm);
 router.put("/updateFarm/:id", authenticateToken, farmerController.updateFarm);
 router.delete("/farm/:id", authenticateToken, farmerController.deleteFarm);
 
-router.get("/searchFarmers", authenticateToken, farmerController.getSearchFarmers);
+router.get("/searchFarmer", authenticateToken, farmerController.getSearchFarmer);
 router.get("/farmerByID/:id", farmerController.getFarmerById);
 
 export default router;

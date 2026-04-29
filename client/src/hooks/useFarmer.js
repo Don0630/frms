@@ -2,8 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllFarmer,
   addFarmer,
-  updateFarmer,
-  fetchSearchFarmers,
+  updateFarmer, 
 } from "../api/farmerApi";
 
 export default function useFarmer(search = "") {
@@ -15,13 +14,7 @@ export default function useFarmer(search = "") {
     queryFn: fetchAllFarmer,
   });
 
-  // ================= SEARCH FARMERS =================
-  const searchFarmersQuery = useQuery({
-    queryKey: ["search-farmers", search],
-    queryFn: () => fetchSearchFarmers(search),
-    enabled: !!search,
-  });
-
+ 
   // ================= CREATE FARMER =================
   const createFarmerMutation = useMutation({
     mutationFn: addFarmer,
@@ -43,8 +36,7 @@ export default function useFarmer(search = "") {
   });
 
   return {
-    farmersQuery,
-    searchFarmersQuery,
+    farmersQuery, 
     createFarmerMutation,
     updateFarmerMutation,
   };

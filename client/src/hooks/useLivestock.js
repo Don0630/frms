@@ -2,8 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchAllLivestock,
   addLivestock,
-  updateLivestock,
-  fetchSearchLivestock,
+  updateLivestock, 
 } from "../api/livestockApi";
 
 export default function useLivestock(search = "") {
@@ -15,12 +14,6 @@ export default function useLivestock(search = "") {
     queryFn: fetchAllLivestock,
   });
 
-  // ================= SEARCH =================
-  const searchLivestockQuery = useQuery({
-    queryKey: ["search-livestock", search],
-    queryFn: () => fetchSearchLivestock(search),
-    enabled: !!search,
-  });
 
   // ================= CREATE =================
   const createLivestockMutation = useMutation({
@@ -46,8 +39,7 @@ export default function useLivestock(search = "") {
   });
 
   return {
-    livestockQuery,
-    searchLivestockQuery,
+    livestockQuery, 
     createLivestockMutation,
     updateLivestockMutation,
   };

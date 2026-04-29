@@ -57,12 +57,11 @@ export async function deleteFarm(id) {
 
 
 // ------------ FETCH SEARCHED FARMER ------------
-export async function fetchSearchFarmers(search = "") {
-  // Construct query parameters
-  const params = new URLSearchParams();
-  if (search) params.append("search", search);
+export async function fetchSearchFarmer(search = "") {
+  const url = search
+    ? `/farmer/searchFarmer?search=${encodeURIComponent(search)}`
+    : "/farmer/searchFarmer";
 
-  const url = `/farmer/searchFarmers?${params.toString()}`;
   return apiFetch(url);
 }
 

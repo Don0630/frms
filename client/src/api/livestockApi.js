@@ -31,11 +31,9 @@ return await apiFetch(`/livestock/updateLivestock/${livestock.LivestockID}`, {
 
 // ------------ FETCH SEARCHED LIVESTOCK ------------
 export async function fetchSearchLivestock(search = "") {
-  // Construct query parameters
-  const params = new URLSearchParams();
-  if (search) params.append("search", search);
+  const url = search
+    ? `/livestock/searchLivestock?search=${encodeURIComponent(search)}`
+    : "/livestock/searchLivestock";
 
-  const url = `/livestock/searchLivestock?${params.toString()}`;
   return apiFetch(url);
 }
-

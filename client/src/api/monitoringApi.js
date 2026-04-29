@@ -10,10 +10,10 @@ export async function fetchAllMonitoring() {
 
 // ------------ ADD MONITORING ------------
 export async function addMonitoring(monitoring) {
-  const data = await apiFetch("/monitoring/addMonitoring", {
+  return await apiFetch("/monitoring/addMonitoring", {
     method: "POST",
     body: JSON.stringify(monitoring),
   });
 
-  return data.data;
+   
 }

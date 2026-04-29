@@ -16,6 +16,6 @@ export async function editCrop(id, crop) {
 }
 
 
-export async function fetchSearchCrops(search = "") {
-  return await cropModel.getSearchCrops(search);
+export async function fetchSearchCrop(search = "") {
+  return await cropModel.getSearchCrop(search);
 }

@@ -255,7 +255,7 @@ export async function deleteFarm(id) {
 
 
 // --------------- SEARCH FARMER (GENERAL) ---------------
-export async function getSearchFarmers(search = "") {
+export async function getSearchFarmer(search = "") {
   const searchPattern = `%${search}%`;
 
   const [rows] = await db.query(

@@ -95,15 +95,12 @@ export async function deleteFarm(req, res, next) {
 
 
 
-export async function getSearchFarmers(req, res, next) {
+export async function getSearchFarmer(req, res, next) {
   try { 
     const search = req.query.search || "";
-    const searchedFarmer = await farmerService.fetchSearchFarmers(search);
+    const searchedFarmer = await farmerService.fetchSearchFarmer(search);
 
-    if (!searchedFarmer || searchedFarmer.length === 0) {
-      return errorResponse(res, "No farmers found", 404);
-    }
-
+  
     return successResponse(res, "Farmers fetched successfully", searchedFarmer, 200);
   } catch (err) {
     console.error("Error fetching searched farmer:", err);

@@ -50,17 +50,15 @@ export async function updateCrop(req, res, next) {
 
 
 // ------------- SEARCH CROP -------------
-export async function getSearchCrops(req, res, next) {
+export async function getSearchCrop(req, res, next) {
   try { 
     const search = req.query.search || "";
-    const searchedCrops = await cropService.fetchSearchCrops(search);
+    const searchedCrop = await cropService.fetchSearchCrop(search);
 
-    if (!searchedCrops || searchedCrops.length === 0) {
-      return errorResponse(res, "No Crops found", 404);
-    }
-    return successResponse(res, "Crops fetched successfully", searchedCrops, 200);
+    
+    return successResponse(res, "Crop fetched successfully", searchedCrop, 200);
   } catch (err) {
-    console.error("Error fetching searched crops:", err);
+    console.error("Error fetching searched crop:", err);
     return next(err);
   }
 }
