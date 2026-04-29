@@ -16,9 +16,40 @@ export async function addSubsidy(subsidy) {
 }
 
 
-// ------------ FETCH ALL FARMERS PER SUBSIDY ------------
-export async function fetchAllFarmersPerSubsidy(distributionID) {
-  return apiFetch(`/subsidy/subsidyData/${distributionID}/farmers`);
+// ------------ FETCH SUBSIDY BY ID------------
+ export async function fetchSubsidyById(id) {
+  return apiFetch(`/subsidy/subsidyById/${id}`);
+}
+
+
+
+// ------------ ADD FARMER SUBSIDY ------------
+export async function addDistribution(distribution) {
+  return await apiFetch("/subsidy/addDistribution", {
+    method: "POST",
+    body: JSON.stringify(distribution),
+  });
+}
+
+
+
+// ------------ UPDATE DISTRIBUTION ------------
+export async function updateDistribution(distribution) {
+  return await apiFetch(
+    `/subsidy/updateDistribution/${distribution.DistributionDetailsID}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(distribution),
+    }
+  );
+}
+
+
+// ------------ DELETE DISTRIBUTION ------------
+export async function deleteDistribution(id) {
+  return await apiFetch(`/subsidy/deleteDistribution/${id}`, {
+    method: "DELETE",
+  });
 }
 
 
@@ -39,32 +70,3 @@ export async function fetchAvailableFarmer(distributionID, search = "") {
 }
 
 
-// ------------ ADD FARMER SUBSIDY ------------
-export async function addFarmerSubsidy(subsidy) {
-  return await apiFetch("/subsidy/addFarmerSubsidy", {
-    method: "POST",
-    body: JSON.stringify(subsidy),
-  });
-}
-
-
-
-// ------------ UPDATE DISTRIBUTION ------------
-export async function updateDistribution(distribution) {
-  return await apiFetch(
-    `/subsidy/updateDistribution/${distribution.DistributionDetailsID}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(distribution),
-    }
-  );
-}
-
-
-
-// ------------ DELETE DISTRIBUTION ------------
-export async function deleteDistribution(id) {
-  return await apiFetch(`/subsidy/deleteDistribution/${id}`, {
-    method: "DELETE",
-  });
-}

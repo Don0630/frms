@@ -35,29 +35,6 @@ export async function saveSubsidy(req, res, next) {
 
 
 
-
-
-// ------------- GET ALL FARMERS PER SUBSIDY -------------
-export async function getAllFarmerPerSubsidy(req, res, next) {
-  const { distributionID } = req.params;
-
-  if (!distributionID) {
-    return errorResponse(res, "Distribution ID is required", 400);
-  }
-
-  try {
-    const farmers = await subsidyService.fetchAllFarmerPerSubsidy(distributionID);
-    if (!farmers || farmers.length === 0) {
-      return errorResponse(res, "No farmers found for this distribution", 404);
-    }
-    return successResponse(res, "Farmers fetched successfully", farmers, 200);
-  } catch (err) {
-    console.error(`Error fetching farmers for DistributionID ${distributionID}:`, err);
-    return next(err);
-  }
-}
-
-
 export async function getAvailableFarmer(req, res, next) {
   try {
     const distributionID = req.query.distributionID;
@@ -88,13 +65,13 @@ export async function getAvailableFarmer(req, res, next) {
 
 
 // ------------- ADD FARMER SUBSIDY -------------
-export async function saveFarmerSubsidy(req, res, next) {
+export async function saveDistribution(req, res, next) {
   try {
     // console.log("req.body:", req.body);
-    const newFarmerSubsidy = await subsidyService.addFarmerSubsidy(req.body);
-    return successResponse(res, "Farmer Subsidy added successfully", newFarmerSubsidy, 201);
+    const newDistribution = await subsidyService.addDistribution(req.body);
+    return successResponse(res, "Farmer Subsidy added successfully", newDistribution, 201);
   } catch (err) {
-    console.error("Error adding Farmer Subsidy:", err);
+    console.error("Error adding Distribution:", err);
     return next(err);
   }
 }
@@ -127,6 +104,28 @@ export async function deleteDistribution(req, res) {
     return successResponse(res, "Distribution deleted successfully", deleted);
   } catch (err) {
     console.error("Error deleting Farmer Subsidy:", err);
+    return next(err);
+  }
+}
+
+
+
+export async function getSubsidyById(req, res, next) {
+  try {
+    const subsidy = await subsidyService.fetchSubsidyById(req.params.id);
+
+    if (!subsidy) {
+      return errorResponse(res, "Subsidy not found", 404);
+    }
+
+    return successResponse(
+      res,
+      "Subsidy fetched successfully",
+      subsidy,
+      200
+    );
+  } catch (err) {
+    console.error("Error fetching subsidy:", err);
     return next(err);
   }
 }

@@ -79,31 +79,7 @@ function useProvideSubsidy() {
   };
 
 
-
-
-  // ================= FARMERS PER SUBSIDY =================
-  const loadFarmersPerSubsidy = async (distributionID) => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const { success, data } =
-        await subsidyApi.fetchAllFarmersPerSubsidy(distributionID);
-
-      if (success) {
-        setFarmers(data);
-      } else {
-        setFarmers([]);
-        setError("No farmers found");
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+ 
   // ================= AVAILABLE FARMERS =================
   const loadAvailableFarmer = async (distributionID, search = "") => {
     setLoading(true);
@@ -217,8 +193,7 @@ const deleteDistribution = async (DistributionDetailsID) => {
     farmers,
 
     loadSubsidy,
-    addSubsidy,
-    loadFarmersPerSubsidy,
+    addSubsidy, 
     loadAvailableFarmer,
     addFarmerSubsidy,
     updateDistribution,

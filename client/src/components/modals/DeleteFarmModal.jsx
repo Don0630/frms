@@ -6,8 +6,8 @@ import {
   modalButtonSecondary,
 } from "../common/ModalUI";
 
-export default function DeleteFarmModal({
-  farm,
+export default function DeleteDistributionModal({
+  distribution,
   onClose,
   onConfirm,
   loading = false,
@@ -26,17 +26,22 @@ export default function DeleteFarmModal({
 
         {/* TITLE */}
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-          Delete Farm
+          Remove Distribution
         </h2>
 
         {/* MESSAGE */}
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-          Are you sure you want to delete farm in{" "}
-          <span className="font-medium text-gray-800 dark:text-gray-200">
-            {farm?.FarmBarangay}
-          </span>
-          ?
+          Are you sure you want to remove this farmer from the distribution?
         </p>
+
+        {/* OPTIONAL DETAILS */}
+        {distribution?.FirstName && (
+          <p className="text-sm mt-2 text-gray-800 dark:text-gray-200">
+            <span className="font-medium">
+              {distribution.FirstName} {distribution.LastName}
+            </span>
+          </p>
+        )}
 
         <p className="text-xs text-red-500 mt-2">
           This action cannot be undone.

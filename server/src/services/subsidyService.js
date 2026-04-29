@@ -13,20 +13,15 @@ export async function addSubsidy(subsidy) {
   return await subsidyModel.createSubsidy(subsidy);
 }
 
-
-// ------------------ FETCH ALL FARMER PER SUBSIDY ------------------
-export async function fetchAllFarmerPerSubsidy(distributionID) {
-  return await subsidyModel.getAllFarmerPerSubsidy(distributionID);
-}
-
+ 
 // ------------------ FETCH AVAILABLE FARMERS (SEARCH) ------------------
 export async function fetchAvailableFarmer(distributionID, search = "") {
   return await subsidyModel.getAvailableFarmer(distributionID, search);
 }
 
-// ------------------ ADD FARMER SUBSIDY ------------------
-export async function addFarmerSubsidy(farmerSubsidy) {
-  return await subsidyModel.createFarmerSubsidy(farmerSubsidy);
+// ------------------ ADD DISTRIBUTION ------------------
+export async function addDistribution(distribution) {
+  return await subsidyModel.createDistribution(distribution);
 }
 
 // ------------------ EDIT DISTRIBUTION ------------------
@@ -37,4 +32,9 @@ export async function editDistribution(id, distribution) {
 // ------------------ REMOVE DISTRIBUTION ------------------
 export async function removeDistribution(id) {
   return await subsidyModel.deleteDistribution(id);
+}
+
+
+export async function fetchSubsidyById(id) {
+  return await subsidyModel.getSubsidyById(id);
 }

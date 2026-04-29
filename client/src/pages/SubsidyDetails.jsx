@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
-import { Plus, HandCoins, Trash2, X, ArrowLeft, BanknoteX } from "lucide-react";
+import {
+  Plus,
+  HandCoins,
+  Trash2,
+  ArrowLeft,
+  BanknoteX,
+} from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { useSubsidy } from "../context/SubsidyContext.jsx";
+import { useSubsidyDetails } from "../hooks/useSubsidyDetails";
+import { useDistribution } from "../hooks/useDistribution";
 
 import useTable from "../hooks/useTable";
 import usePagination from "../hooks/usePagination";
@@ -10,141 +17,124 @@ import usePagination from "../hooks/usePagination";
 import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
 
-import AddFarmerSubsidyModal from "../components/modals/AddFarmerSubsidyModal";
-import EditDistributionModal from "../components/modals/EditDistributionModal";
+import AddDistributionModal from "../components/modals/AddDistributionModal";
+import ActionDistributionModal from "../components/modals/ActionDistributionModal";
 import DeleteDistributionModal from "../components/modals/DeleteDistributionModal";
 
 export default function SubsidyDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // QUERY
+  const { data, isLoading, isError } =
+    useSubsidyDetails(id);
+
+  // MUTATIONS
   const {
-    subsidy,
-    loadSubsidy,
-    farmers,
-    loadFarmersPerSubsidy,
-    clearFarmers,
-    updateDistribution,
-    deleteDistribution,
-  } = useSubsidy();
+    createDistributionMutation,
+    updateDistributionMutation,
+    deleteDistributionMutation,
+  } = useDistribution(id);
 
+  // NORMALIZE
+  const selectedSubsidy = data?.data ?? data ?? null;
+
+  const farmers = selectedSubsidy?.Farmers ?? [];
+
+  // UI STATE
   const [filter, setFilter] = useState("All");
-  const [selectedSubsidy, setSelectedSubsidy] = useState(null);
   const [addModal, setAddModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState(false);
-
-  const [confirmModal, setConfirmModal] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [actionModal, setActionModal] = useState(null); 
   const [actionType, setActionType] = useState(null);
-  const [loadingRow, setLoadingRow] = useState(null);
 
-  // ================= LOAD =================
-  useEffect(() => {
-    loadSubsidy();
-  }, []);
-
-  useEffect(() => {
-    if (!id) return;
-
-    loadFarmersPerSubsidy(id);
-    return () => clearFarmers();
-  }, [id]);
-
-  useEffect(() => {
-    const found = subsidy?.find(
-      (s) => String(s.DistributionID) === String(id)
-    );
-    setSelectedSubsidy(found || null);
-  }, [subsidy, id]);
-
-  // ================= SEARCH + FILTER (MATCH PROGRAMS PATTERN) =================
-  const { search, setSearch, filteredData } = useTable({
+  // SEARCH + FILTER
+  const {
+    search,
+    setSearch,
+    filteredData,
+  } = useTable({
     data: farmers,
-    searchFields: ["FirstName", "LastName", "ContactNumber"],
+    searchFields: [
+      "FirstName",
+      "LastName",
+      "ContactNumber",
+    ],
     filterFn: (f) => {
       if (filter === "All") return true;
-      if (filter === "Distributed") return !!f.IsDistributed;
-      if (filter === "Pending") return !f.IsDistributed;
+      if (filter === "Distributed")
+        return !!f.IsDistributed;
+      if (filter === "Pending")
+        return !f.IsDistributed;
       return true;
     },
   });
 
-  // ================= PAGINATION =================
-  const { currentPage, setCurrentPage, currentItems, totalPages } =
-    usePagination(filteredData, 10);
+  // PAGINATION
+  const {
+    currentPage,
+    setCurrentPage,
+    currentItems,
+    totalPages,
+  } = usePagination(filteredData, 10);
 
+  // RESET PAGE
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filter, setCurrentPage]);
 
-  // ================= ACTIONS =================
-  const openActionModal = (f, type) => {
-    setSelectedRow(f);
-    setActionType(type);
-    setConfirmModal(true);
-  };
-
-  const openDeleteModal = (f) => {
-    setSelectedRow(f);
-    setDeleteModal(true);
-  };
-
-  const handleDelete = async () => {
-    if (!selectedRow) return;
-
-    try {
-      setLoadingRow(selectedRow.DistributionDetailsID);
-
-      await deleteDistribution(selectedRow.DistributionDetailsID);
-
-      // reload data
-      await loadFarmersPerSubsidy(id);
-      await loadSubsidy();
-
-      setDeleteModal(false);
-      setSelectedRow(null);
-    } finally {
-      setLoadingRow(null);
-    }
-  };
-
-  const handleConfirm = async () => {
-    if (!selectedRow) return;
-
-    try {
-      setLoadingRow(selectedRow.DistributionDetailsID);
-
-      await updateDistribution({
-        DistributionDetailsID: selectedRow.DistributionDetailsID,
-        IsDistributed: actionType === "distribute" ? 1 : 0,
-      });
-
-      // reload data
-      await loadFarmersPerSubsidy(id);
-      await loadSubsidy();
-
-      setConfirmModal(false);
-      setSelectedRow(null);
-      setActionType(null);
-    } finally {
-      setLoadingRow(null);
-    }
-  };
+  
 
   // ================= LOADING =================
-  if (!selectedSubsidy) {
+  if (isLoading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
+      
+      <div className="flex flex-col items-center gap-3">
+
+        {/* Spinner */}
+        <div className="w-10 h-10 border-4 border-gray-300 dark:border-gray-700 border-t-green-500 rounded-full animate-spin" />
+
+        {/* Text */}
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Loading farmer details...
+        </p>
+
+      </div>
+
+    </div>
+  );
+}
+
+  // ERROR
+  if (isError || !selectedSubsidy) {
     return (
-      <div className="p-6 text-gray-500 dark:text-gray-400">
-        Loading subsidy...
+      <div className="p-6 text-red-500">
+        Subsidy not found
       </div>
     );
   }
 
-  const totalAmount = Number(selectedSubsidy.TotalAmount || 0);
-  const distributed = Number(selectedSubsidy.TotalDistributed || 0);
-  const remaining = totalAmount - distributed;
+  // COMPUTED VALUES
+  const totalAmount = Number(
+    selectedSubsidy.TotalAmount || 0
+  );
 
-  // ================= TABLE =================
+  const distributed = farmers.reduce(
+    (sum, farmer) =>
+      farmer.IsDistributed
+        ? sum + Number(farmer.Amount || 0)
+        : sum,
+    0
+  );
+
+  const remaining =
+    totalAmount - distributed;
+
+  const totalFarmers =
+    farmers.length;
+
+  // TABLE COLUMNS
   const columns = [
     {
       key: "farmer",
@@ -158,18 +148,15 @@ export default function SubsidyDetails() {
     {
       key: "ContactNumber",
       label: "Contact",
-      render: (f) => (
-        <span className="text-gray-700 dark:text-gray-300">
-          {f.ContactNumber}
-        </span>
-      ),
     },
     {
       key: "Amount",
       label: "Amount",
       render: (f) => (
         <span className="text-green-700 dark:text-green-400 font-semibold">
-          ₱ {Number(f.Amount || 0).toLocaleString()}
+          ₱ {Number(
+            f.Amount || 0
+          ).toLocaleString()}
         </span>
       ),
     },
@@ -194,27 +181,35 @@ export default function SubsidyDetails() {
         <div className="flex justify-center gap-2">
           {!f.IsDistributed ? (
             <>
-              <button
-                onClick={() => openActionModal(f, "distribute")}
-                className="bg-green-600 dark:bg-green-500 text-white px-2 py-1 rounded"
+             <button
+                onClick={() => {
+                  setActionModal(f);
+                  setActionType("distribute");
+                }}
+                className="bg-green-600 text-white px-2 py-1 rounded"
               >
-                <HandCoins className="w-4 h-4" />
+                <HandCoins className="w-3 h-3" />
               </button>
 
               <button
-                onClick={() => openDeleteModal(f)}
-                className="bg-red-600 dark:bg-red-500 text-white px-2 py-1 rounded"
+                onClick={() =>
+                  setDeleteModal(f)
+                }
+                className="bg-red-600 text-white px-2 py-1 rounded"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3 h-3" />
               </button>
             </>
           ) : (
             <button
-              onClick={() => openActionModal(f, "cancel")}
-              className="bg-yellow-500 dark:bg-yellow-600 text-white px-2 py-1 rounded"
-            >
-              <BanknoteX className="w-4 h-4" />
-            </button>
+                onClick={() => {
+                  setActionModal(f);
+                  setActionType("cancel");
+                }}
+                className="bg-yellow-500 text-white px-2 py-1 rounded"
+              >
+                <BanknoteX className="w-3 h-3" />
+              </button>
           )}
         </div>
       ),
@@ -232,26 +227,18 @@ export default function SubsidyDetails() {
         <ArrowLeft size={18} /> Back
       </button>
 
-      
- {/* SUBSIDY INFO */}
+      {/* SUBSIDY INFO */}
       <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-lg rounded-2xl p-6 border border-gray-200 dark:border-gray-800 space-y-6">
 
-        <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            {selectedSubsidy.ProgramName}
+          </h1>
 
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              {selectedSubsidy.ProgramName}
-            </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Financial overview & distribution summary
-            </p>
-          </div>
-
-<span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-medium rounded-full bg-green-50 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-500/30">
-  <span className="w-2 h-2 rounded-full bg-green-500 dark:bg-green-400"></span>
-  Active
-</span>
-
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Financial overview &
+            distribution summary
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
@@ -261,7 +248,9 @@ export default function SubsidyDetails() {
               Distribution Date
             </p>
             <p className="font-medium text-gray-800 dark:text-gray-200 mt-1">
-              {selectedSubsidy.DistributionDate}
+              {
+                selectedSubsidy.DistributionDate
+              }
             </p>
           </div>
 
@@ -279,38 +268,36 @@ export default function SubsidyDetails() {
               Farmers Benefited
             </p>
             <p className="font-semibold text-gray-800 dark:text-gray-200 mt-1">
-              {selectedSubsidy.TotalFarmers}
+              {totalFarmers}
             </p>
           </div>
 
         </div>
 
-        <div className="border-t border-gray-200 dark:border-gray-700"></div>
+        <div className="border-t border-gray-200 dark:border-gray-700" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-          <div className="bg-green-600 dark:bg-green-600 rounded-xl p-4">
-            <p className="text-xs text-gray-100 dark:text-gray-100">
+          <div className="bg-green-600 rounded-xl p-4">
+            <p className="text-xs text-white">
               Distributed Amount
             </p>
-            <p className="text-xl font-bold text-gray-100 dark:text-gray-100 mt-1">
+            <p className="text-xl font-bold text-white mt-1">
               ₱ {distributed.toLocaleString()}
             </p>
           </div>
 
-          <div className="bg-red-500 dark:bg-red-800 rounded-xl p-4">
-            <p className="text-xs text-gray-100 dark:text-gray-100">
+          <div className="bg-red-500 rounded-xl p-4">
+            <p className="text-xs text-white">
               Remaining Balance
             </p>
-            <p className="text-xl font-bold text-gray-100 dark:text-gray-100 mt-1">
+            <p className="text-xl font-bold text-white mt-1">
               ₱ {remaining.toLocaleString()}
             </p>
           </div>
 
         </div>
-
       </div>
-
 
       {/* TABLE */}
       <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4 border border-gray-200 dark:border-gray-800">
@@ -320,25 +307,17 @@ export default function SubsidyDetails() {
             FARMERS DISTRIBUTION
           </h2>
 
-<button
-  onClick={() => setAddModal(true)}
-  className="
-    flex items-center gap-2
-    bg-green-600 dark:bg-green-500
-    text-white
-    px-3 sm:px-4 py-2
-    rounded-lg text-sm shadow
-    hover:bg-green-700 dark:hover:bg-green-400
-    transition-colors
-  "
->
-  <Plus className="w-4 h-4" />
-
-  {/* TEXT ONLY ON SM+ */}
-  <span className="hidden sm:inline">
-    Add Farmer
-  </span>
-</button>
+          <button
+            onClick={() =>
+              setAddModal(true)
+            }
+            className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg text-sm"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              Add Farmer
+            </span>
+          </button>
         </div>
 
         <DataTable
@@ -347,14 +326,24 @@ export default function SubsidyDetails() {
           search={search}
           setSearch={setSearch}
           filters={
-            <div className="flex gap-4 text-sm text-gray-700 dark:text-gray-300">
-              {["All", "Pending", "Distributed"].map((item) => (
-                <label key={item} className="flex items-center gap-1 cursor-pointer">
+            <div className="flex gap-4 text-sm">
+              {[
+                "All",
+                "Pending",
+                "Distributed",
+              ].map((item) => (
+                <label
+                  key={item}
+                  className="flex items-center gap-1 cursor-pointer"
+                >
                   <input
                     type="radio"
-                    className="accent-green-600 dark:accent-green-400"
-                    checked={filter === item}
-                    onChange={() => setFilter(item)}
+                    checked={
+                      filter === item
+                    }
+                    onChange={() =>
+                      setFilter(item)
+                    }
                   />
                   {item}
                 </label>
@@ -367,35 +356,84 @@ export default function SubsidyDetails() {
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          currentItemsLength={currentItems.length}
-          totalItemsLength={filteredData.length}
+          currentItemsLength={
+            currentItems.length
+          }
+          totalItemsLength={
+            filteredData.length
+          }
         />
       </div>
 
       {/* MODALS */}
-      {addModal && (
-        <AddFarmerSubsidyModal
-          distributionID={id}
-          onClose={() => setAddModal(false)}
-          onSuccess={() => {
-            loadFarmersPerSubsidy(id);
-            loadSubsidy();
-          }}
-        />
-      )}
+    {addModal && (
+  <AddDistributionModal
+    distributionID={id}
+    loading={createDistributionMutation.isPending}
+    onClose={() => setAddModal(false)}
+    onSubmit={(form) =>
+      createDistributionMutation.mutate(
+        {
+          DistributionID: id,
+          ...form,
+        },
+        {
+          onSuccess: () => setAddModal(false),
+        }
+      )
+    }
+  />
+)}
 
-      <EditDistributionModal
-        open={confirmModal}
-        type={actionType}
-        onCancel={() => setConfirmModal(false)}
-        onConfirm={handleConfirm}
-      />
 
-      <DeleteDistributionModal
-        open={deleteModal}
-        onCancel={() => setDeleteModal(false)}
-        onConfirm={handleDelete}
-      />
+ {actionModal && (
+  <ActionDistributionModal
+    selectedDistribution={actionModal}
+    actionType={actionType}
+    onClose={() => {
+      setActionModal(null);
+      setActionType(null);
+    }}
+    loading={updateDistributionMutation.isPending}
+    onConfirm={() =>
+      updateDistributionMutation.mutate(
+        {
+          id: actionModal.DistributionDetailsID,
+          data: {
+            IsDistributed: actionType === "distribute" ? 1 : 0,
+          },
+        },
+        {
+          onSuccess: () => {
+            setActionModal(null);
+            setActionType(null);
+          },
+        }
+      )
+    }
+  />
+)}
+
+   {/* DELETE MODAL */}
+{deleteModal && (
+  <DeleteDistributionModal
+    distribution={deleteModal}
+    loading={deleteDistributionMutation.isPending}
+    onClose={() => setDeleteModal(null)}
+    onConfirm={() =>
+      deleteDistributionMutation.mutate(
+        deleteModal.DistributionDetailsID,
+        {
+          onSuccess: () => {
+            setDeleteModal(null); 
+          },
+        }
+      )
+    }
+  />
+)}
+
+
     </div>
   );
 }

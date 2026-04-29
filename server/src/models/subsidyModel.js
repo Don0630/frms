@@ -71,31 +71,6 @@ export async function createSubsidy(subsidy) {
 
 
 
-
-// ------------------ GET FARMER PER SUBSIDY ------------------
-export async function getAllFarmerPerSubsidy(distributionID) {
-  const [rows] = await db.query(`
-    SELECT 
-      f.FarmerID,
-      f.FirstName,
-      f.LastName,
-      f.ContactNumber,
-      f.Email,
-      d.DistributionDetailsID,
-      d.IsDistributed,
-      d.Amount      
-    FROM tblSubsidyDistributionDetails d
-    JOIN tblFarmers f ON f.FarmerID = d.FarmerID
-    WHERE d.DistributionID = ?
-    ORDER BY f.LastName, f.FirstName
-  `, [distributionID]);
-
-  return rows;
-}
-
-
-
-
 // --------------- SEARCH AVAILABLE FARMERS (NOT YET IN DISTRIBUTION) ---------------
 export async function getAvailableFarmer(distributionID, search = "") {
   const searchPattern = `%${search}%`;
@@ -137,12 +112,12 @@ export async function getAvailableFarmer(distributionID, search = "") {
 
 
 // --------- CREATE FARMER SUBSIDY ---------
-export async function createFarmerSubsidy(farmerSubsidy) {
+export async function createDistribution(distribution) {
   const {
     DistributionID,
     FarmerID,
     Amount
-  } = farmerSubsidy;
+  } = distribution;
 
   const query = `
     INSERT INTO tblSubsidyDistributionDetails
@@ -156,7 +131,7 @@ export async function createFarmerSubsidy(farmerSubsidy) {
 
   return {
     DistributionDetailsID: result.insertId,
-    ...farmerSubsidy
+    ...distribution
   };
 }
 
@@ -197,4 +172,77 @@ export async function deleteDistribution(id) {
     DistributionDetailsID: id,
     deleted: result.affectedRows > 0
   };
+}
+
+
+
+
+
+// --------- GET SUBSIDY BY ID ---------
+export async function getSubsidyById(id) {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      d.DistributionID,
+      d.ProgramID,
+      d.TotalAmount,
+      d.DistributionDate,
+      d.Remarks,
+
+      p.ProgramName,
+
+      sd.DistributionDetailsID,
+      sd.Amount,
+      sd.IsDistributed,
+
+      f.FarmerID,
+      f.FirstName,
+      f.LastName,
+      f.ContactNumber,
+      f.Email
+
+    FROM tblSubsidyDistribution d
+
+    LEFT JOIN tblPrograms p
+      ON d.ProgramID = p.ProgramID
+
+    LEFT JOIN tblSubsidyDistributionDetails sd
+      ON d.DistributionID = sd.DistributionID
+
+    LEFT JOIN tblFarmers f
+      ON sd.FarmerID = f.FarmerID
+
+    WHERE d.DistributionID = ?
+    `,
+    [id]
+  );
+
+  if (rows.length === 0) return null;
+
+  const subsidy = {
+    DistributionID: rows[0].DistributionID,
+    ProgramID: rows[0].ProgramID,
+    ProgramName: rows[0].ProgramName,
+    TotalAmount: rows[0].TotalAmount,
+    DistributionDate: rows[0].DistributionDate,
+    Remarks: rows[0].Remarks,
+    Farmers: [],
+  };
+
+  for (const row of rows) {
+    if (row.FarmerID) {
+      subsidy.Farmers.push({
+        DistributionDetailsID: row.DistributionDetailsID,
+        FarmerID: row.FarmerID,
+        FirstName: row.FirstName,
+        LastName: row.LastName,
+        ContactNumber: row.ContactNumber,
+        Email: row.Email,
+        Amount: row.Amount,
+        IsDistributed: row.IsDistributed,
+      });
+    }
+  }
+
+  return subsidy;
 }
