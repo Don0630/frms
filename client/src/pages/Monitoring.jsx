@@ -5,12 +5,20 @@ import {
   Users,
   Mars,
   Venus,
+  Edit
 } from "lucide-react";
+
+
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
+
 
 import useMonitoring from "../hooks/useMonitoring";
 
 import ViewMonitoringModal from "../components/modals/ViewMonitoringModal";
 import AddMonitoringModal from "../components/modals/AddMonitoringModal";
+import EditMonitoringModal from "../components/modals/EditMonitoringModal";
 
 import useTable from "../hooks/useTable";
 import usePagination from "../hooks/usePagination";
@@ -24,23 +32,17 @@ export default function Monitoring() {
   const {
     monitoringQuery,
     createMonitoringMutation,
+    updateMonitoringMutation,
   } = useMonitoring();
 
   // ================= DATA =================
-  const monitoring =
-    monitoringQuery.data?.data || [];
+  const monitoring = monitoringQuery.data?.data || [];
 
   // ================= UI STATE =================
-  const [filter, setFilter] =
-    useState("All");
-
-  const [viewModal, setViewModal] =
-    useState(null);
-
-  const [
-    addMonitoringModal,
-    setAddMonitoringModal,
-  ] = useState(false);
+  const [filter, setFilter] = useState("All");
+  const [viewModal, setViewModal] = useState(null); 
+  const [ addMonitoringModal, setAddMonitoringModal ] = useState(false);
+  const [ editMonitoringModal, setEditMonitoringModal ] = useState(null); 
 
   // ================= TABLE FILTER =================
   const {
@@ -112,9 +114,9 @@ export default function Monitoring() {
             onClick={() =>
               setViewModal(item)
             }
-            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
           >
-            <Info className="w-3 h-3" />
+            <Info className="w-4 h-4 text-green-500" />
           </button>
         </div>
       ),
@@ -154,6 +156,21 @@ export default function Monitoring() {
           {item.ReportDate || "-"}
         </span>
       ),
+    }, 
+    {
+      key: "actions",
+      label: "",
+      render: (item) => (
+        <div className="flex justify-center gap-1">
+          <button
+            onClick={() => setEditMonitoringModal(item)}
+            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+          >
+            <Edit className="w-3 h-3" />
+          </button>
+ 
+        </div>
+      ),
     },
   ];
 
@@ -184,10 +201,8 @@ export default function Monitoring() {
           </h2>
 
           <button
-            onClick={() =>
-              setAddMonitoringModal(true)
-            }
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
+            onClick={() => setAddMonitoringModal(true)}
+            className={pageButtonPrimary}
           >
             <Plus className="w-4 h-4" />
 
@@ -216,6 +231,7 @@ export default function Monitoring() {
                 >
                   <input
                     type="radio"
+                    className="accent-green-600 dark:accent-green-400"
                     checked={
                       filter === item
                     }
@@ -265,6 +281,28 @@ export default function Monitoring() {
           loading={createMonitoringMutation.isPending}
         />
       )}
+
+{/* EDIT MODAL */}
+{editMonitoringModal && (
+  <EditMonitoringModal
+    monitoring={editMonitoringModal}
+    onClose={() => setEditMonitoringModal(null)}
+    onSubmit={(data) =>
+      updateMonitoringMutation.mutate(
+        {
+          id: editMonitoringModal.ReportID,
+          data,
+        },
+        {
+          onSuccess: () => setEditMonitoringModal(null),
+        }
+      )
+    }
+    loading={updateMonitoringMutation.isPending}
+  />
+)}
+
+
     </div>
   );
 }

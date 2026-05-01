@@ -1,6 +1,6 @@
 // src/hooks/useMonitoring.js
 import { useQuery, useMutation, useQueryClient, } from "@tanstack/react-query";
-import { fetchAllMonitoring, addMonitoring, } from "../api/monitoringApi";
+import { fetchAllMonitoring, addMonitoring, updateMonitoring } from "../api/monitoringApi";
 
 export default function useMonitoring() {
   const queryClient = useQueryClient();
@@ -21,8 +21,22 @@ export default function useMonitoring() {
     },
   });
 
+
+  // ================= UPDATE Monitoring =================
+  const updateMonitoringMutation = useMutation({
+    mutationFn: ({ id, data }) =>
+      updateMonitoring({ ReportID: id, ...data }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["monitoring"] }); 
+    },
+  });
+
+
+
   return {
     monitoringQuery,
     createMonitoringMutation,
+    updateMonitoringMutation
   };
 }

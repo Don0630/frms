@@ -14,6 +14,14 @@ export async function addMonitoring(monitoring) {
     method: "POST",
     body: JSON.stringify(monitoring),
   });
-
-   
 }
+
+// ------------ UPDATE Monitoring ------------
+export async function updateMonitoring(monitoring) {
+  return await apiFetch(`/monitoring/updateMonitoring/${monitoring.ReportID}`, {
+    method: "PUT",
+    body: JSON.stringify(monitoring),
+  });
+}
+
+

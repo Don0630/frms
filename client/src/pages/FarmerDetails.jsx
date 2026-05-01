@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
+
 import { useFarmerDetails } from "../hooks/useFarmerDetails";
 import { useFarm } from "../hooks/useFarm";
 
@@ -194,7 +198,7 @@ export default function FarmerDetails() {
 
             <button
               onClick={() => setAddModal(true)}
-              className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
+              className={pageButtonPrimary}
             >
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Farm</span>

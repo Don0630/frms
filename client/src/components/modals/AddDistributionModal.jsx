@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "../common/Modal";
 
 import {
@@ -20,47 +20,53 @@ export default function AddDistributionModal({
   loading,
 }) {
   const [searchFarmer, setSearchFarmer] = useState("");
-  const [selectedFarmer, setSelectedFarmer] =
-    useState(null);
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
 
   const [amount, setAmount] = useState("");
   const [error, setError] = useState("");
 
-  // ================= DEBOUNCE SEARCH =================
-  const debouncedSearch = useDebounce(
-    searchFarmer,
-    300
+  const [showDropdown, setShowDropdown] = useState(false);
+  const wrapperRef = useRef(null);
+
+  // debounce
+  const debouncedSearch = useDebounce(searchFarmer, 300);
+
+  const availableFarmerQuery = useAvailableFarmer(
+    distributionID,
+    debouncedSearch
   );
 
-  // ================= FETCH AVAILABLE FARMERS =================
-  const availableFarmerQuery =
-    useAvailableFarmer(
-      distributionID,
-      debouncedSearch
-    );
+  const availableFarmers = availableFarmerQuery.data?.data || [];
+  const loadingFarmers = availableFarmerQuery.isLoading;
 
-  const availableFarmers =
-    availableFarmerQuery.data?.data || [];
+  // outside click close
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
 
-  const loadingFarmers =
-    availableFarmerQuery.isLoading;
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  // ================= SUBMIT =================
+  // submit
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
     if (!selectedFarmer || !amount) {
-      setError(
-        "Please select a farmer and enter amount"
-      );
+      setError("Please select a farmer and enter amount");
       return;
     }
 
     if (Number(amount) <= 0) {
-      setError(
-        "Amount must be greater than 0"
-      );
+      setError("Amount must be greater than 0");
       return;
     }
 
@@ -71,97 +77,89 @@ export default function AddDistributionModal({
   };
 
   return (
-    <Modal
-      title="Add Farmer Subsidy"
-      onClose={onClose}
-      width="max-w-lg"
-    >
+    <Modal title="Add Distribution" onClose={onClose} width="max-w-lg">
       {error && (
         <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
           {error}
         </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 text-sm"
-      >
-        {/* FARMER SEARCH */}
-        <div>
-          <label className={modalLabel}>
-            Select Farmer
-          </label>
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
+        {/* FARMER SEARCH */}
+        <div className="relative" ref={wrapperRef}>
+          
+          {/* HEADER (STABLE - NO LAYOUT SHIFT) */}
+          <div className="flex items-center justify-between">
+            <label className={modalLabel}>
+              Select Farmer *
+            </label>
+
+            <div className="text-xs min-h-[16px]">
+              {loadingFarmers ? (
+                <span className="mt-2 text-green-600 animate-pulse">
+                  Searching farmers...
+                </span>
+              ) : !loadingFarmers &&
+                !selectedFarmer &&
+                availableFarmers.length === 0 &&
+                searchFarmer.length > 0 ? (
+                <span className="text-red-400">
+                  No farmers found!
+                </span>
+              ) : (
+                <span className="opacity-0">.</span>
+              )}
+            </div>
+          </div>
+
+          {/* INPUT */}
           <input
             type="text"
             placeholder="Search farmer..."
             value={searchFarmer}
+            onFocus={() => setShowDropdown(true)}
             onChange={(e) => {
               setSearchFarmer(e.target.value);
               setSelectedFarmer(null);
+              setShowDropdown(true);
             }}
             className={modalInput}
           />
 
-          {/* LOADING */}
-          {loadingFarmers && (
-            <div className="mt-2 text-xs text-gray-500">
-              Searching farmers...
-            </div>
-          )}
-
-          {/* EMPTY */}
-          {!loadingFarmers &&
+          {/* DROPDOWN */}
+          {showDropdown &&
             !selectedFarmer &&
-            availableFarmers.length === 0 &&
-            searchFarmer.length > 0 && (
-              <p className="text-xs text-gray-400 mt-1">
-                No farmers found
-              </p>
-            )}
-
-          {/* RESULTS */}
-          {!selectedFarmer &&
             availableFarmers.length > 0 && (
-              <div className={modalDropdown}>
-                {availableFarmers.map(
-                  (farmer) => (
-                    <div
-                      key={farmer.FarmerID}
-                      onClick={() => {
-                        setSelectedFarmer(
-                          farmer
-                        );
-                        setSearchFarmer(
-                          `${farmer.FirstName} ${farmer.LastName}`
-                        );
-                      }}
-                      className={
-                        modalDropdownItem
-                      }
-                    >
-                      {farmer.FirstName}{" "}
-                      {farmer.LastName}
-                    </div>
-                  )
-                )}
+              <div className={`${modalDropdown} absolute z-50 w-full`}>
+                {availableFarmers.map((farmer) => (
+                  <div
+                    key={farmer.FarmerID}
+                    onClick={() => {
+                      setSelectedFarmer(farmer);
+                      setSearchFarmer(
+                        `${farmer.FirstName} ${farmer.LastName}`
+                      );
+                      setShowDropdown(false);
+                    }}
+                    className={modalDropdownItem}
+                  >
+                    {farmer.FirstName} {farmer.LastName}
+                  </div>
+                ))}
               </div>
             )}
         </div>
 
         {/* AMOUNT */}
         <div>
-          <label className={modalLabel}>
-            Amount
-          </label>
+          <label className={modalLabel}>Amount</label>
 
           <input
             type="number"
             step="0.01"
             value={amount}
-            onChange={(e) =>
-              setAmount(e.target.value)
-            }
+            onChange={(e) => setAmount(e.target.value)}
             className={`${modalInput} dark:[color-scheme:dark]`}
           />
         </div>
@@ -181,9 +179,7 @@ export default function AddDistributionModal({
             disabled={loading}
             className={modalButtonPrimary}
           >
-            {loading
-              ? "Saving..."
-              : "Assign Subsidy"}
+            {loading ? "Saving..." : "Assign Subsidy"}
           </button>
         </div>
       </form>

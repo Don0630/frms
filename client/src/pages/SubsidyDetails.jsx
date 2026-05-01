@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
+
 import { useSubsidyDetails } from "../hooks/useSubsidyDetails";
 import { useDistribution } from "../hooks/useDistribution";
 
@@ -186,7 +190,7 @@ export default function SubsidyDetails() {
                   setActionModal(f);
                   setActionType("distribute");
                 }}
-                className="bg-green-600 text-white px-2 py-1 rounded"
+                className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
               >
                 <HandCoins className="w-3 h-3" />
               </button>
@@ -195,7 +199,7 @@ export default function SubsidyDetails() {
                 onClick={() =>
                   setDeleteModal(f)
                 }
-                className="bg-red-600 text-white px-2 py-1 rounded"
+                className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -206,7 +210,7 @@ export default function SubsidyDetails() {
                   setActionModal(f);
                   setActionType("cancel");
                 }}
-                className="bg-yellow-500 text-white px-2 py-1 rounded"
+                className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
               >
                 <BanknoteX className="w-3 h-3" />
               </button>
@@ -311,7 +315,7 @@ export default function SubsidyDetails() {
             onClick={() =>
               setAddModal(true)
             }
-            className="flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg text-sm"
+            className={pageButtonPrimary}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">
@@ -338,6 +342,7 @@ export default function SubsidyDetails() {
                 >
                   <input
                     type="radio"
+                    className="accent-green-600 dark:accent-green-400"
                     checked={
                       filter === item
                     }

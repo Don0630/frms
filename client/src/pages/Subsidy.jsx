@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Plus, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
+
 import useSubsidy from "../hooks/useSubsidy";
 
 import AddSubsidyModal from "../components/modals/AddSubsidyModal";
@@ -131,7 +135,7 @@ export default function Subsidy() {
 
           <button
             onClick={() => setAddSubsidyModal(true)}
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
+            className={pageButtonPrimary}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">

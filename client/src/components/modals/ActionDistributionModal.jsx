@@ -82,7 +82,9 @@ export default function ActionDistributionModal({
         </p>
 
         {/* WARNING */}
-        <p className="text-xs text-green-500 mt-2">
+        <p className= { actionType === "cancel"
+          ? "text-xs text-yellow-500 mt-2"
+          : "text-xs text-green-500 mt-2" } >
           {config.warning}
         </p>
 
@@ -102,8 +104,8 @@ export default function ActionDistributionModal({
             onClick={onConfirm}
             disabled={loading}
             className={
-              actionType === "delete"
-                ? "bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
+              actionType === "cancel"
+                ? "bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
                 : modalButtonPrimary
             }
           >

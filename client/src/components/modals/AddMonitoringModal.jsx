@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "../common/Modal";
 
 import useSearchFarmer from "../../hooks/useSearchFarmer";
 import useSearchCrop from "../../hooks/useSearchCrop";
 import useSearchLivestock from "../../hooks/useSearchLivestock";
-
 import useDebounce from "../../hooks/useDebounce";
 
 import {
@@ -21,6 +20,7 @@ export default function AddMonitoringModal({
   onSubmit,
   loading,
 }) {
+  // ================= STATES =================
   const [searchFarmer, setSearchFarmer] = useState("");
   const [searchCrop, setSearchCrop] = useState("");
   const [searchLivestock, setSearchLivestock] = useState("");
@@ -36,12 +36,22 @@ export default function AddMonitoringModal({
 
   const [error, setError] = useState("");
 
-  // debounce
+  // ================= DROPDOWNS =================
+  const [showFarmerDropdown, setShowFarmerDropdown] = useState(false);
+  const [showCropDropdown, setShowCropDropdown] = useState(false);
+  const [showLivestockDropdown, setShowLivestockDropdown] = useState(false);
+
+  // ================= REFS =================
+  const farmerRef = useRef(null);
+  const cropRef = useRef(null);
+  const livestockRef = useRef(null);
+
+  // ================= DEBOUNCE =================
   const debouncedFarmer = useDebounce(searchFarmer, 300);
   const debouncedCrop = useDebounce(searchCrop, 300);
   const debouncedLivestock = useDebounce(searchLivestock, 300);
 
-  // queries
+  // ================= QUERIES =================
   const { searchFarmerQuery } = useSearchFarmer(debouncedFarmer);
   const { searchCropQuery } = useSearchCrop(debouncedCrop);
   const { searchLivestockQuery } = useSearchLivestock(debouncedLivestock);
@@ -57,9 +67,28 @@ export default function AddMonitoringModal({
     searchCropQuery?.isLoading || searchCropQuery?.isFetching;
 
   const loadingLivestock =
-    searchLivestockQuery?.isLoading ||
-    searchLivestockQuery?.isFetching;
+    searchLivestockQuery?.isLoading || searchLivestockQuery?.isFetching;
 
+  // ================= OUTSIDE CLICK =================
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (farmerRef.current && !farmerRef.current.contains(e.target)) {
+        setShowFarmerDropdown(false);
+      }
+      if (cropRef.current && !cropRef.current.contains(e.target)) {
+        setShowCropDropdown(false);
+      }
+      if (livestockRef.current && !livestockRef.current.contains(e.target)) {
+        setShowLivestockDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
@@ -81,7 +110,7 @@ export default function AddMonitoringModal({
   };
 
   return (
-    <Modal title="Add Monitoring" onClose={onClose} width="max-w-2xl">
+    <Modal title="Add Monitoring" onClose={onClose} width="max-w-xl">
       {error && (
         <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
           {error}
@@ -91,129 +120,175 @@ export default function AddMonitoringModal({
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
         {/* ================= FARMER ================= */}
-        <div className="relative">
-          <label className={modalLabel}>Farmer *</label>
+        <div className="relative" ref={farmerRef}>
+
+          <div className="flex items-center justify-between">
+            <label className={modalLabel}>Farmer *</label>
+
+            {loadingFarmer && (
+              <span className="text-xs text-green-600 animate-pulse">
+                Searching Farmers...
+              </span>
+            )}
+
+            {!loadingFarmer &&
+              !selectedFarmer &&
+              availableFarmers.length === 0 &&
+              searchFarmer.length > 0 && (
+                <p className="text-xs text-red-400 mt-1">
+                  No farmer found!
+                </p>
+              )}
+          </div>
 
           <input
-            type="text"
-            placeholder="Search farmer..."
             value={searchFarmer}
+            onFocus={() => setShowFarmerDropdown(true)}
             onChange={(e) => {
               setSearchFarmer(e.target.value);
               setSelectedFarmer(null);
+              setShowFarmerDropdown(true);
             }}
             className={modalInput}
           />
 
-          {loadingFarmer && (
-            <div className="mt-2 text-xs text-gray-500">
-              Searching farmers...
-            </div>
-          )}
-
-          {!selectedFarmer && availableFarmers.length > 0 && (
-            <div className={modalDropdown}>
-              {availableFarmers.map((farmer) => (
-                <div
-                  key={farmer.FarmerID}
-                  className={modalDropdownItem}
-                  onClick={() => {
-                    setSelectedFarmer(farmer);
-                    setSearchFarmer(
-                      `${farmer.FirstName} ${farmer.LastName}`
-                    );
-                  }}
-                >
-                  {farmer.FirstName} {farmer.LastName}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* ================= CROP + LIVESTOCK ================= */}
-        <div className="grid grid-cols-2 gap-3">
-
-          {/* CROP */}
-          <div className="relative">
-            <label className={modalLabel}>Crop</label>
-
-            <input
-              type="text"
-              placeholder="Search crop..."
-              value={searchCrop}
-              onChange={(e) => {
-                setSearchCrop(e.target.value);
-                setSelectedCrop(null);
-              }}
-              className={modalInput}
-            />
-
-            {loadingCrop && (
-              <div className="mt-2 text-xs text-gray-500">
-                Searching crops...
-              </div>
-            )}
-
-            {!selectedCrop && availableCrops.length > 0 && (
-              <div className={modalDropdown}>
-                {availableCrops.map((crop) => (
+          {showFarmerDropdown &&
+            !loadingFarmer &&
+            availableFarmers.length > 0 && (
+              <div className={`${modalDropdown} absolute z-50`}>
+                {availableFarmers.map((f) => (
                   <div
-                    key={crop.CropID}
-                    className={modalDropdownItem}
+                    key={f.FarmerID}
                     onClick={() => {
-                      setSelectedCrop(crop);
-                      setSearchCrop(crop.CropName);
+                      setSelectedFarmer(f);
+                      setSearchFarmer(`${f.FirstName} ${f.LastName}`);
+                      setShowFarmerDropdown(false);
                     }}
+                    className={modalDropdownItem}
                   >
-                    {crop.CropName}
+                    {f.FirstName} {f.LastName}
                   </div>
                 ))}
               </div>
             )}
-          </div>
-
-          {/* LIVESTOCK */}
-          <div className="relative">
-            <label className={modalLabel}>Livestock</label>
-
-            <input
-              type="text"
-              placeholder="Search livestock..."
-              value={searchLivestock}
-              onChange={(e) => {
-                setSearchLivestock(e.target.value);
-                setSelectedLivestock(null);
-              }}
-              className={modalInput}
-            />
-
-            {loadingLivestock && (
-              <div className="mt-2 text-xs text-gray-500">
-                Searching livestock...
-              </div>
-            )}
-
-            {!selectedLivestock && availableLivestock.length > 0 && (
-              <div className={modalDropdown}>
-                {availableLivestock.map((livestock) => (
-                  <div
-                    key={livestock.LivestockID}
-                    className={modalDropdownItem}
-                    onClick={() => {
-                      setSelectedLivestock(livestock);
-                      setSearchLivestock(
-                        `${livestock.Type} ${livestock.Breed || ""}`
-                      );
-                    }}
-                  >
-                    {livestock.Type} - {livestock.Breed || "Unknown"}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
+
+     {/* ================= CROP + LIVESTOCK (SAME ROW) ================= */}
+<div className="grid grid-cols-2 gap-3">
+
+  {/* ================= CROP ================= */}
+  <div className="relative" ref={cropRef}>
+
+  <div className="flex items-center justify-between">
+  <label className={modalLabel}>Crop</label>
+
+  <div className="text-xs min-h-[16px] flex items-center">
+    {loadingCrop ? (
+      <span className="text-green-600 animate-pulse">
+        Searching Crops...
+      </span>
+    ) : !loadingCrop &&
+      !selectedCrop &&
+      availableCrops.length === 0 &&
+      searchCrop.length > 0 ? (
+      <span className="text-red-400">
+        No crop found!
+      </span>
+    ) : (
+      <span className="opacity-0">.</span>
+    )}
+  </div>
+</div>
+
+    <input
+      value={searchCrop}
+      onFocus={() => setShowCropDropdown(true)}
+      onChange={(e) => {
+        setSearchCrop(e.target.value);
+        setSelectedCrop(null);
+        setShowCropDropdown(true);
+      }}
+      className={modalInput}
+    />
+
+    {showCropDropdown &&
+      !loadingCrop &&
+      availableCrops.length > 0 && (
+        <div className={`${modalDropdown} absolute z-50`}>
+          {availableCrops.map((c) => (
+            <div
+              key={c.CropID}
+              onClick={() => {
+                setSelectedCrop(c);
+                setSearchCrop(c.CropName);
+                setShowCropDropdown(false);
+              }}
+              className={modalDropdownItem}
+            >
+              {c.CropName}
+            </div>
+          ))}
+        </div>
+      )}
+  </div>
+
+  {/* ================= LIVESTOCK ================= */}
+  <div className="relative" ref={livestockRef}>
+
+   <div className="flex items-center justify-between">
+  <label className={modalLabel}>Livestock</label>
+
+  <div className="text-xs min-h-[16px] flex items-center">
+    {loadingLivestock ? (
+      <span className="text-green-600 animate-pulse">
+        Searching Livestock...
+      </span>
+    ) : !loadingLivestock &&
+      !selectedLivestock &&
+      availableLivestock.length === 0 &&
+      searchLivestock.length > 0 ? (
+      <span className="text-red-400">
+        No livestock found!
+      </span>
+    ) : (
+      <span className="opacity-0">.</span>
+    )}
+  </div>
+</div>
+
+    <input
+      value={searchLivestock}
+      onFocus={() => setShowLivestockDropdown(true)}
+      onChange={(e) => {
+        setSearchLivestock(e.target.value);
+        setSelectedLivestock(null);
+        setShowLivestockDropdown(true);
+      }}
+      className={modalInput}
+    />
+
+    {showLivestockDropdown &&
+      !loadingLivestock &&
+      availableLivestock.length > 0 && (
+        <div className={`${modalDropdown} absolute z-50`}>
+          {availableLivestock.map((l) => (
+            <div
+              key={l.LivestockID}
+              onClick={() => {
+                setSelectedLivestock(l);
+                setSearchLivestock(`${l.Type} ${l.Breed || ""}`);
+                setShowLivestockDropdown(false);
+              }}
+              className={modalDropdownItem}
+            >
+              {l.Type} - {l.Breed || "Unknown"}
+            </div>
+          ))}
+        </div>
+      )}
+  </div>
+
+</div>
 
         {/* ================= DATE + PRODUCTION ================= */}
         <div className="grid grid-cols-2 gap-3">
@@ -223,7 +298,7 @@ export default function AddMonitoringModal({
               type="date"
               value={ReportDate}
               onChange={(e) => setReportDate(e.target.value)}
-              className={modalInput}
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
 
@@ -233,34 +308,29 @@ export default function AddMonitoringModal({
               type="number"
               value={ProductionVolume}
               onChange={(e) => setProductionVolume(e.target.value)}
-              className={modalInput}
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
         </div>
 
-        {/* ISSUES */}
-        <div>
-          <label className={modalLabel}>Issues</label>
-          <textarea
-            rows="3"
-            value={Issues}
-            onChange={(e) => setIssues(e.target.value)}
-            className={modalInput}
-          />
-        </div>
+        {/* ================= TEXT ================= */}
+        <textarea
+          rows="3"
+          value={Issues}
+          onChange={(e) => setIssues(e.target.value)}
+          className={modalInput}
+          placeholder="Issues"
+        />
 
-        {/* REMARKS */}
-        <div>
-          <label className={modalLabel}>Remarks</label>
-          <textarea
-            rows="3"
-            value={Remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            className={modalInput}
-          />
-        </div>
+        <textarea
+          rows="3"
+          value={Remarks}
+          onChange={(e) => setRemarks(e.target.value)}
+          className={modalInput}
+          placeholder="Remarks"
+        />
 
-        {/* ACTIONS */}
+        {/* ================= ACTIONS ================= */}
         <div className="flex justify-end gap-2 pt-2">
           <button
             type="button"
@@ -278,6 +348,7 @@ export default function AddMonitoringModal({
             {loading ? "Saving..." : "Save Monitoring"}
           </button>
         </div>
+
       </form>
     </Modal>
   );

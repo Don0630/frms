@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Plus, Mars, Venus, Edit, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
+
 import useFarmer from "../hooks/useFarmer";
 import useTable from "../hooks/useTable";
 import usePagination from "../hooks/usePagination";
@@ -116,7 +120,7 @@ if (farmersQuery.isLoading) {
 
           <button
             onClick={() => setAddModal(true)}
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
+            className={pageButtonPrimary}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Add Farmer</span>
@@ -135,6 +139,7 @@ if (farmersQuery.isLoading) {
                 <label key={item} className="flex items-center gap-1">
                   <input
                     type="radio"
+                    className="accent-green-600 dark:accent-green-400"
                     checked={filter === item}
                     onChange={() => setFilter(item)}
                   />

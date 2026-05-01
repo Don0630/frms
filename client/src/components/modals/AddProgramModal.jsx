@@ -145,7 +145,7 @@ export default function AddProgramModal({
               onChange={handleChange}
               className={`${modalInput} dark:[color-scheme:dark]`}
             />
-          </div>
+          </div>  
 
           <div>
             <label className={modalLabel}>

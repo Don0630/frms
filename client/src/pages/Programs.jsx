@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { Plus, Info, Edit } from "lucide-react";
 
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
+
 import useProgram from "../hooks/useProgram";
 
 import ViewProgramModal from "../components/modals/ViewProgramModal";
@@ -62,7 +66,7 @@ export default function Programs() {
             onClick={() => setViewModal(item)}
             className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
           >
-            <Info className="w-4 h-4 text-blue-500" />
+            <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
           </button>
         </div>
       ),
@@ -106,7 +110,7 @@ export default function Programs() {
         <div className="flex justify-center">
           <button
             onClick={() => setEditModal(item)}
-            className="bg-blue-600 dark:bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
+            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
           >
             <Edit className="w-3 h-3" />
           </button>
@@ -143,7 +147,7 @@ export default function Programs() {
 
           <button
             onClick={() => setAddProgramModal(true)}
-            className="flex items-center gap-2 bg-green-600 dark:bg-green-500 text-white px-3 sm:px-4 py-2 rounded-lg text-sm shadow hover:bg-green-700 dark:hover:bg-green-400"
+            className={pageButtonPrimary}
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">

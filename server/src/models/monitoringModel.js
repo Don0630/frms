@@ -11,10 +11,13 @@ export async function getAllMonitoring() {
       r.ProductionVolume,
       r.Issues,
       r.Remarks,
+      f.FarmerID,
       f.FirstName,
       f.LastName,
       f.Gender,
+      c.CropID,
       c.CropName,
+      l.LivestockID,
       l.Type,
       l.Breed
     FROM tblReportsAndMonitoring r
@@ -49,3 +52,47 @@ export async function createMonitoring(monitoring) {
 
 
 
+
+// --------- UPDATE MONITORING ---------
+export async function updateMonitoring(id, monitoring) {
+  const {
+    FarmerID,
+    CropID,
+    LivestockID,
+    ReportDate,
+    ProductionVolume,
+    Issues,
+    Remarks,
+  } = monitoring;
+
+  const query = `
+    UPDATE tblReportsAndMonitoring
+    SET
+      FarmerID = ?,
+      CropID = ?,
+      LivestockID = ?,
+      ReportDate = ?,
+      ProductionVolume = ?,
+      Issues = ?,
+      Remarks = ?
+    WHERE ReportID = ?
+  `;
+
+  const values = [
+    FarmerID,
+    CropID,
+    LivestockID,
+    ReportDate,
+    ProductionVolume,
+    Issues,
+    Remarks,
+    id,
+  ];
+
+  const [result] = await db.query(query, values);
+
+  return {
+    ReportID: id,
+    ...monitoring,
+  };
+}

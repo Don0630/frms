@@ -32,3 +32,15 @@ export async function saveMonitoring(req, res, next) {
      return next(err);
   }
 }
+
+
+// ------------- UPDATE MONITORING -------------
+export async function updateMonitoring(req, res, next) {
+  try {
+    const updated = await monitoringService.editMonitoring(req.params.id, req.body);
+    return successResponse(res, "Monitoring updated successfully", updated);
+  } catch (err) {
+    console.error("Error updating Monitoring:", err);
+    return next(err);
+  }
+}

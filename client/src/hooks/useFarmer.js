@@ -19,8 +19,7 @@ export default function useFarmer(search = "") {
   const createFarmerMutation = useMutation({
     mutationFn: addFarmer,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["farmers"] });
-      queryClient.invalidateQueries({ queryKey: ["search-farmers"] });
+      queryClient.invalidateQueries({ queryKey: ["farmers"] }); 
     },
   });
 
@@ -30,8 +29,7 @@ export default function useFarmer(search = "") {
       updateFarmer({ FarmerID: id, ...data }),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["farmers"] });
-      queryClient.invalidateQueries({ queryKey: ["search-farmers"] });
+      queryClient.invalidateQueries({ queryKey: ["farmers"] }); 
     },
   });
 
