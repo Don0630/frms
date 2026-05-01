@@ -148,6 +148,14 @@ export default function AddSubsidyModal({
                     className={modalDropdownItem}
                   >
                     {p.ProgramName}
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+            - Budget:{" "}
+            {Number(p.Budget || 0).toLocaleString("en-PH", {
+              style: "currency",
+              currency: "PHP",
+              minimumFractionDigits: 2,
+            })}
+          </span>
                   </div>
                 ))}
               </div>

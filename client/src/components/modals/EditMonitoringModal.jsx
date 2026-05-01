@@ -54,6 +54,27 @@ export default function EditMonitoringModal({
   const cropRef = useRef(null);
   const livestockRef = useRef(null);
 
+ // ================= OUTSIDE CLICK =================
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (farmerRef.current && !farmerRef.current.contains(e.target)) {
+        setShowFarmerDropdown(false);
+      }
+      if (cropRef.current && !cropRef.current.contains(e.target)) {
+        setShowCropDropdown(false);
+      }
+      if (livestockRef.current && !livestockRef.current.contains(e.target)) {
+        setShowLivestockDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
+
   // ================= INIT DATA =================
   useEffect(() => {
     if (!monitoring) return;
@@ -315,7 +336,7 @@ export default function EditMonitoringModal({
             type="date"
             value={ReportDate}
             onChange={(e) => setReportDate(e.target.value)}
-            className={modalInput}className={`${modalInput} dark:[color-scheme:dark]`}
+            className={`${modalInput} dark:[color-scheme:dark]`}
           />
         </div>
 
@@ -325,7 +346,7 @@ export default function EditMonitoringModal({
             type="number"
             value={ProductionVolume}
             onChange={(e) => setProductionVolume(e.target.value)}
-            className={modalInput}className={`${modalInput} dark:[color-scheme:dark]`}
+            className={`${modalInput} dark:[color-scheme:dark]`}
           />
         </div>
 

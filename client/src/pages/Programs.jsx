@@ -7,7 +7,7 @@ import {
 
 import useProgram from "../hooks/useProgram";
 
-import ViewProgramModal from "../components/modals/ViewProgramModal";
+import InfoProgramModal from "../components/modals/InfoProgramModal";
 import AddProgramModal from "../components/modals/AddProgramModal";
 import EditProgramModal from "../components/modals/EditProgramModal";
 
@@ -198,7 +198,7 @@ export default function Programs() {
 
       {/* VIEW */}
       {viewModal && (
-        <ViewProgramModal
+        <InfoProgramModal
           program={viewModal}
           onClose={() => setViewModal(null)}
         />

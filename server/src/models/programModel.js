@@ -84,7 +84,8 @@ export async function getAvailablePrograms(search = "") {
     `
     SELECT 
       ProgramID,
-      ProgramName
+      ProgramName,
+      Budget
     FROM tblPrograms
     WHERE Status = 'Active'
       AND ProgramName LIKE ?
