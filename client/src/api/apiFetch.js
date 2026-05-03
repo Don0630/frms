@@ -26,32 +26,7 @@ console.log("➡️ CALLING:", `${API_BASE}${endpoint}`);
 
   const data = await res.json().catch(() => null);
 
-if (!res.ok) {
-  const type = data?.type;
-  const status = res.status;
-
-  if (
-    status === 401 ||
-    type === "NO_TOKEN" ||
-    type === "TOKEN_EXPIRED"
-  ) {
-    localStorage.removeItem("token");
-
-    if (
-      !endpoint.startsWith("/auth/login") &&
-      !endpoint.startsWith("/auth/logout")
-    ) {
-      window.location.href = "/sessionexpired";
-    }
-  }
-
-  const err = new Error(data?.message || "Request failed");
-  err.status = status;
-  err.type = type;
-  err.data = data;
-
-  throw err;
-}
+ 
 
   if (!res.ok || data?.success === false) {
     const err = new Error(data?.message || "Request failed");
