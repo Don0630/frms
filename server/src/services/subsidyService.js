@@ -7,9 +7,49 @@ export async function fetchSubsidies() {
   return await subsidyModel.getAllSubsidy();
 }
 
-
 // ------------------ ADD SUBSIDY ------------------
 export async function addSubsidy(subsidy) {
+  const { ProgramID, TotalAmount } = subsidy;
+
+  // Get budget summary of the selected program
+  const budgetSummary =
+    await subsidyModel.getProgramBudgetSummary(ProgramID);
+
+  if (!budgetSummary) {
+    throw new Error("Program not found");
+  }
+
+  const programBudget = Number(
+    budgetSummary.ProgramBudget || 0
+  );
+
+  const totalSubsidyBudget = Number(
+    budgetSummary.TotalSubsidyBudget || 0
+  );
+
+  const newSubsidyAmount = Number(TotalAmount || 0);
+
+  // Validate amount
+  if (newSubsidyAmount <= 0) {
+    throw new Error("Invalid subsidy amount");
+  }
+
+  // Validate against remaining budget
+  if (
+    totalSubsidyBudget + newSubsidyAmount >
+    programBudget
+  ) {
+    const remaining =
+      programBudget - totalSubsidyBudget;
+
+    throw new Error(
+      `Insufficient program budget. Remaining budget: ₱${remaining.toLocaleString(
+        "en-PH"
+      )}`
+    );
+  }
+
+  // Proceed insert
   return await subsidyModel.createSubsidy(subsidy);
 }
 

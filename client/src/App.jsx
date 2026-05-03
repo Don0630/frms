@@ -5,6 +5,7 @@ import useDarkMode from "./hooks/useDarkMode";
 
 import Sidebar from "./components/SideBar";
 import Navbar from "./components/NavBar";
+import Breadcrumbs from "./components/Breadcrumbs";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Pages
@@ -64,7 +65,12 @@ function Layout({
           setDarkMode={setDarkMode}
         />
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden p-4">
+
+         <div className="px-2">
+          <Breadcrumbs />
+        </div>
+
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4">
           <Outlet />
         </div>
       </div>
@@ -87,25 +93,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="/sessionexpired" element={<SessionExpired />} />
-
-        {/* ================= PROTECTED (NO LAYOUT) ================= */}
-        <Route
-          path="/farmerdetails/:id"
-          element={
-            <ProtectedRoute>
-              <FarmerDetails />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/subsidydetails/:id"
-          element={
-            <ProtectedRoute>
-              <SubsidyDetails />
-            </ProtectedRoute>
-          }
-        />
+ 
 
         {/* ================= PROTECTED LAYOUT ================= */}
         <Route
@@ -127,11 +115,13 @@ function App() {
 
           {/* MAIN PAGES */}
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/farmers" element={<Farmers />} />
+          <Route path="/farmers" element={<Farmers />} /> 
+          <Route path="/farmers/:id" element={<FarmerDetails />} />
           <Route path="/crops" element={<Crops />} />
           <Route path="/livestock" element={<Livestock />} />
           <Route path="/programs" element={<Programs />} />
           <Route path="/subsidy" element={<Subsidy />} />
+          <Route path="/subsidy/:id" element={<SubsidyDetails />} />
           <Route path="/monitoring" element={<Monitoring />} />
 
           {/* ADMIN ONLY */}

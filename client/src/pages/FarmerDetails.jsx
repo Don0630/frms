@@ -30,6 +30,7 @@ import Pagination from "../components/common/Pagination";
 import AddFarmModal from "../components/modals/AddFarmModal";
 import EditFarmModal from "../components/modals/EditFarmModal";
 import DeleteFarmModal from "../components/modals/DeleteFarmModal";
+import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function FarmerDetails() {
   const { id } = useParams();
@@ -66,24 +67,9 @@ export default function FarmerDetails() {
 
   // ================= LOADING =================
   if (isLoading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
-      
-      <div className="flex flex-col items-center gap-3">
-
-        {/* Spinner */}
-        <div className="w-10 h-10 border-4 border-gray-300 dark:border-gray-700 border-t-green-500 rounded-full animate-spin" />
-
-        {/* Text */}
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Loading farmer details...
-        </p>
-
-      </div>
-
-    </div>
-  );
+  return <TablePageSkeleton />;
 }
+
 
   // ================= ERROR =================
   if (isError || !farmer) {
@@ -141,20 +127,13 @@ export default function FarmerDetails() {
 
   return (
     <>
-      <div className="p-6 space-y-6 bg-gray-100 dark:bg-gray-950 min-h-screen text-gray-900 dark:text-gray-100">
+      <div className="w-full px-4">
 
-        {/* BACK */}
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-        >
-          <ArrowLeft size={18} />
-          Back
-        </button>
+     
 
         {/* FARMER INFO */}
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow border border-gray-200 dark:border-gray-800">
-          <h1 className="text-2xl font-bold">{fullName}</h1>
+        <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-100">{fullName}</h1>
 
           <div className="mt-4 grid grid-cols-2 gap-4 text-sm text-gray-700 dark:text-gray-300">
 
@@ -187,13 +166,12 @@ export default function FarmerDetails() {
         </div>
 
         {/* FARMS TABLE */}
-        <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow border border-gray-200 dark:border-gray-800">
+        <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
           {/* HEADER */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold text-lg flex items-center gap-2">
-              <Layers size={16} />
-              Farms
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+              FARMS
             </h2>
 
             <button

@@ -246,3 +246,37 @@ export async function getSubsidyById(id) {
 
   return subsidy;
 }
+
+
+// --------- GET PROGRAM BUDGET SUMMARY ---------
+export async function getProgramBudgetSummary(programID) {
+  const [rows] = await db.query(
+    `
+    SELECT
+      p.ProgramID,
+      p.ProgramName,
+      p.Budget AS ProgramBudget,
+
+      COALESCE(SUM(d.TotalAmount), 0) AS TotalSubsidyBudget,
+
+      (
+        p.Budget - COALESCE(SUM(d.TotalAmount), 0)
+      ) AS RemainingBudget
+
+    FROM tblPrograms p
+
+    LEFT JOIN tblSubsidyDistribution d
+      ON p.ProgramID = d.ProgramID
+
+    WHERE p.ProgramID = ?
+
+    GROUP BY
+      p.ProgramID,
+      p.ProgramName,
+      p.Budget
+    `,
+    [programID]
+  );
+
+  return rows[0] || null;
+}

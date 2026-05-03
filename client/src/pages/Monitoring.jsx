@@ -190,8 +190,7 @@ export default function Monitoring() {
   }
 
   return (
-    <div className="w-full min-h-screen p-4 bg-gray-100 dark:bg-gray-950">
-
+    <div className="w-full px-4">
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
         {/* HEADER */}

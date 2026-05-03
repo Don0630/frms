@@ -221,18 +221,8 @@ export default function SubsidyDetails() {
   ];
 
   return (
-    <div className="w-full min-h-screen p-4 space-y-6 bg-gray-100 dark:bg-gray-950">
-
-      {/* BACK */}
-      <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-gray-600 dark:text-gray-300"
-      >
-        <ArrowLeft size={18} /> Back
-      </button>
-
-      {/* SUBSIDY INFO */}
-      <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-lg rounded-2xl p-6 border border-gray-200 dark:border-gray-800 space-y-6">
+    <div className="w-full px-4">
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
@@ -303,8 +293,8 @@ export default function SubsidyDetails() {
         </div>
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-md shadow-md rounded-xl p-6 space-y-4 border border-gray-200 dark:border-gray-800">
+      {/* TABLE */} 
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
         <div className="flex justify-between">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">

@@ -11,7 +11,7 @@ function MainLayout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col w-full"> {/* ✅ grow and full width */}
         <Navbar />
-        <main className="flex-1 w-full bg-gray-100 p-6 overflow-y-auto">
+        <main className="flex-1 w-full bg-gray-100 overflow-y-auto">
           <Outlet />
         </main>
       </div>
