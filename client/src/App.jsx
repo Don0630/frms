@@ -111,7 +111,7 @@ function App() {
           }
         >
           {/* Default inside layout */}
-          <Route index element={<Navigate to="/dashboard" replace />} />
+          <Route index element={<Dashboard />} />
 
           {/* MAIN PAGES */}
           <Route path="/dashboard" element={<Dashboard />} />
