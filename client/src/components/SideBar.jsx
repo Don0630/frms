@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Home,
   Users,
@@ -9,7 +10,6 @@ import {
   Briefcase,
   Clipboard,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext.jsx";
 import logo from "../assets/logo.png";
 
 const menuItems = [
@@ -17,14 +17,26 @@ const menuItems = [
   { name: "Farmers", icon: <Users size={20} />, path: "/farmers" },
   { name: "Crops", icon: <Sprout size={20} />, path: "/crops" },
   { name: "Livestock", icon: <Activity size={20} />, path: "/livestock" },
-  { name: "Programs & Subsidies", icon: <FileText size={20} />, path: "/programs" },
-  { name: "Subsidy Distribution", icon: <Briefcase size={20} />, path: "/subsidy" },
-  { name: "Reports & Monitoring", icon: <Clipboard size={20} />, path: "/monitoring" },
+  {
+    name: "Programs & Subsidies",
+    icon: <FileText size={20} />,
+    path: "/programs",
+  },
+  {
+    name: "Subsidy Distribution",
+    icon: <Briefcase size={20} />,
+    path: "/subsidy",
+  },
+  {
+    name: "Reports & Monitoring",
+    icon: <Clipboard size={20} />,
+    path: "/monitoring",
+  },
   {
     name: "Agricultural Staffs",
     icon: <Users size={20} />,
     path: "/staffs",
-    roles: ["Admin", "staff"],
+    roles: ["Admin", "Staff"],
   },
   {
     name: "System Users",
@@ -35,7 +47,15 @@ const menuItems = [
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {
-  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  let user = queryClient.getQueryData(["authUser"]);
+
+  // fallback after refresh
+  if (!user) {
+    const storedUser = localStorage.getItem("user");
+    user = storedUser ? JSON.parse(storedUser) : null;
+  }
 
   return (
     <div
@@ -78,25 +98,23 @@ export default function Sidebar({ collapsed, mobile = false }) {
       {/* MENU */}
       <nav className="flex-1 p-2 space-y-1">
         {menuItems
-          .filter((item) => !item.roles || item.roles.includes(user?.Role))
+          .filter(
+            (item) => !item.roles || item.roles.includes(user?.Role)
+          )
           .map((item, idx) => (
             <div key={idx}>
               <NavLink
                 to={item.path}
-                className={({ isActive }) =>
-                  `
+                className={({ isActive }) => `
                   flex items-center rounded-md text-sm font-medium
                   transition-colors duration-200
-
                   ${collapsed ? "justify-center py-3" : "gap-4 px-4 py-3"}
-
                   ${
                     isActive
                       ? "bg-green-600 text-white shadow-sm"
                       : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
-                  `
-                }
+                `}
               >
                 <div className="flex items-center justify-center w-6 h-6 shrink-0">
                   {item.icon}
@@ -105,7 +123,11 @@ export default function Sidebar({ collapsed, mobile = false }) {
                 <span
                   className={`
                     whitespace-nowrap transition-all duration-150
-                    ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}
+                    ${
+                      collapsed
+                        ? "opacity-0 w-0 overflow-hidden"
+                        : "opacity-100"
+                    }
                   `}
                 >
                   {item.name}

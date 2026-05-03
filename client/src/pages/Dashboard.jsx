@@ -1,136 +1,200 @@
-// pages/Dashboard.jsx
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
-import PopulationCard from "../components/charts/PopulationCard"; 
-import HumanResourceCard from "../components/charts/HumanResourceCard"; 
+import { useState } from "react";
+import { Plus, Mars, Venus, Edit, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-export default function Dashboard() {
-  // Example data: 37 bars
-  const barData = Array.from({ length: 37 }, (_, i) => ({
-    name: `Item ${i + 1}`,
-    value: Math.floor(Math.random() * 100) + 1,
-  }));
+import {
+ pageButtonPrimary
+} from "../components/common/PageUI";
 
-  // Example data for line chart (10 points)
-  const lineData = Array.from({ length: 10 }, (_, i) => ({
-    name: `Day ${i + 1}`,
-    uv: Math.floor(Math.random() * 100) + 10,
-    pv: Math.floor(Math.random() * 80) + 20,
-  }));
+import useFarmer from "../hooks/useFarmer";
+import useTable from "../hooks/useTable";
+import usePagination from "../hooks/usePagination";
 
-  // Example data for electric, water, and crime
-  const electricData = Array.from({ length: 7 }, (_, i) => ({
-    day: `Day ${i + 1}`,
-    consumption: Math.floor(Math.random() * 100) + 50,
-  }));
+import DataTable from "../components/common/DataTable";
+import Pagination from "../components/common/Pagination";
+import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
-  const waterData = Array.from({ length: 7 }, (_, i) => ({
-    day: `Day ${i + 1}`,
-    consumption: Math.floor(Math.random() * 80) + 30,
-  }));
 
-  const crimeData = Array.from({ length: 7 }, (_, i) => ({
-    day: `Day ${i + 1}`,
-    incidents: Math.floor(Math.random() * 20),
-  }));
+import AddFarmerModal from "../components/modals/AddFarmerModal";
+import EditFarmerModal from "../components/modals/EditFarmerModal";
+
+export default function Farmers() {
+  const navigate = useNavigate();
+
+  const [filter, setFilter] = useState("All");
+  const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(null);
+
+  // ✅ USE FARMER HOOK (PRO WAY)
+  const {
+    farmersQuery,
+    createFarmerMutation,
+    updateFarmerMutation,
+  } = useFarmer();
+
+  const farmers = farmersQuery.data?.data || [];
+
+  // ================= TABLE FILTER =================
+  const { search, setSearch, filteredData } = useTable({
+    data: farmers,
+    searchFields: ["FirstName", "MiddleName", "LastName"],
+    filterFn: (item) =>
+      filter === "All" ||
+      item.Gender?.toLowerCase() === filter.toLowerCase(),
+  });
+
+  // ================= PAGINATION =================
+  const { currentPage, setCurrentPage, currentItems, totalPages } =
+    usePagination(filteredData, 10);
+
+  const getGenderIcon = (gender) => {
+    if (gender?.toLowerCase() === "male")
+      return <Mars className="w-4 h-4 text-blue-500" />;
+    if (gender?.toLowerCase() === "female")
+      return <Venus className="w-4 h-4 text-pink-500" />;
+    return null;
+  };
+
+  // ================= TABLE COLUMNS =================
+  const columns = [
+    {
+      key: "name",
+      label: "Name",
+      render: (item) => (
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+          {getGenderIcon(item.Gender)}
+          {item.FirstName} {item.MiddleName}. {item.LastName}
+        </div>
+      ),
+    },
+    { key: "Email", label: "Email" },
+    { key: "ContactNumber", label: "Contact No." },
+    { key: "RegistrationDate", label: "Registration Date" },
+    {
+      key: "actions",
+      label: "",
+      render: (item) => (
+        <div className="flex justify-center gap-1">
+          <button
+            onClick={() => setEditModal(item)}
+            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
+          >
+            <Edit className="w-3 h-3" />
+          </button>
+
+          <button
+            onClick={() => navigate(`/farmers/${item.FarmerID}`)}
+            className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
+          >
+            <Eye className="w-3 h-3" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  // ================= ERROR =================
+  if (farmersQuery.isError) {
+    return (
+      <p className="p-4 text-red-500">
+        {farmersQuery.error.message}
+      </p>
+    );
+  }
+
+  // ================= LOADING =================
+if (farmersQuery.isLoading) {
+  return <TablePageSkeleton />;
+}
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      
-      {/* Human Resource Card */}
-<HumanResourceCard />
+    <div className="w-full px-4">
 
- <PopulationCard />
+      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-      {/* 37-Bar Graph Card */}
-      <div className="bg-white dark:bg-gray-800 backdrop-blur-md rounded-xl shadow">
-        <div className="bg-blue-600 text-white px-4 py-2 rounded-t-xl flex justify-between">
-          <h3 className="font-semibold">37-Bar Graph</h3>
-          <button className="text-sm">Details</button>
+        {/* HEADER */}
+        <div className="flex flex-wrap justify-between items-center gap-3">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
+            ALL FARMERS
+          </h2>
+
+          <button
+            onClick={() => setAddModal(true)}
+            className={pageButtonPrimary}
+          >
+            <Plus className="w-4 h-4" />
+            <span className="hidden sm:inline">Add Farmer</span>
+          </button>
         </div>
-        <div className="p-4">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={barData}>
-              <XAxis dataKey="name" tick={false} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#4F46E5" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+
+        {/* TABLE */}
+        <DataTable
+          columns={columns}
+          data={currentItems}
+          search={search}
+          setSearch={setSearch}
+          filters={
+            <div className="flex gap-4 text-sm">
+              {["All", "Male", "Female"].map((item) => (
+                <label key={item} className="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    className="accent-green-600 dark:accent-green-400"
+                    checked={filter === item}
+                    onChange={() => setFilter(item)}
+                  />
+                  {item}
+                </label>
+              ))}
+            </div>
+          }
+        />
+
+        {/* PAGINATION */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          currentItemsLength={currentItems.length}
+          totalItemsLength={filteredData.length}
+        />
+
       </div>
 
-      {/* Line Chart Card */}
-      <div className="bg-white dark:bg-gray-800 backdrop-blur-md rounded-xl shadow">
-        <div className="bg-purple-600 text-white px-4 py-2 rounded-t-xl flex justify-between">
-          <h3 className="font-semibold">Line Chart</h3>
-          <button className="text-sm">Details</button>
-        </div>
-        <div className="p-4">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={lineData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="uv" stroke="#8884d8" />
-              <Line type="monotone" dataKey="pv" stroke="#82ca9d" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {/* MODALS */}
 
-      {/* Electric Consumption Card */}
-      <div className="bg-white dark:bg-gray-800 backdrop-blur-md rounded-xl shadow lg:col-span-2">
-        <div className="bg-yellow-500 text-white px-4 py-2 rounded-t-xl flex justify-between">
-          <h3 className="font-semibold">Electric Consumption</h3>
-          <button className="text-sm">Details</button>
-        </div>
-        <div className="p-4">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={electricData}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="consumption" stroke="#F59E0B" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {addModal && (
+        <AddFarmerModal
+          onClose={() => setAddModal(false)}
+          onSubmit={(data) =>
+            createFarmerMutation.mutate(data, {
+              onSuccess: () => setAddModal(false),
+            })
+          }
+          loading={createFarmerMutation.isPending}
+        />
+      )}
 
-      {/* Water Consumption Card */}
-      <div className="bg-white dark:bg-gray-800 backdrop-blur-md rounded-xl shadow lg:col-span-2">
-        <div className="bg-blue-500 text-white px-4 py-2 rounded-t-xl flex justify-between">
-          <h3 className="font-semibold">Water Consumption</h3>
-          <button className="text-sm">Details</button>
-        </div>
-        <div className="p-4">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={waterData}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="consumption" stroke="#3B82F6" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
 
-      {/* Crime Statistics Card */}
-      <div className="bg-white dark:bg-gray-800 backdrop-blur-md rounded-xl shadow lg:col-span-2">
-        <div className="bg-red-500 text-white px-4 py-2 rounded-t-xl flex justify-between">
-          <h3 className="font-semibold">Crime Statistics</h3>
-          <button className="text-sm">Details</button>
-        </div>
-        <div className="p-4">
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={crimeData}>
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="incidents" stroke="#EF4444" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+      {editModal && (
+        <EditFarmerModal
+          selectedFarmer={editModal}
+          onClose={() => setEditModal(null)}
+          onSubmit={(data) =>
+            updateFarmerMutation.mutate(
+              {
+                id: editModal.FarmerID,
+                data,
+              },
+              {
+                onSuccess: () => setEditModal(null),
+              }
+            )
+          }
+          loading={updateFarmerMutation.isPending}
+        />
+      )}
+
     </div>
   );
 }

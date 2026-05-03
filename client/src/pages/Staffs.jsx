@@ -15,8 +15,7 @@ import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 
 import AddStaffModal from "../components/modals/AddStaffModal";
-import ViewStaffModal from "../components/modals/ViewStaffModal";
-import RegisterUserModal from "../components/modals/RegisterUserModal";
+import ViewStaffModal from "../components/modals/ViewStaffModal"; 
 import EditStaffModal from "../components/modals/EditStaffModal";
 
 export default function Staff() {
@@ -194,11 +193,7 @@ if (staffsQuery.isError) {
   data={viewModal}
   onClose={() => setViewModal(null)}
 />
-
-<RegisterUserModal
-  data={userModal}
-  onClose={() => setUserModal(null)}
-/>
+ 
 
 {/* ADD */}
 {addModal && (

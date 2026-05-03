@@ -19,24 +19,20 @@ export async function login(req, res, next) {
     });
 
     // Set refresh token as HTTP-only cookie
-    try {
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // true in production
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
-    } catch (cookieErr) {
-      console.warn("Failed to set refresh token cookie:", cookieErr);
-    }
+ res.cookie("refreshToken", refreshToken, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+});
 
     // Send user info + access token
     return successResponse(res, "Login successful", {
-      user: userSafe, // { id, username, email }
+      user: userSafe,
       token: accessToken,
     });
   } catch (err) {
-    next(err); // delegate to error handling middleware
+    return next(err);
   }
 }
 
@@ -52,5 +48,5 @@ export async function logout(req, res) {
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
 
-  return res.json({ success: true, message: "Logged out successfully" });
+  return successResponse(res, "Logged out successfully");
 }

@@ -1,16 +1,25 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProtectedRoute({ children, role }) {
-  const { user, loading } = useAuth();
+  const queryClient = useQueryClient();
 
-  // Wait until AuthContext finishes loading
-  if (loading) return null; // or a spinner
+  // first check React Query cache
+  let user = queryClient.getQueryData(["authUser"]);
 
-  if (!user) return <Navigate to="/login" replace />;
+  // fallback to localStorage after refresh
+  if (!user) {
+    const storedUser = localStorage.getItem("user");
+    user = storedUser ? JSON.parse(storedUser) : null;
+  }
 
-  // Role-based access
-  if (role && user.Role !== role) return <Navigate to="/dashboard" replace />;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role && user.Role !== role) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return children;
 }

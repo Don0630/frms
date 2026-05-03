@@ -5,25 +5,54 @@ const API_BASE =
 export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem("token");
 
+console.log("🌐 API BASE:", API_BASE);
+console.log("➡️ CALLING:", `${API_BASE}${endpoint}`);
+
+  const isAuthEndpoint =
+    endpoint.startsWith("/auth/login") ||
+    endpoint.startsWith("/auth");
+
   const res = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
+    credentials: "include",
     headers: {
       ...options.headers,
-      Authorization: token ? `Bearer ${token}` : "",
+      ...(token && !isAuthEndpoint
+        ? { Authorization: `Bearer ${token}` }
+        : {}),
       "Content-Type": "application/json",
     },
   });
 
   const data = await res.json().catch(() => null);
 
-  // 1. handle auth
-  if (res.status === 401) {
+if (!res.ok) {
+  const type = data?.type;
+  const status = res.status;
+
+  if (
+    status === 401 ||
+    type === "NO_TOKEN" ||
+    type === "TOKEN_EXPIRED"
+  ) {
     localStorage.removeItem("token");
-    window.location.href = "/sessionexpired";
-    throw new Error("Session expired");
+
+    if (
+      !endpoint.startsWith("/auth/login") &&
+      !endpoint.startsWith("/auth/logout")
+    ) {
+      window.location.href = "/sessionexpired";
+    }
   }
 
-  // 2. handle errors (backend or HTTP)
+  const err = new Error(data?.message || "Request failed");
+  err.status = status;
+  err.type = type;
+  err.data = data;
+
+  throw err;
+}
+
   if (!res.ok || data?.success === false) {
     const err = new Error(data?.message || "Request failed");
     err.status = res.status;
@@ -31,6 +60,5 @@ export async function apiFetch(endpoint, options = {}) {
     throw err;
   }
 
-  // 3. return FULL backend response
   return data;
 }
