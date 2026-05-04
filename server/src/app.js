@@ -21,7 +21,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://frms-red.vercel.app/"
+  "https://frms-red.vercel.app"
 ];
 
 /* -----------------------------
@@ -45,12 +45,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
-/* -----------------------------
-   ⚠️ IMPORTANT FIX
-   DO NOT use app.options("*", cors())
-   (causes crash in Node 24 / path-to-regexp)
------------------------------- */
+ 
 
 /* -----------------------------
    📦 Middleware
