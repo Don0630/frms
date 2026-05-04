@@ -8,11 +8,11 @@ export function successResponse(res, message, data = null, statusCode = 200) {
   });
 }
 
-export function errorResponse(res, message, data = null, type = null, statusCode = 400) {
+export function errorResponse(res, message, data = null, code = null, statusCode = 400) {
   return res.status(statusCode).json({
     success: false,
     message,
-    type,
+    code,
     data,
   });
 }

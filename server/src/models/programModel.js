@@ -5,7 +5,7 @@ import { db } from "../config/db.js";
 // --------- GET ALL PROGRAM ---------
 export async function getAllProgram() {
   const [rows] = await db.query("SELECT * FROM tblPrograms ORDER BY ProgramID");
-  return rows || null;
+  return rows;
 }
 
 
@@ -28,8 +28,6 @@ export async function createProgram(program) {
     ...program,
   };
 }
-
-
 
 
 // --------- UPDATE PROGRAM ---------
@@ -92,8 +90,19 @@ export async function getAvailablePrograms(search = "") {
     ORDER BY ProgramName
     LIMIT 5
     `,
-    [searchPattern, searchPattern]
+    [searchPattern]
   );
 
   return rows;
+}
+
+
+
+export async function findProgramByName(name) {
+  const [rows] = await db.query(
+    "SELECT * FROM tblPrograms WHERE ProgramName = ? LIMIT 1",
+    [name]
+  );
+
+  return rows[0];
 }

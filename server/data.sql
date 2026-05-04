@@ -7,7 +7,7 @@ VALUES
 INSERT INTO tblUsers
 (Username, PasswordHash, Email, Role, StaffID, Status)
 VALUES
-('Admin', '$2b$10$USe/6UHsgPmrCeOwKCVGr.m8xowu8JLcpbUOcTi3TmnOC6pW22pQq', 'admin@example.com', 'Admin', 1, 'Active');
+('Admin', '$2b$10$/sHRmsuwncg3YsUm/ydMC.8CTFV9CHuuQCkqijN3yTLq/MGp41.w2', 'admin@example.com', 'Admin', 1, 'Active');
 
 
 

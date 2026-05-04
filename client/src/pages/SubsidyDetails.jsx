@@ -24,6 +24,7 @@ import Pagination from "../components/common/Pagination";
 import AddDistributionModal from "../components/modals/AddDistributionModal";
 import ActionDistributionModal from "../components/modals/ActionDistributionModal";
 import DeleteDistributionModal from "../components/modals/DeleteDistributionModal";
+import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function SubsidyDetails() {
   const { id } = useParams();
@@ -88,27 +89,10 @@ export default function SubsidyDetails() {
   }, [search, filter, setCurrentPage]);
 
   
-
-  // ================= LOADING =================
+// ================= LOADING =================
   if (isLoading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-950">
-      
-      <div className="flex flex-col items-center gap-3">
-
-        {/* Spinner */}
-        <div className="w-10 h-10 border-4 border-gray-300 dark:border-gray-700 border-t-green-500 rounded-full animate-spin" />
-
-        {/* Text */}
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Loading farmer details...
-        </p>
-
-      </div>
-
-    </div>
-  );
-}
+    return <TablePageSkeleton />;
+  }
 
   // ERROR
   if (isError || !selectedSubsidy) {

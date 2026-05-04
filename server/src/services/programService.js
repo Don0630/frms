@@ -1,5 +1,5 @@
 // services/programService.js
-import * as programModel from "../models/programModel.js";
+import * as programModel from "../models/programModel.js"; 
 
 
 export async function fetchPrograms() {
@@ -8,6 +8,15 @@ export async function fetchPrograms() {
 
 
 export async function addProgram(program) {
+ 
+  // Validate Existing Prgoram
+const existingProgram = await programModel.findProgramByName(program.ProgramName);
+  if (existingProgram) {
+    const error = new Error("Program already exists");
+    error.statusCode = 409;
+    throw error;
+  }
+  
   return await programModel.createProgram(program);
 }
 
