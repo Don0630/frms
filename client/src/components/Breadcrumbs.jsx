@@ -31,9 +31,9 @@ export default function Breadcrumbs() {
     <div className="flex items-center justify-between px-6 py-3">
 
       {/* LEFT: PAGE TITLE */}
-      <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-        {pageTitle}
-      </h1>
+      
+      
+
 
       {/* RIGHT: BREADCRUMBS */}
       <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">

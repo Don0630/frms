@@ -1,200 +1,121 @@
-import { useState } from "react";
-import { Plus, Mars, Venus, Edit, Eye } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
-import {
- pageButtonPrimary
-} from "../components/common/PageUI";
-
+import { Users, UserCheck, User, Calendar } from "lucide-react";
 import useFarmer from "../hooks/useFarmer";
-import useTable from "../hooks/useTable";
-import usePagination from "../hooks/usePagination";
 
-import DataTable from "../components/common/DataTable";
-import Pagination from "../components/common/Pagination";
-import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
-
-
-import AddFarmerModal from "../components/modals/AddFarmerModal";
-import EditFarmerModal from "../components/modals/EditFarmerModal";
-
-export default function Farmers() {
-  const navigate = useNavigate();
-
-  const [filter, setFilter] = useState("All");
-  const [addModal, setAddModal] = useState(false);
-  const [editModal, setEditModal] = useState(null);
-
-  // ✅ USE FARMER HOOK (PRO WAY)
-  const {
-    farmersQuery,
-    createFarmerMutation,
-    updateFarmerMutation,
-  } = useFarmer();
+export default function FarmersDashboard() {
+  const { farmersQuery } = useFarmer();
 
   const farmers = farmersQuery.data?.data || [];
 
-  // ================= TABLE FILTER =================
-  const { search, setSearch, filteredData } = useTable({
-    data: farmers,
-    searchFields: ["FirstName", "MiddleName", "LastName"],
-    filterFn: (item) =>
-      filter === "All" ||
-      item.Gender?.toLowerCase() === filter.toLowerCase(),
-  });
+  const total = farmers.length;
+  const male = farmers.filter(f => f.Gender?.toLowerCase() === "male").length;
+  const female = farmers.filter(f => f.Gender?.toLowerCase() === "female").length;
 
-  // ================= PAGINATION =================
-  const { currentPage, setCurrentPage, currentItems, totalPages } =
-    usePagination(filteredData, 10);
-
-  const getGenderIcon = (gender) => {
-    if (gender?.toLowerCase() === "male")
-      return <Mars className="w-4 h-4 text-blue-500" />;
-    if (gender?.toLowerCase() === "female")
-      return <Venus className="w-4 h-4 text-pink-500" />;
-    return null;
-  };
-
-  // ================= TABLE COLUMNS =================
-  const columns = [
-    {
-      key: "name",
-      label: "Name",
-      render: (item) => (
-        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
-          {getGenderIcon(item.Gender)}
-          {item.FirstName} {item.MiddleName}. {item.LastName}
-        </div>
-      ),
-    },
-    { key: "Email", label: "Email" },
-    { key: "ContactNumber", label: "Contact No." },
-    { key: "RegistrationDate", label: "Registration Date" },
-    {
-      key: "actions",
-      label: "",
-      render: (item) => (
-        <div className="flex justify-center gap-1">
-          <button
-            onClick={() => setEditModal(item)}
-            className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
-          >
-            <Edit className="w-3 h-3" />
-          </button>
-
-          <button
-            onClick={() => navigate(`/farmers/${item.FarmerID}`)}
-            className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
-          >
-            <Eye className="w-3 h-3" />
-          </button>
-        </div>
-      ),
-    },
-  ];
-
-  // ================= ERROR =================
-  if (farmersQuery.isError) {
-    return (
-      <p className="p-4 text-red-500">
-        {farmersQuery.error.message}
-      </p>
-    );
-  }
-
-  // ================= LOADING =================
-if (farmersQuery.isLoading) {
-  return <TablePageSkeleton />;
-}
+  const latest = [...farmers]
+    .sort((a, b) => new Date(b.RegistrationDate) - new Date(a.RegistrationDate))
+    .slice(0, 5);
 
   return (
     <div className="w-full px-4">
+    <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-      <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
-
+      {/* HEADER */}
         {/* HEADER */}
         <div className="flex flex-wrap justify-between items-center gap-3">
+
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-            ALL FARMERS
+            DASHBOARD
           </h2>
 
-          <button
-            onClick={() => setAddModal(true)}
-            className={pageButtonPrimary}
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Add Farmer</span>
-          </button>
         </div>
 
-        {/* TABLE */}
-        <DataTable
-          columns={columns}
-          data={currentItems}
-          search={search}
-          setSearch={setSearch}
-          filters={
-            <div className="flex gap-4 text-sm">
-              {["All", "Male", "Female"].map((item) => (
-                <label key={item} className="flex items-center gap-1">
-                  <input
-                    type="radio"
-                    className="accent-green-600 dark:accent-green-400"
-                    checked={filter === item}
-                    onChange={() => setFilter(item)}
-                  />
-                  {item}
-                </label>
-              ))}
-            </div>
-          }
-        />
+      {/* STATS CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
-        {/* PAGINATION */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          currentItemsLength={currentItems.length}
-          totalItemsLength={filteredData.length}
-        />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded shadow">
+          <div className="flex items-center gap-3">
+            <Users className="text-green-600" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Farmers</p>
+              <p className="text-xl font-bold text-gray-800 dark:text-gray-100">{total}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded shadow">
+          <div className="flex items-center gap-3">
+            <User className="text-blue-600" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Male Farmers</p>
+              <p className="text-xl font-bold text-gray-800 dark:text-gray-100">{male}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded shadow">
+          <div className="flex items-center gap-3">
+            <UserCheck className="text-pink-600" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Female Farmers</p>
+              <p className="text-xl font-bold text-gray-800 dark:text-gray-100">{female}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded shadow">
+          <div className="flex items-center gap-3">
+            <Calendar className="text-purple-600" />
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Latest Entry</p>
+              <p className="text-xl font-bold text-gray-800 dark:text-gray-100">
+                {latest[0]?.RegistrationDate || "N/A"}
+              </p>
+            </div>
+          </div>
+        </div>
 
       </div>
 
-      {/* MODALS */}
+      {/* LATEST FARMERS TABLE */}
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded shadow p-4">
 
-      {addModal && (
-        <AddFarmerModal
-          onClose={() => setAddModal(false)}
-          onSubmit={(data) =>
-            createFarmerMutation.mutate(data, {
-              onSuccess: () => setAddModal(false),
-            })
-          }
-          loading={createFarmerMutation.isPending}
-        />
-      )}
+        <h2 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
+          Recently Added Farmers
+        </h2>
 
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
 
-      {editModal && (
-        <EditFarmerModal
-          selectedFarmer={editModal}
-          onClose={() => setEditModal(null)}
-          onSubmit={(data) =>
-            updateFarmerMutation.mutate(
-              {
-                id: editModal.FarmerID,
-                data,
-              },
-              {
-                onSuccess: () => setEditModal(null),
-              }
-            )
-          }
-          loading={updateFarmerMutation.isPending}
-        />
-      )}
+            <thead className="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300">
+              <tr>
+                <th className="py-2">Name</th>
+                <th>Email</th>
+                <th>Contact</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {latest.map((f) => (
+                <tr
+                  key={f.FarmerID}
+                  className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <td className="py-2 font-medium text-gray-800 dark:text-gray-100">
+                    {f.FirstName} {f.LastName}
+                  </td>
+                  <td className="text-gray-700 dark:text-gray-300">{f.Email}</td>
+                  <td className="text-gray-700 dark:text-gray-300">{f.ContactNumber}</td>
+                  <td className="text-gray-700 dark:text-gray-300">{f.RegistrationDate}</td>
+                </tr>
+              ))}
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
 
     </div>
+  </div>
   );
 }
