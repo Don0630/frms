@@ -217,7 +217,7 @@ const users = usersQuery.data?.data || [];
 
 {editModal && (
   <EditUserModal
-    user={editModal}
+    selectedUser={editModal}
     onClose={() => setEditModal(null)}
     onSubmit={(data) =>
       updateUserMutation.mutate(
