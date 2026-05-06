@@ -27,12 +27,7 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
   // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setForm((prev) => ({ ...prev, [name]: value,}));
     if (error) setError("");
   };
 
@@ -80,8 +75,6 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
 
     return "";
   };
-
-
 
 
 

@@ -11,6 +11,7 @@ import * as validators from "../../utils/validators";
 
 
 export default function AddCropModal({ onClose, onSubmit, loading }) {
+  
   const [form, setForm] = useState({
     CropName: "",
     Category: "",
@@ -21,35 +22,49 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
 
   const [error, setError] = useState("");
 
+
+// ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
   };
 
+
+// ================= VALIDATION =================
  const validate = () => {
     // 1. Required fields check
     const requiredError = validators.validateRequiredFields(
-  form,
-  [
-    "CropName",
-    "Category",
-    "Season",
-    "AverageYieldPerHectare",
-  ],
-  {
-    CropName: "Crop name",
-    Category: "Category",
-    Season: "Season",
-    AverageYieldPerHectare: "Average yield per hectare",
-  }
-);
+      form,
+      [
+        "CropName",
+        "Category",
+        "Season",
+        "AverageYieldPerHectare",
+        "MarketPrice",
+      ],
+      {
+        CropName: "Crop name",
+        Category: "Category",
+        Season: "Season",
+        AverageYieldPerHectare: "Average yield per hectare",
+        MarketPrice: "Market Price",
+      }
+    );
     if (requiredError) return requiredError;
+    
+
+    const aveYieldError = validators.validatePositiveNumber(form.AverageYieldPerHectare, "Average Yield Per Hectare");
+    if (aveYieldError) return aveYieldError;
+
+    const marketPriceError = validators.validatePositiveNumber(form.MarketPrice, "Market Price");
+    if (marketPriceError) return marketPriceError;
+
     return "";
   };
 
 
-
+// ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");

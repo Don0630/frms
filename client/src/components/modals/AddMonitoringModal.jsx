@@ -17,11 +17,8 @@ import {
   modalButtonSecondary,
 } from "../common/ModalUI";
 
-export default function AddMonitoringModal({
-  onClose,
-  onSubmit,
-  loading,
-}) {
+export default function AddMonitoringModal({ onClose, onSubmit, loading,}) {
+  
   // ================= STATES =================
   const [searchFarmer, setSearchFarmer] = useState("");
   const [searchCrop, setSearchCrop] = useState("");

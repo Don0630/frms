@@ -39,12 +39,15 @@ export default function EditCropModal({
     }
   }, [selectedCrop]);
 
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
   };
 
+
+  // ================= VALIDATION =================
   const validate = () => {
     // 1. Required fields check
     const requiredError = validators.validateRequiredFields(
@@ -68,24 +71,31 @@ export default function EditCropModal({
 
 
     // No Changes Check
-const noChangesError = validators.validateNoChanges(
-  selectedCrop,
-  form,
-  [
-    "CropName",
-    "Category",
-    "Season",
-    "AverageYieldPerHectare",
-    "MarketPrice",
-  ]
-);
+    const noChangesError = validators.validateNoChanges(
+      selectedCrop,
+      form,
+      [
+        "CropName",
+        "Category",
+        "Season",
+        "AverageYieldPerHectare",
+        "MarketPrice",
+      ]
+    );
   if (noChangesError) return noChangesError;
 
+
+    const aveYieldError = validators.validatePositiveNumber(form.AverageYieldPerHectare, "Average Yield Per Hectare");
+    if (aveYieldError) return aveYieldError;
+
+    const marketPriceError = validators.validatePositiveNumber(form.MarketPrice, "Market Price");
+    if (marketPriceError) return marketPriceError;
 
 
     return "";
   };
 
+// ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");

@@ -8,12 +8,8 @@ import {
 } from "../common/ModalUI";
 import * as validators from "../../utils/validators";
 
-export default function EditStaffModal({
-  selectedStaff,
-  onClose,
-  onSubmit,
-  loading,
-}) {
+export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loading,}) {
+  
   const [form, setForm] = useState({
     FirstName: "",
     MiddleName: "",
@@ -27,7 +23,9 @@ export default function EditStaffModal({
 
   const [error, setError] = useState("");
 
-  // hydrate form
+
+
+// ================= LOAD SELECTED DATA =================
   useEffect(() => {
     if (selectedStaff) {
       setForm({
@@ -43,9 +41,18 @@ export default function EditStaffModal({
     }
   }, [selectedStaff]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+
+// ================= HANDLE INPUT =================
+const handleChange = (e) => {
+  const { name, value } = e.target;
+
+  setForm((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+
+  if (error) setError("");
+};
 
  // ================= VALIDATION =================
   const validate = () => {
@@ -73,24 +80,24 @@ export default function EditStaffModal({
         Email: "Email",
       }
       );
-    if (requiredError) return requiredError;
+      if (requiredError) return requiredError;
 
-          // No Changes Check
-const noChangesError = validators.validateNoChanges(
-  selectedStaff,
-  form,
-  [
-    "FirstName",
-        "MiddleName",
-        "LastName",
-        "Gender",
-        "Position",
-        "Department",
-        "ContactNumber",
-        "Email", 
-  ]
-);
-  if (noChangesError) return noChangesError;
+    // No Changes Check
+    const noChangesError = validators.validateNoChanges(
+      selectedStaff,
+      form,
+      [
+        "FirstName",
+            "MiddleName",
+            "LastName",
+            "Gender",
+            "Position",
+            "Department",
+            "ContactNumber",
+            "Email", 
+      ]
+    );
+    if (noChangesError) return noChangesError;
 
     // phone validation
     const phoneError = validators.validatePHMobileNumber(form.ContactNumber);

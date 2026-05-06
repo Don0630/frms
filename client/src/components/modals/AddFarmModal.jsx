@@ -8,12 +8,8 @@ import {
 } from "../common/ModalUI";
 import * as validators from "../../utils/validators";
 
-export default function AddFarmModal({
-  onClose,
-  onSubmit,
-  loading,
-  farmer,
-}) {
+export default function AddFarmModal({ onClose, onSubmit, loading, farmer,}) {
+  
   const [form, setForm] = useState({
     FarmBarangay: "",
     FarmMunicipality: "",
@@ -23,12 +19,15 @@ export default function AddFarmModal({
 
   const [error, setError] = useState("");
 
+
+  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value,}));
+    if (error) setError("");
   };
 
-   // ================= VALIDATION =================
+  // ================= VALIDATION =================
   const validate = () => {
     // 1. Required fields check
     const requiredError = validators.validateRequiredFields( form,
@@ -51,6 +50,7 @@ export default function AddFarmModal({
     return "";
   };
 
+// ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");

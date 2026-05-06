@@ -63,7 +63,7 @@ export default function AddDistributionModal({
     if (!selectedFarmer) return "Please select a Farmer!";
     if (!amount) return "Total amount is required!"; 
 
-    const totalAmountError = validators.validatePositiveNumber( amount, "Amount");
+    const totalAmountError = validators.validatePositiveNumber(amount, "Amount");
     if (totalAmountError) return totalAmountError;
 
     return "";

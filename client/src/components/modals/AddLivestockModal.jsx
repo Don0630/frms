@@ -19,11 +19,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value, }));
     if (error) setError("");
   };
 
@@ -31,21 +27,28 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
  const validate = () => {
     // 1. Required fields check
     const requiredError = validators.validateRequiredFields(
-  form,
-  [
-    "Type",
-    "Breed",
-    "AverageProduction",
-    "MarketPrice",
-  ],
-  {
-    Type: "Livestock type",
-    Breed: "Breed",
-    AverageProduction: "Average production",
-    MarketPrice: "Market price",
-  }
-);
+      form,
+      [
+        "Type",
+        "Breed",
+        "AverageProduction",
+        "MarketPrice",
+      ],
+      {
+        Type: "Livestock type",
+        Breed: "Breed",
+        AverageProduction: "Average production",
+        MarketPrice: "Market price",
+      }
+    );
     if (requiredError) return requiredError;
+
+    const aveProdError = validators.validatePositiveNumber(form.AverageProduction, "Average Production");
+    if (aveProdError) return aveProdError;
+
+    const marketPriceError = validators.validatePositiveNumber(form.MarketPrice, "Market Price");
+    if (marketPriceError) return marketPriceError;
+
     return "";
   };
 
@@ -58,10 +61,9 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
     if (err) return setError(err);
 
     onSubmit({
-      Type: form.Type,
-      Breed: form.Breed,
-      AverageProduction: parseFloat(form.AverageProduction),
-      MarketPrice: parseFloat(form.MarketPrice),
+      ...form,
+      AverageProduction: Number(form.AverageProduction),
+      MarketPrice: Number(form.MarketPrice),
     });
   };
 
