@@ -6,6 +6,7 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function AddFarmerModal({ onClose, onSubmit, loading }) {
   const [form, setForm] = useState({
@@ -26,38 +27,63 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
   // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
     if (error) setError("");
   };
 
   // ================= VALIDATION =================
   const validate = () => {
-    const {
-      FirstName,
-      LastName,
-      Gender,
-      DateOfBirth,
-      ContactNumber,
-      Barangay,
-      Municipality,
-      Province,
-    } = form;
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+      form,
+      [
+        "FirstName",
+        "MiddleName",
+        "LastName",
+        "Gender",
+        "DateOfBirth",
+        "ContactNumber",
+        "Barangay",
+        "Municipality",
+        "Province",
+      ],
+      {
+        FirstName: "First name",
+        MiddleName: "Middle name",
+        LastName: "Last name",
+        Gender: "Gender",
+        DateOfBirth: "Date of birth",
+        ContactNumber: "Contact number",
+        Barangay: "Barangay",
+        Municipality: "Municipality",
+        Province: "Province",
+      }
+      );
+    if (requiredError) return requiredError;
 
-    if (!FirstName?.trim() || !LastName?.trim())
-      return "First and Last name are required";
+    // phone validation
+    const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
+    if (phoneError) return phoneError;
 
-    if (!Gender) return "Gender is required";
+    // dob validation
+    const dobError = validators.validatePHAge(form.DateOfBirth);
+    if (dobError) return dobError;
 
-    if (!DateOfBirth) return "Date of birth is required";
-
-    if (!ContactNumber?.trim())
-      return "Contact number is required";
-
-    if (!Barangay?.trim() || !Municipality?.trim() || !Province?.trim())
-      return "Complete address is required";
+    // email validation
+    const emailError = validators.validateEmail(form.Email);
+    if (emailError) return emailError;
 
     return "";
   };
+
+
+
+
 
   // ================= SUBMIT =================
   const handleSubmit = (e) => {
@@ -67,34 +93,24 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
     const err = validate();
     if (err) return setError(err);
 
-    const currentDate = new Date().toISOString().split("T")[0];
-
-    onSubmit({
-      ...form,
-      RegistrationDate: currentDate,
-    });
+    onSubmit(form);
   };
 
   return (
     <Modal title="Add Farmer" onClose={onClose} width="max-w-lg">
-
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-
         {/* NAME */}
         <div className="grid grid-cols-3 gap-2">
-
           <div>
             <label className={modalLabel}>First Name</label>
             <input
               name="FirstName"
-              value={form.FirstName || ""}
+              value={form.FirstName}
               onChange={handleChange}
               className={modalInput}
             />
@@ -104,7 +120,7 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
             <label className={modalLabel}>Middle Name</label>
             <input
               name="MiddleName"
-              value={form.MiddleName || ""}
+              value={form.MiddleName}
               onChange={handleChange}
               className={modalInput}
             />
@@ -114,17 +130,15 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
             <label className={modalLabel}>Last Name</label>
             <input
               name="LastName"
-              value={form.LastName || ""}
+              value={form.LastName}
               onChange={handleChange}
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* GENDER + DOB */}
         <div className="grid grid-cols-2 gap-2">
-
           <div>
             <label className={modalLabel}>Gender</label>
             <select
@@ -136,59 +150,60 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
               <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
-  
-<div className="date-input-wrapper">
-  <label className={modalLabel}>Date of Birth</label>
-
-  <input
-    type="date"
-    name="DateOfBirth"
-    value={form.DateOfBirth || ""}
-    onChange={handleChange}
-     max={new Date().toISOString().split("T")[0]}
-    className={`${modalInput} dark:[color-scheme:dark]`}
-  />
-</div>
-
-
+          <div className="date-input-wrapper">
+            <label className={modalLabel}>Date of Birth</label>
+            <input
+              type="date"
+              name="DateOfBirth"
+              value={form.DateOfBirth }
+              onChange={handleChange} 
+              className={`${modalInput} dark:[color-scheme:dark]`}
+            />
+          </div>
         </div>
 
         {/* CONTACT + EMAIL */}
         <div className="grid grid-cols-2 gap-2">
-
           <div>
             <label className={modalLabel}>Contact Number</label>
-            <input
+           <input
               name="ContactNumber"
-              value={form.ContactNumber || ""}
-              onChange={handleChange}
+              value={form.ContactNumber}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, ""); // remove non-numbers
+                setForm((prev) => ({
+                  ...prev,
+                  ContactNumber: value,
+                }));
+              }}
               className={modalInput}
+              maxLength={11} 
             />
           </div>
 
           <div>
             <label className={modalLabel}>Email</label>
             <input
+              type="email"
               name="Email"
-              value={form.Email || ""}
+              value={form.Email}
               onChange={handleChange}
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* ADDRESS */}
         <div className="grid grid-cols-3 gap-2">
-
           <div>
             <label className={modalLabel}>Barangay</label>
             <input
               name="Barangay"
-              value={form.Barangay || ""}
+              value={form.Barangay}
               onChange={handleChange}
               className={modalInput}
             />
@@ -198,7 +213,7 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
             <label className={modalLabel}>Municipality</label>
             <input
               name="Municipality"
-              value={form.Municipality || ""}
+              value={form.Municipality}
               onChange={handleChange}
               className={modalInput}
             />
@@ -208,17 +223,15 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
             <label className={modalLabel}>Province</label>
             <input
               name="Province"
-              value={form.Province || ""}
+              value={form.Province}
               onChange={handleChange}
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* ACTIONS */}
         <div className="flex justify-end gap-2 pt-2">
-
           <button
             type="button"
             onClick={onClose}
@@ -234,13 +247,8 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
           >
             {loading ? "Saving..." : "Save Farmer"}
           </button>
-
         </div>
-
       </form>
- 
-
-
     </Modal>
   );
 }

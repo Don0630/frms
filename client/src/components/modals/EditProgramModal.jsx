@@ -6,6 +6,8 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
+import * as programValidator from "../../utils/programValidator";
 
 export default function EditProgramModal({
   onClose,
@@ -25,11 +27,7 @@ export default function EditProgramModal({
 
   const [error, setError] = useState("");
 
-  // ================= FORMAT DATE =================
-  const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toISOString().split("T")[0];
-  };
+  
 
   // ================= LOAD SELECTED DATA =================
   useEffect(() => {
@@ -38,11 +36,10 @@ export default function EditProgramModal({
         ProgramID: selectedProgram.ProgramID,
         ProgramName: selectedProgram.ProgramName || "",
         Description: selectedProgram.Description || "",
-        StartDate: formatDate(selectedProgram.StartDate),
-        EndDate: formatDate(selectedProgram.EndDate),
+        StartDate: selectedProgram.StartDate || "",
+        EndDate: selectedProgram.EndDate || "",
         Budget: selectedProgram.Budget || "",
-        TargetBeneficiaries:
-          selectedProgram.TargetBeneficiaries || "",
+        TargetBeneficiaries: selectedProgram.TargetBeneficiaries || "",
       });
     }
   }, [selectedProgram]);
@@ -58,34 +55,64 @@ export default function EditProgramModal({
 
     if (error) setError("");
   };
+ 
+// ================= VALIDATION =================
+ const validate = () => {
+  
+// Empty Field Check  
+  const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "ProgramName",
+    "Description",
+    "StartDate",
+    "EndDate",
+    "Budget",
+    "TargetBeneficiaries",
+  ],
+  {
+    ProgramName: "Program name",
+    Description: "Description",
+    StartDate: "Start date",
+    EndDate: "End date",
+    Budget: "Budget",
+    TargetBeneficiaries: "Target beneficiaries",
+  }
+);
+  if (requiredError) return requiredError;
+ 
+      // No Changes Check
+const noChangesError = validators.validateNoChanges(
+  selectedProgram,
+  form,
+  [
+    "ProgramName",
+    "Description",
+    "StartDate",
+    "EndDate",
+    "Budget",
+    "TargetBeneficiaries", 
+  ]
+);
+  if (noChangesError) return noChangesError;
 
-  // ================= VALIDATION =================
-  const validate = () => {
-    const {
-      ProgramName,
-      StartDate,
-      EndDate,
-      Budget,
-      TargetBeneficiaries,
-    } = form;
 
-    if (!ProgramName?.trim())
-      return "Program name is required";
+// Program date Check
+  const programDateError = programValidator.programDateRange(
+    form.StartDate,
+    form.EndDate,
+    {
+      isEdit: true,
+      originalStartDate: selectedProgram.StartDate,
+    }
+  );
+  if (programDateError) return programDateError;
 
-    if (!StartDate || !EndDate)
-      return "Start and End date are required";
 
-    if (!Budget)
-      return "Budget is required";
-
-    if (!TargetBeneficiaries)
-      return "Target beneficiaries is required";
-
-    if (new Date(EndDate) < new Date(StartDate))
-      return "End date cannot be earlier than start date";
 
     return "";
-  };
+  }; 
+
 
   // ================= SUBMIT =================
   const handleSubmit = (e) => {
@@ -116,9 +143,7 @@ export default function EditProgramModal({
     >
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form

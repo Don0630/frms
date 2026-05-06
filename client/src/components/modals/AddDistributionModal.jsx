@@ -12,6 +12,7 @@ import {
 
 import useDebounce from "../../hooks/useDebounce";
 import { useAvailableFarmer } from "../../hooks/useAvailableFarmer";
+import * as validators from "../../utils/validators";
 
 export default function AddDistributionModal({
   distributionID,
@@ -55,20 +56,29 @@ export default function AddDistributionModal({
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+
+// ================= VALIDATION =================
+  const validate = () => {
+    if (!selectedFarmer) return "Please select a Farmer!";
+    if (!amount) return "Total amount is required!"; 
+
+    const totalAmountError = validators.validatePositiveNumber( amount, "Amount");
+    if (totalAmountError) return totalAmountError;
+
+    return "";
+  };
+
+
+
   // submit
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    if (!selectedFarmer || !amount) {
-      setError("Please select a farmer and enter amount");
-      return;
-    }
+     const err = validate();
+    if (err) return setError(err);
 
-    if (Number(amount) <= 0) {
-      setError("Amount must be greater than 0");
-      return;
-    }
 
     onSubmit({
       FarmerID: selectedFarmer.FarmerID,
@@ -79,9 +89,7 @@ export default function AddDistributionModal({
   return (
     <Modal title="Add Distribution" onClose={onClose} width="max-w-lg">
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">

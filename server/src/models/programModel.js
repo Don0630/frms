@@ -1,10 +1,23 @@
 // server/src/models/programModel.js
 import { db } from "../config/db.js";
 
-
+ 
 // --------- GET ALL PROGRAM ---------
 export async function getAllProgram() {
-  const [rows] = await db.query("SELECT * FROM tblPrograms ORDER BY ProgramID");
+  const [rows] = await db.query(`
+    SELECT
+      ProgramID,
+      ProgramName,
+      Description,
+      DATE_FORMAT(StartDate, '%Y-%m-%d') AS StartDate,
+      DATE_FORMAT(EndDate, '%Y-%m-%d') AS EndDate,
+      Budget,
+      TargetBeneficiaries,
+      Status
+    FROM tblPrograms
+    ORDER BY ProgramID
+  `);
+
   return rows;
 }
 

@@ -6,6 +6,7 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function AddStaffModal({ onClose, onSubmit, loading }) {
   const [form, setForm] = useState({
@@ -26,25 +27,51 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = () => {
-    if (!form.FirstName || !form.LastName)
-      return "First and Last name are required";
+ // ================= VALIDATION =================
+  const validate = () => {
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+      form,
+      [
+        "FirstName",
+        "MiddleName",
+        "LastName",
+        "Gender",
+        "Position",
+        "Department",
+        "ContactNumber",
+        "Email", 
+      ],
+      {
+        FirstName: "First name",
+        MiddleName: "Middle name",
+        LastName: "Last name",
+        Gender: "Gender",
+        Position: "Position",
+        Department: "Department",
+        ContactNumber: "Contact number",
+        Email: "Email",
+      }
+      );
+    if (requiredError) return requiredError;
 
-    if (!form.Email) return "Email is required";
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.Email)) return "Invalid email format";
-
-    if (!form.ContactNumber) return "Contact number is required";
+    // phone validation
+    const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
+    if (phoneError) return phoneError;
+ 
+    // email validation
+    const emailError = validators.validateEmail(form.Email);
+    if (emailError) return emailError;
 
     return "";
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    const err = validateForm();
+    const err = validate();
     if (err) return setError(err);
 
     onSubmit(form);
@@ -54,9 +81,7 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
     <Modal title="Add Staff" onClose={onClose} width="max-w-lg">
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -125,12 +150,13 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
           </div>
 
           <div>
-            <label className={modalLabel}>Contact</label>
+            <label className={modalLabel}>Contact Number</label>
             <input
               name="ContactNumber"
               value={form.ContactNumber}
               onChange={handleChange}
               className={modalInput}
+              maxLength={11}
             />
           </div>
 

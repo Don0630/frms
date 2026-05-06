@@ -69,7 +69,10 @@ export default function Farmers() {
     },
     { key: "Email", label: "Email" },
     { key: "ContactNumber", label: "Contact No." },
-    { key: "RegistrationDate", label: "Registration Date" },
+    {
+      key: "RegistrationDate",
+      label: "Registration Date",
+    },
     {
       key: "actions",
       label: "",

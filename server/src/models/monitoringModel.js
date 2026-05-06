@@ -6,8 +6,8 @@ import { db } from "../config/db.js";
 export async function getAllMonitoring() {
   const [rows] = await db.query(`
     SELECT 
-      r.ReportID,
-      r.ReportDate,
+      r.ReportID, 
+      DATE_FORMAT(r.ReportDate, '%Y-%m-%d') AS ReportDate,
       r.ProductionVolume,
       r.Issues,
       r.Remarks,

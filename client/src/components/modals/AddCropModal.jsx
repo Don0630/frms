@@ -6,6 +6,9 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
+
+
 
 export default function AddCropModal({ onClose, onSubmit, loading }) {
   const [form, setForm] = useState({
@@ -24,18 +27,28 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
     if (error) setError("");
   };
 
-  const validate = () => {
-    if (!form.CropName?.trim()) return "Crop name is required";
-    if (!form.Category) return "Category is required";
-    if (!form.Season) return "Season is required";
-
-    if (!form.AverageYieldPerHectare)
-      return "Yield per hectare is required";
-
-    if (!form.MarketPrice) return "Market price is required";
-
+ const validate = () => {
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "CropName",
+    "Category",
+    "Season",
+    "AverageYieldPerHectare",
+  ],
+  {
+    CropName: "Crop name",
+    Category: "Category",
+    Season: "Season",
+    AverageYieldPerHectare: "Average yield per hectare",
+  }
+);
+    if (requiredError) return requiredError;
     return "";
   };
+
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,9 +68,7 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
     <Modal title="Add Crop" onClose={onClose} width="max-w-lg">
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">

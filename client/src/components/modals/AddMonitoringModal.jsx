@@ -5,6 +5,8 @@ import useSearchFarmer from "../../hooks/useSearchFarmer";
 import useSearchCrop from "../../hooks/useSearchCrop";
 import useSearchLivestock from "../../hooks/useSearchLivestock";
 import useDebounce from "../../hooks/useDebounce";
+import * as validators from "../../utils/validators";
+import * as monitoringValidator from "../../utils/monitoringValidator";
 
 import {
   modalInput,
@@ -88,15 +90,32 @@ export default function AddMonitoringModal({
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+// ================= VALIDATION =================
+  const validate = () => {
+    if (!selectedFarmer) return "Please select a Farmer!";
+    if (!ReportDate) return "Report Date is required!"; 
+    if (!Issues.trim()) return "Issues is required!";
+    if (!Remarks.trim()) return "Remarks is required!";
+
+    const dateError = monitoringValidator.validateMonitoringDate( ReportDate, "Report Date" );
+    if (dateError) return dateError;
+
+    const productionVolumeError = validators.validatePositiveNumber( ProductionVolume, "Production Volume");
+    if (productionVolumeError) return productionVolumeError;
+
+    return "";
+  };
+
+
   // ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    if (!selectedFarmer || !ReportDate) {
-      setError("Farmer and Report Date are required");
-      return;
-    }
+    const err = validate();
+    if (err) return setError(err);
+
 
     onSubmit({
       FarmerID: selectedFarmer.FarmerID,
@@ -112,9 +131,7 @@ export default function AddMonitoringModal({
   return (
     <Modal title="Add Monitoring" onClose={onClose} width="max-w-xl">
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -290,28 +307,30 @@ export default function AddMonitoringModal({
 
 </div>
 
-        {/* ================= DATE + PRODUCTION ================= */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={modalLabel}>Report Date *</label>
-            <input
-              type="date"
-              value={ReportDate}
-              onChange={(e) => setReportDate(e.target.value)}
-              className={`${modalInput} dark:[color-scheme:dark]`}
-            />
-          </div>
+   {/* ================= DATE + PRODUCTION ================= */}
+<div className="grid grid-cols-2 gap-3">
 
-          <div>
-            <label className={modalLabel}>Production Volume</label>
-            <input
-              type="number"
-              value={ProductionVolume}
-              onChange={(e) => setProductionVolume(e.target.value)}
-              className={`${modalInput} dark:[color-scheme:dark]`}
-            />
-          </div>
-        </div>
+  <div>
+    <label className={modalLabel}>Report Date *</label>
+    <input
+      type="date"
+      value={ReportDate}
+      onChange={(e) => setReportDate(e.target.value)}
+      className={`${modalInput} dark:[color-scheme:dark]`}
+    />
+  </div>
+
+  <div>
+    <label className={modalLabel}>Production Volume</label>
+    <input
+      type="number"
+      value={ProductionVolume}
+      onChange={(e) => setProductionVolume(e.target.value)}
+      className={`${modalInput} dark:[color-scheme:dark]`}
+    />
+  </div>
+
+</div>
 
         {/* ================= TEXT ================= */}
         <textarea

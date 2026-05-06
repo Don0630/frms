@@ -5,6 +5,8 @@ import useSearchFarmer from "../../hooks/useSearchFarmer";
 import useSearchCrop from "../../hooks/useSearchCrop";
 import useSearchLivestock from "../../hooks/useSearchLivestock";
 import useDebounce from "../../hooks/useDebounce";
+import * as validators from "../../utils/validators";
+import * as monitoringValidator from "../../utils/monitoringValidator";
 
 import {
   modalInput,
@@ -120,24 +122,39 @@ export default function EditMonitoringModal({
   const crops = searchCropQuery?.data?.data || [];
   const livestock = searchLivestockQuery?.data?.data || [];
 
-  const loadingFarmer =
-    searchFarmerQuery?.isLoading || searchFarmerQuery?.isFetching;
+  const loadingFarmer = searchFarmerQuery?.isLoading || searchFarmerQuery?.isFetching;
+  const loadingCrop = searchCropQuery?.isLoading || searchCropQuery?.isFetching;
+  const loadingLivestock = searchLivestockQuery?.isLoading || searchLivestockQuery?.isFetching;
 
-  const loadingCrop =
-    searchCropQuery?.isLoading || searchCropQuery?.isFetching;
 
-  const loadingLivestock =
-    searchLivestockQuery?.isLoading || searchLivestockQuery?.isFetching;
+
+  
+// ================= VALIDATION =================
+  const validate = () => {
+    if (!selectedFarmer) return "Please select a Farmer!";
+    if (!ReportDate) return "Report Date is required!"; 
+    if (!Issues.trim()) return "Issues is required!";
+    if (!Remarks.trim()) return "Remarks is required!";
+
+    const dateError = monitoringValidator.validateMonitoringDate( ReportDate, "Report Date" );
+    if (dateError) return dateError;
+
+    const productionVolumeError = validators.validatePositiveNumber( ProductionVolume, "Production Volume");
+    if (productionVolumeError) return productionVolumeError;
+
+    return "";
+  };
+
+
+
 
   // ================= SUBMIT =================
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
 
-    if (!selectedFarmer || !ReportDate) {
-      setError("Farmer and Report Date are required");
-      return;
-    }
+     const err = validate();
+    if (err) return setError(err);
 
     onSubmit({
       FarmerID: selectedFarmer?.FarmerID,
@@ -154,9 +171,7 @@ export default function EditMonitoringModal({
     <Modal title="Edit Monitoring" onClose={onClose} width="max-w-xl">
 
       {error && (
-        <div className="bg-red-100 text-red-600 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form className="space-y-4 text-sm" onSubmit={handleSubmit}>
@@ -330,6 +345,7 @@ export default function EditMonitoringModal({
         </div>
 
         {/* ================= OTHER FIELDS ================= */}
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className={modalLabel}>Report Date *</label>
           <input
@@ -349,6 +365,7 @@ export default function EditMonitoringModal({
             className={`${modalInput} dark:[color-scheme:dark]`}
           />
         </div>
+      </div>
 
         <div>
           <label className={modalLabel}>Issue</label>

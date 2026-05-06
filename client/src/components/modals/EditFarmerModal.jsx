@@ -6,6 +6,7 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators"; 
 
 export default function EditFarmerModal({
   onClose,
@@ -25,7 +26,7 @@ export default function EditFarmerModal({
         MiddleName: selectedFarmer.MiddleName || "",
         LastName: selectedFarmer.LastName || "",
         Gender: selectedFarmer.Gender || "",
-        DateOfBirth: selectedFarmer.DateOfBirth?.split("T")[0] || "",
+        DateOfBirth: selectedFarmer.DateOfBirth || "",
         Barangay: selectedFarmer.Barangay || "",
         Municipality: selectedFarmer.Municipality || "",
         Province: selectedFarmer.Province || "",
@@ -41,14 +42,71 @@ export default function EditFarmerModal({
     if (error) setError("");
   };
 
-  // ================= VALIDATE =================
-  const validate = () => {
-    if (!form.FirstName || !form.LastName) return "Name is required";
-    if (!form.Gender) return "Gender is required";
-    if (!form.DateOfBirth) return "Date of birth is required";
-    if (!form.ContactNumber) return "Contact number is required";
-    return "";
-  };
+
+  // ================= VALIDATION =================
+const validate = () => {
+  // 1. Required fields check
+const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "FirstName",
+    "MiddleName",
+    "LastName",
+    "Gender",
+    "DateOfBirth",
+    "ContactNumber",
+    "Barangay",
+    "Municipality",
+    "Province",
+  ],
+  {
+    FirstName: "First name",
+    MiddleName: "Middle name",
+    LastName: "Last name",
+    Gender: "Gender",
+    DateOfBirth: "Date of birth",
+    ContactNumber: "Contact number",
+    Barangay: "Barangay",
+    Municipality: "Municipality",
+    Province: "Province",
+  }
+);
+  if (requiredError) return requiredError;
+
+  // No Changes Check
+  const noChangesError = validators.validateNoChanges(
+  selectedFarmer,
+  form,
+  [
+    "FirstName",
+    "MiddleName",
+    "LastName",
+    "Gender",
+    "DateOfBirth",
+    "Barangay",
+    "Municipality",
+    "Province",
+    "ContactNumber",
+    "Email",
+  ]
+);
+  if (noChangesError) return noChangesError;
+
+  // phone validation
+  const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
+  if (phoneError) return phoneError;
+
+  // dob validation
+  const dobError = validators.validatePHAge(form.DateOfBirth);
+  if (dobError) return dobError;
+
+  // email validation
+  const emailError = validators.validateEmail(form.Email);
+  if (emailError) return emailError;
+
+  return "";
+ 
+};
 
   // ================= SUBMIT =================
   const handleSubmit = (e) => {
@@ -65,9 +123,7 @@ export default function EditFarmerModal({
     <Modal title="Edit Farmer" onClose={onClose} width="max-w-lg">
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -145,14 +201,22 @@ export default function EditFarmerModal({
             <input
               name="ContactNumber"
               value={form.ContactNumber || ""}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, ""); // remove non-numbers
+                setForm((prev) => ({
+                  ...prev,
+                  ContactNumber: value,
+                }));
+              }}
               className={modalInput}
+              maxLength={11}
             />
           </div>
 
           <div>
             <label className={modalLabel}>Email</label>
             <input
+              type="email"
               name="Email"
               value={form.Email || ""}
               onChange={handleChange}

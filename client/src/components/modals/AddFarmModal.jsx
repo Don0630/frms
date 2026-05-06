@@ -6,6 +6,7 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function AddFarmModal({
   onClose,
@@ -27,12 +28,26 @@ export default function AddFarmModal({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const validateForm = () => {
-    if (!form.FarmBarangay) return "Barangay is required";
-    if (!form.FarmMunicipality) return "Municipality is required";
-    if (!form.FarmProvince) return "Province is required";
-    if (!form.FarmSize) return "Farm size is required";
-    if (Number(form.FarmSize) <= 0) return "Farm size must be greater than 0";
+   // ================= VALIDATION =================
+  const validate = () => {
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields( form,
+  [
+    "FarmBarangay",
+    "FarmMunicipality",
+    "FarmProvince",
+    "FarmSize",
+  ],
+  {
+    FarmBarangay: "Barangay",
+    FarmMunicipality: "Municipality",
+    FarmProvince: "Province",
+    FarmSize: "Farm size",
+  }
+);
+    if (requiredError) return requiredError;
+
+
     return "";
   };
 
@@ -40,7 +55,7 @@ export default function AddFarmModal({
     e.preventDefault();
     setError("");
 
-    const err = validateForm();
+    const err = validate();
     if (err) return setError(err);
 
     onSubmit({
@@ -53,9 +68,7 @@ export default function AddFarmModal({
     <Modal title="Add Farm" onClose={onClose} width="max-w-lg">
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">

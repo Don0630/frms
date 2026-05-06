@@ -6,9 +6,10 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function EditStaffModal({
-  staff,
+  selectedStaff,
   onClose,
   onSubmit,
   loading,
@@ -28,34 +29,76 @@ export default function EditStaffModal({
 
   // hydrate form
   useEffect(() => {
-    if (staff) {
+    if (selectedStaff) {
       setForm({
-        FirstName: staff.FirstName || "",
-        MiddleName: staff.MiddleName || "",
-        LastName: staff.LastName || "",
-        Gender: staff.Gender || "Male",
-        Position: staff.Position || "",
-        Department: staff.Department || "",
-        ContactNumber: staff.ContactNumber || "",
-        Email: staff.Email || "",
+        FirstName: selectedStaff.FirstName || "",
+        MiddleName: selectedStaff.MiddleName || "",
+        LastName: selectedStaff.LastName || "",
+        Gender: selectedStaff.Gender || "Male",
+        Position: selectedStaff.Position || "",
+        Department: selectedStaff.Department || "",
+        ContactNumber: selectedStaff.ContactNumber || "",
+        Email: selectedStaff.Email || "",
       });
     }
-  }, [staff]);
+  }, [selectedStaff]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+ // ================= VALIDATION =================
   const validate = () => {
-    if (!form.FirstName || !form.LastName)
-      return "First and Last name are required";
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+      form,
+      [
+        "FirstName",
+        "MiddleName",
+        "LastName",
+        "Gender",
+        "Position",
+        "Department",
+        "ContactNumber",
+        "Email", 
+      ],
+      {
+        FirstName: "First name",
+        MiddleName: "Middle name",
+        LastName: "Last name",
+        Gender: "Gender",
+        Position: "Position",
+        Department: "Department",
+        ContactNumber: "Contact number",
+        Email: "Email",
+      }
+      );
+    if (requiredError) return requiredError;
 
-    if (!form.Email) return "Email is required";
+          // No Changes Check
+const noChangesError = validators.validateNoChanges(
+  selectedStaff,
+  form,
+  [
+    "FirstName",
+        "MiddleName",
+        "LastName",
+        "Gender",
+        "Position",
+        "Department",
+        "ContactNumber",
+        "Email", 
+  ]
+);
+  if (noChangesError) return noChangesError;
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.Email)) return "Invalid email format";
-
-    if (!form.ContactNumber) return "Contact number is required";
+    // phone validation
+    const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
+    if (phoneError) return phoneError;
+ 
+    // email validation
+    const emailError = validators.validateEmail(form.Email);
+    if (emailError) return emailError;
 
     return "";
   };
@@ -75,9 +118,7 @@ export default function EditStaffModal({
     <Modal title="Edit Staff" onClose={onClose} width="max-w-lg">
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -152,6 +193,7 @@ export default function EditStaffModal({
               value={form.ContactNumber}
               onChange={handleChange}
               className={modalInput}
+              maxLength={11}
             />
           </div>
 

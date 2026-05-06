@@ -72,9 +72,13 @@ export default function Programs() {
       ),
     },
 
-    { key: "StartDate", label: "Start" },
+    { key: "StartDate", 
+      label: "Start", 
+      },
 
-    { key: "EndDate", label: "End" },
+    { key: "EndDate", 
+      label: "End",
+      },
 
     {
       key: "Budget",

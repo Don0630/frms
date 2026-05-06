@@ -159,7 +159,11 @@ export default function FarmerDetails() {
 
             <div className="flex items-center gap-2">
               <Calendar size={14} />
-              {farmer.RegistrationDate}
+              {new Date(farmer.DateOfBirth).toLocaleDateString("en-PH", {
+  year: "numeric",
+  month: "long",
+  day: "2-digit",
+})}
             </div>
 
           </div>

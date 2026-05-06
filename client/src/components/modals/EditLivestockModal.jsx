@@ -6,6 +6,7 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function EditLivestockModal({
   onClose,
@@ -28,8 +29,7 @@ export default function EditLivestockModal({
       setForm({
         Type: selectedLivestock.Type || "",
         Breed: selectedLivestock.Breed || "",
-        AverageProduction:
-          selectedLivestock.AverageProduction || "",
+        AverageProduction: selectedLivestock.AverageProduction || "",
         MarketPrice: selectedLivestock.MarketPrice || "",
       });
     }
@@ -48,15 +48,39 @@ export default function EditLivestockModal({
   };
 
   // ================= VALIDATION =================
-  const validate = () => {
-    if (
-      !form.Type?.trim() ||
-      !form.Breed?.trim() ||
-      !form.AverageProduction ||
-      !form.MarketPrice
-    ) {
-      return "Please fill in all fields";
-    }
+const validate = () => {
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "Type",
+    "Breed",
+    "AverageProduction",
+    "MarketPrice",
+  ],
+  {
+    Type: "Livestock type",
+    Breed: "Breed",
+    AverageProduction: "Average production",
+    MarketPrice: "Market price",
+  }
+);
+    if (requiredError) return requiredError;
+
+
+
+    // No Changes Check
+const noChangesError = validators.validateNoChanges(
+  selectedLivestock,
+  form,
+  [
+    "Type",
+      "Breed",
+      "AverageProduction",
+      "MarketPrice", 
+  ]
+);
+  if (noChangesError) return noChangesError;
 
     return "";
   };
@@ -85,9 +109,7 @@ export default function EditLivestockModal({
     >
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">

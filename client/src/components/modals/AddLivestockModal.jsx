@@ -6,9 +6,10 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function AddLivestockModal({ onClose, onSubmit, loading }) {
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     Type: "",
     Breed: "",
     AverageProduction: "",
@@ -18,7 +19,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
+    setForm((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
@@ -26,16 +27,28 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
     if (error) setError("");
   };
 
-  const validate = () => {
-    const { Type, Breed, AverageProduction, MarketPrice } = formData;
 
-    if (!Type?.trim()) return "Type is required";
-    if (!Breed?.trim()) return "Breed is required";
-    if (!AverageProduction) return "Average Production is required";
-    if (!MarketPrice) return "Market Price is required";
-
+ const validate = () => {
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "Type",
+    "Breed",
+    "AverageProduction",
+    "MarketPrice",
+  ],
+  {
+    Type: "Livestock type",
+    Breed: "Breed",
+    AverageProduction: "Average production",
+    MarketPrice: "Market price",
+  }
+);
+    if (requiredError) return requiredError;
     return "";
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -45,10 +58,10 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
     if (err) return setError(err);
 
     onSubmit({
-      Type: formData.Type,
-      Breed: formData.Breed,
-      AverageProduction: parseFloat(formData.AverageProduction),
-      MarketPrice: parseFloat(formData.MarketPrice),
+      Type: form.Type,
+      Breed: form.Breed,
+      AverageProduction: parseFloat(form.AverageProduction),
+      MarketPrice: parseFloat(form.MarketPrice),
     });
   };
 
@@ -57,9 +70,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
 
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
@@ -69,7 +80,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
           <label className={modalLabel}>Type</label>
           <input
             name="Type"
-            value={formData.Type}
+            value={form.Type}
             onChange={handleChange}
             className={modalInput}
             placeholder="e.g. Cow, Goat"
@@ -81,7 +92,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
           <label className={modalLabel}>Breed</label>
           <input
             name="Breed"
-            value={formData.Breed}
+            value={form.Breed}
             onChange={handleChange}
             className={modalInput}
             placeholder="Breed"
@@ -97,7 +108,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
               type="number"
               step="0.01"
               name="AverageProduction"
-              value={formData.AverageProduction}
+              value={form.AverageProduction}
               onChange={handleChange}
               className={`${modalInput} dark:[color-scheme:dark]`}
             />
@@ -109,7 +120,7 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
               type="number"
               step="0.01"
               name="MarketPrice"
-              value={formData.MarketPrice}
+              value={form.MarketPrice}
               onChange={handleChange}
               className={`${modalInput} dark:[color-scheme:dark]`}
             />

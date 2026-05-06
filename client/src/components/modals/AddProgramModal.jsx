@@ -6,6 +6,8 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
+import * as programValidator from "../../utils/programValidator";
 
 export default function AddProgramModal({
   onClose,
@@ -35,33 +37,36 @@ export default function AddProgramModal({
     if (error) setError("");
   };
 
-  // ================= VALIDATION =================
-  const validate = () => {
-    const {
-      ProgramName,
-      StartDate,
-      EndDate,
-      Budget,
-      TargetBeneficiaries,
-    } = form;
 
-    if (!ProgramName?.trim())
-      return "Program name is required";
+// ================= VALIDATION =================
+ const validate = () => {
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "ProgramName",
+    "StartDate",
+    "EndDate",
+    "Budget",
+    "TargetBeneficiaries",
+  ],
+  {
+    ProgramName: "Program name",
+    StartDate: "Start date",
+    EndDate: "End date",
+    Budget: "Budget",
+    TargetBeneficiaries: "Target beneficiaries",
+  }
+);
+    if (requiredError) return requiredError;
 
-    if (!StartDate || !EndDate)
-      return "Start and End date are required";
-
-    if (!Budget)
-      return "Budget is required";
-
-    if (!TargetBeneficiaries)
-      return "Target beneficiaries is required";
-
-    if (new Date(EndDate) < new Date(StartDate))
-      return "End date cannot be earlier than start date";
+    const programDateError = programValidator.programDateRange(form.StartDate, form.EndDate);
+    if (programDateError) return programDateError;
 
     return "";
-  };
+  }; 
+
+
 
   // ================= SUBMIT =================
   const handleSubmit = (e) => {
@@ -93,9 +98,7 @@ export default function AddProgramModal({
     >
       {/* ERROR */}
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form

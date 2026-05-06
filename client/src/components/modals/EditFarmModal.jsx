@@ -6,6 +6,7 @@ import {
   modalButtonPrimary,
   modalButtonSecondary,
 } from "../common/ModalUI";
+import * as validators from "../../utils/validators";
 
 export default function EditFarmModal({
   onClose,
@@ -40,11 +41,38 @@ export default function EditFarmModal({
   };
 
   const validate = () => {
-    if (!form.FarmBarangay) return "Barangay is required";
-    if (!form.FarmMunicipality) return "Municipality is required";
-    if (!form.FarmProvince) return "Province is required";
-    if (!form.FarmSize) return "Farm size is required";
-    if (Number(form.FarmSize) <= 0) return "Farm size must be greater than 0";
+    // 1. Required fields check
+    const requiredError = validators.validateRequiredFields(
+  form,
+  [
+    "FarmBarangay",
+    "FarmMunicipality",
+    "FarmProvince",
+    "FarmSize",
+  ],
+  {
+    FarmBarangay: "Barangay",
+    FarmMunicipality: "Municipality",
+    FarmProvince: "Province",
+    FarmSize: "Farm size",
+  }
+);
+    if (requiredError) return requiredError;
+
+    // No Changes Check
+const noChangesError = validators.validateNoChanges(
+  selectedFarm,
+  form,
+  [
+    "FarmBarangay",
+      "FarmMunicipality",
+      "FarmProvince",
+      "FarmSize", 
+  ]
+);
+  if (noChangesError) return noChangesError;
+
+
     return "";
   };
 
@@ -63,9 +91,7 @@ export default function EditFarmModal({
     <Modal title="Edit Farm" onClose={onClose} width="max-w-lg">
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">

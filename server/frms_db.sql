@@ -34,13 +34,13 @@ CREATE TABLE tblFarmers (
   MiddleName VARCHAR(50),
   LastName VARCHAR(50) NOT NULL,
   Gender ENUM('Male', 'Female', 'Other'),
-  DateOfBirth DATE, 
+  DateOfBirth DATE,
   Barangay VARCHAR(100),
   Municipality VARCHAR(100),
   Province VARCHAR(100),
   ContactNumber VARCHAR(20),
   Email VARCHAR(100),
-  RegistrationDate DATE
+  RegistrationDate DATE DEFAULT (CURRENT_DATE)
 );
 
 

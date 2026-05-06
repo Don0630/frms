@@ -293,7 +293,7 @@ export default function SubsidyDetails() {
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">
-              Add Farmer
+              Add Distribution
             </span>
           </button>
         </div>

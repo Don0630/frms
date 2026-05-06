@@ -1,19 +1,33 @@
 // server/src/models/farmerModel.js
 import { db } from "../config/db.js";
 
-
+ 
 // --------- GET ALL FARMER ---------
 export async function getAllFarmer() {
   const [rows] = await db.query(`
     SELECT 
-      f.*,
-      fr.FarmID, 
+      f.FarmerID,
+      f.FirstName,
+      f.MiddleName,
+      f.LastName,
+      f.Gender,
+      DATE_FORMAT(f.DateOfBirth, '%Y-%m-%d') AS DateOfBirth,
+      f.Barangay,
+      f.Municipality,
+      f.Province,
+      f.ContactNumber,
+      f.Email,
+      DATE_FORMAT(f.RegistrationDate, '%Y-%m-%d') AS RegistrationDate,
+
+      fr.FarmID,
       fr.FarmBarangay,
       fr.FarmMunicipality,
       fr.FarmProvince,
       fr.FarmSize
+
     FROM tblFarmers f
-    LEFT JOIN tblFarms fr ON f.FarmerID = fr.FarmerID
+    LEFT JOIN tblFarms fr 
+      ON f.FarmerID = fr.FarmerID
     ORDER BY f.FarmerID
   `);
 
@@ -34,17 +48,17 @@ export async function getAllFarmer() {
         ContactNumber: row.ContactNumber,
         Email: row.Email,
         RegistrationDate: row.RegistrationDate,
-        Farms: []
+        Farms: [],
       });
     }
 
     if (row.FarmID) {
       map.get(row.FarmerID).Farms.push({
-        FarmID: row.FarmID, 
+        FarmID: row.FarmID,
         FarmBarangay: row.FarmBarangay,
         FarmMunicipality: row.FarmMunicipality,
         FarmProvince: row.FarmProvince,
-        FarmSize: row.FarmSize
+        FarmSize: row.FarmSize,
       });
     }
   }
@@ -65,8 +79,7 @@ export async function createFarmer(farmer) {
     Municipality,
     Province,
     ContactNumber,
-    Email,
-    RegistrationDate
+    Email
   } = farmer;
 
   const query = `
@@ -80,9 +93,8 @@ export async function createFarmer(farmer) {
     Municipality,
     Province,
     ContactNumber,
-    Email,
-    RegistrationDate)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    Email)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   const values = [
@@ -95,8 +107,7 @@ export async function createFarmer(farmer) {
     Municipality,
     Province,
     ContactNumber,
-    Email,
-    RegistrationDate
+    Email
   ];
 
   const [result] = await db.query(query, values);

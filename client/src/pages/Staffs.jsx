@@ -211,7 +211,7 @@ if (staffsQuery.isError) {
 {/* EDIT */}
 {editModal && (
   <EditStaffModal
-    staff={editModal}
+    selectedStaff={editModal}
     onClose={() => setEditModal(null)}
     onSubmit={(data) =>
       updateStaffMutation.mutate(

@@ -3,6 +3,8 @@ import Modal from "../common/Modal";
 
 import useDebounce from "../../hooks/useDebounce";
 import useProgram from "../../hooks/useProgram";
+import * as validators from "../../utils/validators";
+import * as subsidyValidator from "../../utils/subsidyValidator";
 
 import {
   modalInput,
@@ -57,13 +59,16 @@ export default function AddSubsidyModal({
 
   // ================= VALIDATION =================
   const validate = () => {
-    if (!selectedProgram) return "Please select a program";
-    if (!totalAmount) return "Total amount is required";
-    if (!distributionDate) return "Distribution date is required";
+    if (!selectedProgram) return "Please select a program!";
+    if (!totalAmount) return "Total amount is required!";
+    if (!distributionDate) return "Distribution date is required!";
+    if (!remarks) return "Remarks is required!";
 
-    const amount = Number(totalAmount);
-    if (isNaN(amount) || amount <= 0)
-      return "Enter a valid amount";
+    const totalAmountError = validators.validatePositiveNumber( totalAmount, "Total Amount");
+    if (totalAmountError) return totalAmountError;
+
+    const dateError = subsidyValidator.validateDistributionDate(distributionDate);
+    if (dateError) return dateError;
 
     return "";
   };
@@ -87,9 +92,7 @@ export default function AddSubsidyModal({
   return (
     <Modal title="Add Subsidy" onClose={onClose} width="max-w-lg">
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-2 text-sm rounded mb-3">
-          {error}
-        </div>
+        <p className="text-red-500 text-sm mb-3">{error}</p>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
