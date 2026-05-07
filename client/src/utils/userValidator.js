@@ -42,3 +42,15 @@ export function validatePassword(password, confirmPassword, fieldName = "Passwor
 
   return null;
 }
+
+
+
+export function validateRole(role) {
+  const allowedRoles = ["Admin", "Staff"];
+
+  if (!allowedRoles.includes(role)) {
+    return "Invalid role selected";
+  }
+
+  return "";
+}

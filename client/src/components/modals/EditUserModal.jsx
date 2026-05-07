@@ -63,6 +63,9 @@ const noChangesError = validators.validateNoChanges(
     const usernameError = userValidator.validateUsername(form.Username);
     if (usernameError) return usernameError;
 
+    const roleError = userValidator.validateRole(form.Role);
+    if (roleError) return roleError;
+
     return "";
   };
 

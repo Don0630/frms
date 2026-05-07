@@ -17,7 +17,7 @@ export function validateDistributionDate(dateString) {
   }
 
   if (selectedDate > maxDate) {
-    return "Date cannot exceed 1 year from today.";
+    return "Distribution date cannot exceed 1 year from today.";
   }
 
   return null;

@@ -42,26 +42,32 @@ export default function AddProgramModal({
  const validate = () => {
     // 1. Required fields check
     const requiredError = validators.validateRequiredFields(
-  form,
-  [
-    "ProgramName",
-    "StartDate",
-    "EndDate",
-    "Budget",
-    "TargetBeneficiaries",
-  ],
-  {
-    ProgramName: "Program name",
-    StartDate: "Start date",
-    EndDate: "End date",
-    Budget: "Budget",
-    TargetBeneficiaries: "Target beneficiaries",
-  }
-);
+      form,
+      [
+        "ProgramName",
+        "StartDate",
+        "EndDate",
+        "Budget",
+        "TargetBeneficiaries",
+      ],
+      {
+        ProgramName: "Program name",
+        StartDate: "Start date",
+        EndDate: "End date",
+        Budget: "Budget",
+        TargetBeneficiaries: "Target beneficiaries",
+      }
+    );
     if (requiredError) return requiredError;
 
     const programDateError = programValidator.programDateRange(form.StartDate, form.EndDate);
     if (programDateError) return programDateError;
+
+    const budgetError = validators.validatePositiveNumber(form.Budget,"Budget");
+    if (budgetError) return budgetError;
+
+    const beneError = validators.validatePositiveNumber(form.TargetBeneficiaries,"Target Beneficiaries");
+    if (beneError) return beneError;
 
     return "";
   }; 

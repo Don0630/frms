@@ -98,6 +98,9 @@ export default function AddUserModal({ onClose, onSubmit, loading, }) {
     const passwordError = userValidator.validatePassword( form.Password, form.ConfirmPassword);
     if (passwordError) return passwordError;
 
+    const roleError = userValidator.validateRole(form.Role);
+    if (roleError) return roleError;
+
     return "";
   };
 

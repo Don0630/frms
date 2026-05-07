@@ -108,6 +108,11 @@ const noChangesError = validators.validateNoChanges(
   );
   if (programDateError) return programDateError;
 
+    const budgetError = validators.validatePositiveNumber(form.Budget,"Budget");
+    if (budgetError) return budgetError;
+
+    const beneError = validators.validatePositiveNumber(form.TargetBeneficiaries,"Target Beneficiaries");
+    if (beneError) return beneError;
 
 
     return "";

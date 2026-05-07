@@ -138,7 +138,7 @@ CREATE TABLE tblAgriculturalStaff (
   FirstName VARCHAR(50),
   MiddleName VARCHAR(50),
   LastName VARCHAR(50),
-  Gender ENUM('Male', 'Female'),
+  Gender ENUM('Male', 'Female', 'Other'),
   Position VARCHAR(50),
   Department VARCHAR(50),
   ContactNumber VARCHAR(20),

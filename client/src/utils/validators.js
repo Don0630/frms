@@ -117,3 +117,19 @@ export function validatePositiveNumber(value, fieldName = "Field") {
 
   return null;
 }
+
+
+
+export function validateGender(gender) {
+  const allowedGenders = [
+    "Male",
+    "Female",
+    "Other",
+  ];
+
+  if (!allowedGenders.includes(gender)) {
+    return "Invalid gender selected";
+  }
+
+  return "";
+}

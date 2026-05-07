@@ -96,6 +96,9 @@ const requiredError = validators.validateRequiredFields(
   const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
   if (phoneError) return phoneError;
 
+  const genderError = validators.validateGender(form.Gender);
+  if (genderError) return genderError;
+
   // dob validation
   const dobError = validators.validatePHAge(form.DateOfBirth);
   if (dobError) return dobError;

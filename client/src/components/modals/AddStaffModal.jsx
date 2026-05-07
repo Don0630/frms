@@ -13,7 +13,7 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
     FirstName: "",
     MiddleName: "",
     LastName: "",
-    Gender: "Male",
+    Gender: "",
     Position: "",
     Department: "",
     ContactNumber: "",
@@ -62,6 +62,9 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
     // email validation
     const emailError = validators.validateEmail(form.Email);
     if (emailError) return emailError;
+
+    const genderError = validators.validateGender(form.Gender);
+    if (genderError) return genderError;
 
     return "";
   };
@@ -144,8 +147,10 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
               onChange={handleChange}
               className={modalInput}
             >
+              <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
+              <option value="Other">Others</option>
             </select>
           </div>
 

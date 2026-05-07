@@ -14,7 +14,7 @@ export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loadi
     FirstName: "",
     MiddleName: "",
     LastName: "",
-    Gender: "Male",
+    Gender: "",
     Position: "",
     Department: "",
     ContactNumber: "",
@@ -32,7 +32,7 @@ export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loadi
         FirstName: selectedStaff.FirstName || "",
         MiddleName: selectedStaff.MiddleName || "",
         LastName: selectedStaff.LastName || "",
-        Gender: selectedStaff.Gender || "Male",
+        Gender: selectedStaff.Gender || "",
         Position: selectedStaff.Position || "",
         Department: selectedStaff.Department || "",
         ContactNumber: selectedStaff.ContactNumber || "",
@@ -106,6 +106,9 @@ const handleChange = (e) => {
     // email validation
     const emailError = validators.validateEmail(form.Email);
     if (emailError) return emailError;
+
+    const genderError = validators.validateGender(form.Gender);
+    if (genderError) return genderError;
 
     return "";
   };
@@ -187,9 +190,10 @@ const handleChange = (e) => {
               value={form.Gender}
               onChange={handleChange}
               className={modalInput}
-            >
+            > 
               <option>Male</option>
               <option>Female</option>
+              <option>Other</option>
             </select>
           </div>
 
