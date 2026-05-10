@@ -1,72 +1,43 @@
-// src/api/farmerApi.js
-import { apiFetch } from "./apiFetch.js";
-
+import api from "./api.js";
 
 // ------------ FETCH ALL FARMER ------------
 export async function fetchAllFarmer() {
-  return apiFetch("/farmer/farmersData");
+  return api.get("/farmer/farmersData");
 }
-
 
 // ------------ ADD FARMER ------------
 export async function addFarmer(farmer) {
-  return await apiFetch("/farmer/addFarmer", {
-    method: "POST",
-    body: JSON.stringify(farmer),
-  });
+  return api.post("/farmer/addFarmer", farmer);
 }
-
-
 
 // ------------ UPDATE FARMER ------------
 export async function updateFarmer(farmer) {
-  return await apiFetch(`/farmer/updateFarmer/${farmer.FarmerID}`, {
-    method: "PUT",
-    body: JSON.stringify(farmer),
-  });
+  return api.put(`/farmer/updateFarmer/${farmer.FarmerID}`, farmer);
 }
-
-
 
 // ------------ ADD FARM ------------
 export async function addFarm(farm) {
-  return await apiFetch("/farmer/addFarm", {
-    method: "POST",
-    body: JSON.stringify(farm),
-  });
+  return api.post("/farmer/addFarm", farm);
 }
-
-
 
 // ------------ UPDATE FARM ------------
 export async function updateFarm(farm) {
-  return await apiFetch(`/farmer/updateFarm/${farm.FarmID}`, {
-    method: "PUT",
-    body: JSON.stringify(farm),
-  });
+  return api.put(`/farmer/updateFarm/${farm.FarmID}`, farm);
 }
-
 
 // ------------ DELETE FARM ------------
 export async function deleteFarm(id) {
-  return await apiFetch(`/farmer/farm/${id}`, {
-    method: "DELETE",
-  });
+  return api.delete(`/farmer/farm/${id}`);
 }
-
-
 
 // ------------ FETCH SEARCHED FARMER ------------
 export async function fetchSearchFarmer(search = "") {
-  const url = search
-    ? `/farmer/searchFarmer?search=${encodeURIComponent(search)}`
-    : "/farmer/searchFarmer";
-
-  return apiFetch(url);
+  return api.get("/farmer/searchFarmer", {
+    params: { search }, // 👈 axios handles query params cleanly
+  });
 }
 
- 
-// ------------ FETCH FARMER BY ID------------
- export async function fetchFarmerById(id) {
-  return apiFetch(`/farmer/farmerById/${id}`);
+// ------------ FETCH FARMER BY ID ------------
+export async function fetchFarmerById(id) {
+  return api.get(`/farmer/farmerById/${id}`);
 }

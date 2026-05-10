@@ -5,31 +5,21 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 // ------------- GET ALL FARMER -------------
 export async function getAllFarmer(req, res, next) {
-
   try {
-    const farmersData = await farmerService.fetchFarmers();
-
-    if (!farmersData) {
-      return errorResponse(res, "No active record found", 404);
-    }
-      return successResponse(res, "Farmers record fetched successfully", farmersData, 200);
+    const farmersData = await farmerService.fetchFarmers();   
+    return successResponse(res, "Farmers record fetched successfully", farmersData, 200);
   } catch (err) {
-    console.error("Error fetching Farmers Data:", err);
     return next(err);
   }
-
 }
  
-
 
 // ------------- ADD Farmer -------------
 export async function saveFarmer(req, res, next) {
   try {
-    // console.log("req.body:", req.body);
     const newFarmer = await farmerService.addFarmer(req.body);
     return successResponse(res, "Farmer added successfully", newFarmer, 201);
   } catch (err) {
-    console.error("Error adding Farmer:", err);
     return next(err);
   }
 }
@@ -42,12 +32,9 @@ export async function updateFarmer(req, res, next) {
     const updated = await farmerService.editFarmer(req.params.id, req.body);
     return successResponse(res, "Farmer updated successfully", updated);
   } catch (err) {
-    console.error("Error updating Farmer:", err);
     return next(err);
   }
 }
-
-
 
 
 
@@ -100,7 +87,6 @@ export async function getSearchFarmer(req, res, next) {
     const search = req.query.search || "";
     const searchedFarmer = await farmerService.fetchSearchFarmer(search);
 
-  
     return successResponse(res, "Farmers fetched successfully", searchedFarmer, 200);
   } catch (err) {
     console.error("Error fetching searched farmer:", err);

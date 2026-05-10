@@ -7,6 +7,7 @@ import Sidebar from "./components/SideBar";
 import Navbar from "./components/NavBar";
 import Breadcrumbs from "./components/Breadcrumbs";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { Toaster } from "react-hot-toast";
 
 // Pages
 import Login from "./pages/Auth/Login";
@@ -86,6 +87,9 @@ function App() {
 
   return (
     <Router>
+
+       <Toaster position="top-right" />
+      
       <Routes>
 
         {/* ================= PUBLIC ================= */}

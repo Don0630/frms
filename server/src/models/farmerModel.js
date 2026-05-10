@@ -206,8 +206,6 @@ export async function createFarm(farm) {
 }
 
 
-
-
 // --------- UPDATE FARM ---------
 export async function updateFarm(id, farm) {
   const {
@@ -244,8 +242,6 @@ export async function updateFarm(id, farm) {
 }
 
 
-
-
 // --------- DELETE FARM ---------
 export async function deleteFarm(id) {
   const query = `
@@ -260,9 +256,6 @@ export async function deleteFarm(id) {
     deleted: result.affectedRows > 0
   };
 }
-
-
-
 
 
 // --------------- SEARCH FARMER (GENERAL) ---------------
@@ -287,7 +280,6 @@ export async function getSearchFarmer(search = "") {
 }
 
 
-
 // --------- GET FARMER BY ID ---------
 export async function getFarmerById(id) {
   const [rows] = await db.query(
@@ -305,7 +297,6 @@ export async function getFarmerById(id) {
     `,
     [id]
   );
-
   if (rows.length === 0) return null;
 
   const farmer = {
@@ -337,4 +328,52 @@ export async function getFarmerById(id) {
   }
 
   return farmer;
+}
+
+
+// --------- FIND DUPLICATE FARMER ---------
+export async function findDuplicateFarmer(FirstName, MiddleName, LastName, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT FarmerID 
+    FROM tblFarmers
+    WHERE FirstName = ?
+      AND MiddleName = ?
+      AND LastName = ?
+      AND (? IS NULL OR FarmerID != ?)
+    LIMIT 1
+    `,
+    [FirstName, MiddleName, LastName, excludeId, excludeId]
+  );
+  return rows[0] || null;
+}
+
+// --------- FIND DUPLICATE CONTACT ---------
+export async function findDuplicateContact(ContactNumber, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT FarmerID 
+    FROM tblFarmers
+    WHERE ContactNumber = ?
+      AND (? IS NULL OR FarmerID != ?)
+    LIMIT 1
+    `,
+    [ContactNumber, excludeId, excludeId]
+  );
+  return rows[0] || null;
+}
+
+// --------- FIND DUPLICATE EMAIL ---------
+export async function findDuplicateEmail(Email, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT FarmerID 
+    FROM tblFarmers
+    WHERE Email = ?
+      AND (? IS NULL OR FarmerID != ?)
+    LIMIT 1
+    `,
+    [Email, excludeId, excludeId]
+  );
+  return rows[0] || null;
 }

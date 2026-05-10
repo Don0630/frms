@@ -1,5 +1,4 @@
-import * as validators from "../utils/validators.js"; 
-import { errorResponse } from "../utils/response.js";
+import * as validators from "../utils/validators.js";  
 
 export function validateLogin(req, res, next) {
   try {

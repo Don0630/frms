@@ -2,6 +2,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import * as authModel from "../models/authModel.js";
+import { throwError } from "../utils/throwError.js";
 
 const {
   JWT_ACCESS_SECRET,
@@ -27,10 +28,7 @@ export async function loginUser({ identifier, password }) {
   attempts.lastAttempt &&
   Date.now() - attempts.lastAttempt < LOCK_TIME
 ) {
-  const error = new Error("Too many failed attempts. Try again later.");
-  error.code = "AUTH_RATE_LIMIT";
-  error.statusCode = 429;
-  throw error;
+  throwError("Too many failed attempts. Try again later.", "AUTH_RATE_LIMIT", 429);
 }
 
 
@@ -39,20 +37,14 @@ export async function loginUser({ identifier, password }) {
 
   if (!user) {
     loginAttempts.set(identifier, { count: attempts.count + 1, lastAttempt: Date.now() });
-    const error = new Error("Invalid credentials");
-    error.code = "AUTH_INVALID_CREDENTIALS";
-    error.statusCode = 401;
-    throw error;
+    throwError("Invalid credentials", "AUTH_INVALID_CREDENTIALS", 401);
   }
 
   // Compare password
   const isMatch = await bcrypt.compare(password, user.PasswordHash);
   if (!isMatch) {
     loginAttempts.set(identifier, { count: attempts.count + 1, lastAttempt: Date.now() });
-    const error = new Error("Invalid credentials");
-    error.code = "AUTH_INVALID_CREDENTIALS";
-    error.statusCode = 401;
-    throw error;
+    throwError("Invalid credentials", "AUTH_INVALID_CREDENTIALS", 401);
   }
 
   // Reset attempts on success

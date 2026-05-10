@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Plus, Mars, Venus, Edit, Eye } from "lucide-react";
+import { Plus, Mars, Venus, Edit, Eye, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
  pageButtonPrimary
@@ -52,7 +53,7 @@ export default function Farmers() {
       return <Mars className="w-4 h-4 text-blue-500" />;
     if (gender?.toLowerCase() === "female")
       return <Venus className="w-4 h-4 text-pink-500" />;
-    return null;
+    return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
   };
 
   // ================= TABLE COLUMNS =================
@@ -63,7 +64,7 @@ export default function Farmers() {
       render: (item) => (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
-          {item.FirstName} {item.MiddleName}. {item.LastName}
+          {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
         </div>
       ),
     },
@@ -170,29 +171,25 @@ if (farmersQuery.isLoading) {
         <AddFarmerModal
           onClose={() => setAddModal(false)}
           onSubmit={(data) =>
-            createFarmerMutation.mutate(data, {
-              onSuccess: () => setAddModal(false),
-            })
+            createFarmerMutation.mutateAsync(data).then((res) => {
+              console.log(res);
+              setAddModal(false);
+              toast.success(res.message);
+            }).catch((error) => { throw error;})
           }
           loading={createFarmerMutation.isPending}
         />
       )}
-
 
       {editModal && (
         <EditFarmerModal
           selectedFarmer={editModal}
           onClose={() => setEditModal(null)}
           onSubmit={(data) =>
-            updateFarmerMutation.mutate(
-              {
-                id: editModal.FarmerID,
-                data,
-              },
-              {
-                onSuccess: () => setEditModal(null),
-              }
-            )
+            updateFarmerMutation.mutateAsync({ id: editModal.FarmerID, data }).then((res) => {
+              setEditModal(null);
+              toast.success(res.message);
+            }).catch((error) => { throw error; })
           }
           loading={updateFarmerMutation.isPending}
         />

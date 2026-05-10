@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -9,6 +10,7 @@ import {
 import * as validators from "../../utils/validators";
 
 export default function AddFarmerModal({ onClose, onSubmit, loading }) {
+  
   const [form, setForm] = useState({
     FirstName: "",
     MiddleName: "",
@@ -37,8 +39,7 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
     const requiredError = validators.validateRequiredFields(
       form,
       [
-        "FirstName",
-        "MiddleName",
+        "FirstName", 
         "LastName",
         "Gender",
         "DateOfBirth",
@@ -46,10 +47,10 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
         "Barangay",
         "Municipality",
         "Province",
+        "Email",
       ],
       {
-        FirstName: "First name",
-        MiddleName: "Middle name",
+        FirstName: "First name", 
         LastName: "Last name",
         Gender: "Gender",
         DateOfBirth: "Date of birth",
@@ -57,6 +58,7 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
         Barangay: "Barangay",
         Municipality: "Municipality",
         Province: "Province",
+        Email: "Email",
       }
       );
     if (requiredError) return requiredError;
@@ -82,15 +84,30 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
 
 
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
-    if (err) return setError(err);
+  const err = validate();
+  if (err) return setError(err);
 
-    onSubmit(form);
-  };
+  try {
+    await onSubmit(form);
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);                          // inline
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal title="Add Farmer" onClose={onClose} width="max-w-lg">

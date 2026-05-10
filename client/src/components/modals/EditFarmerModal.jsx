@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -112,15 +113,30 @@ const requiredError = validators.validateRequiredFields(
 };
 
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
-    if (err) return setError(err);
+  const err = validate();
+  if (err) return setError(err);
 
-    onSubmit(form);
-  };
+  try {
+    await onSubmit(form);
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal title="Edit Farmer" onClose={onClose} width="max-w-lg">
@@ -177,9 +193,9 @@ const requiredError = validators.validateRequiredFields(
               onChange={handleChange}
               className={modalInput}
             >
-              <option value="">Select Gender</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 

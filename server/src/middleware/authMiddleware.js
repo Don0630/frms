@@ -7,7 +7,7 @@ export function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return errorResponse(res, "Access denied. No token provided.", null, "NO_TOKEN" , 401);
+    return errorResponse(res, "Access denied. No token provided.", "NO_TOKEN", null, 401);
   }
 
   const token = authHeader.split(" ")[1];
@@ -24,9 +24,8 @@ export function authenticateToken(req, res, next) {
 
   } catch (err) {
     if (err.name === "TokenExpiredError") {
-      return errorResponse(res, "Token expired", null, "TOKEN_EXPIRED" , 401);
+      return errorResponse(res, "Token expired", "TOKEN_EXPIRED", null, 401);
     }
-
-    return errorResponse(res, "Invalid token", null, "INVALID_TOKEN", 403);
+      return errorResponse(res, "Invalid token", "INVALID_TOKEN", null, 403);
   }
 }
