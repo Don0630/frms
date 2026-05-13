@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -74,27 +75,35 @@ export default function AddProgramModal({
 
 
 
-  // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+// ================= SUBMIT =================
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
+  const err = validate();
+  if (err) return setError(err);
 
-    if (err) {
-      setError(err);
-      return;
-    }
-
-    onSubmit({
+  try {
+    await onSubmit({
       ...form,
       Budget: parseFloat(form.Budget),
-      TargetBeneficiaries: parseInt(
-        form.TargetBeneficiaries
-      ),
-      Status: "Active",
+      TargetBeneficiaries: parseInt(form.TargetBeneficiaries),
     });
-  };
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal

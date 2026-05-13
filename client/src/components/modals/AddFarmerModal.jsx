@@ -84,30 +84,30 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
 
 
   // ================= SUBMIT =================
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError("");
 
-  const err = validate();
-  if (err) return setError(err);
+      const err = validate();
+      if (err) return setError(err);
 
-  try {
-    await onSubmit(form);
-  } catch (error) {
-    const status = error?.response?.status;
-    const message = error?.response?.data?.message || error.message;
+      try {
+        await onSubmit(form);
+      } catch (error) {
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message || error.message;
 
-    if (status === 400 || status === 409) {
-      setError(message);                          // inline
-    } else if (status === 500) {
-      toast.error("Something went wrong. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
-    } else {
-      toast.error(message);
-    }
-  }
-};
+        if (status === 400 || status === 409) {
+          setError(message);                          // inline
+        } else if (status === 500) {
+          toast.error("Something went wrong. Please try again.");
+        } else if (!error.response) {
+          toast.error("Network error. Please check your connection.");
+        } else {
+          toast.error(message);
+        }
+      }
+    };
 
   return (
     <Modal title="Add Farmer" onClose={onClose} width="max-w-lg">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -30,39 +31,54 @@ export default function AddFarmModal({ onClose, onSubmit, loading, farmer,}) {
   // ================= VALIDATION =================
   const validate = () => {
     // 1. Required fields check
-    const requiredError = validators.validateRequiredFields( form,
-  [
-    "FarmBarangay",
-    "FarmMunicipality",
-    "FarmProvince",
-    "FarmSize",
-  ],
-  {
-    FarmBarangay: "Barangay",
-    FarmMunicipality: "Municipality",
-    FarmProvince: "Province",
-    FarmSize: "Farm size",
-  }
-);
+    const requiredError = validators.validateRequiredFields(form,
+      [
+        "FarmBarangay",
+        "FarmMunicipality",
+        "FarmProvince",
+        "FarmSize",
+      ],
+      {
+        FarmBarangay: "Barangay",
+        FarmMunicipality: "Municipality",
+        FarmProvince: "Province",
+        FarmSize: "Farm size",
+      }
+    );
     if (requiredError) return requiredError;
 
+    const farmSizeError = validators.validatePositiveNumber(form.FarmSize, "Farm Size");
+    if (farmSizeError) return farmSizeError;
 
     return "";
   };
 
 // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
-    if (err) return setError(err);
+  const err = validate();
+  if (err) return setError(err);
 
-    onSubmit({
-      FarmerID: farmer.FarmerID,
-      ...form,
-    });
-  };
+  try {
+    await onSubmit(form);
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);                          // inline
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
+
 
   return (
     <Modal title="Add Farm" onClose={onClose} width="max-w-lg">

@@ -285,7 +285,18 @@ export async function getFarmerById(id) {
   const [rows] = await db.query(
     `
     SELECT 
-      f.*,
+      f.FarmerID,
+      f.FirstName,
+      f.MiddleName,
+      f.LastName,
+      f.Gender,
+      DATE_FORMAT(f.DateOfBirth, '%Y-%m-%d') AS DateOfBirth,
+      f.Barangay,
+      f.Municipality,
+      f.Province,
+      f.ContactNumber,
+      f.Email,
+      DATE_FORMAT(f.RegistrationDate, '%Y-%m-%d') AS RegistrationDate,
       fr.FarmID, 
       fr.FarmBarangay,
       fr.FarmMunicipality,
@@ -331,6 +342,24 @@ export async function getFarmerById(id) {
 }
 
 
+// --------- CHECK FARM EXISTS ---------
+export async function getFarmById(id) {
+  const [rows] = await db.query(
+    `
+    SELECT FarmID 
+    FROM tblFarms
+    WHERE FarmID = ?
+    LIMIT 1
+    `,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+
+// ----------------------------------------- VALIDATIONS -----------------------------------------
+
+
 // --------- FIND DUPLICATE FARMER ---------
 export async function findDuplicateFarmer(FirstName, MiddleName, LastName, excludeId = null) {
   const [rows] = await db.query(
@@ -348,6 +377,7 @@ export async function findDuplicateFarmer(FirstName, MiddleName, LastName, exclu
   return rows[0] || null;
 }
 
+
 // --------- FIND DUPLICATE CONTACT ---------
 export async function findDuplicateContact(ContactNumber, excludeId = null) {
   const [rows] = await db.query(
@@ -363,6 +393,7 @@ export async function findDuplicateContact(ContactNumber, excludeId = null) {
   return rows[0] || null;
 }
 
+
 // --------- FIND DUPLICATE EMAIL ---------
 export async function findDuplicateEmail(Email, excludeId = null) {
   const [rows] = await db.query(
@@ -377,3 +408,23 @@ export async function findDuplicateEmail(Email, excludeId = null) {
   );
   return rows[0] || null;
 }
+
+
+// --------- FIND DUPLICATE FARM ---------
+export async function findDuplicateFarm(FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT FarmID 
+    FROM tblFarms
+    WHERE FarmerID = ?
+      AND FarmBarangay = ?
+      AND FarmMunicipality = ?
+      AND FarmProvince = ?
+      AND (? IS NULL OR FarmID != ?)
+    LIMIT 1
+    `,
+    [FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, excludeId, excludeId]
+  );
+  return rows[0] || null;
+}
+

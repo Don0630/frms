@@ -1,24 +1,38 @@
-export function validateDistributionDate(dateString) {
+export function validateDistributionDate(dateString, programStartDate = null, programEndDate = null) {
   if (!dateString) return "Date is required.";
 
   const selectedDate = new Date(dateString);
+  selectedDate.setHours(0, 0, 0, 0);
 
-  // normalize "today" (remove time part)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // max allowed = 1 year from today
-  const maxDate = new Date();
-  maxDate.setFullYear(today.getFullYear() + 1);
-  maxDate.setHours(23, 59, 59, 999);
-
-  if (selectedDate < today) {
-    return "Past distribution dates are not allowed.";
+  if (programStartDate) {
+    const start = new Date(programStartDate);
+    start.setHours(0, 0, 0, 0);
+    if (selectedDate < start) {
+      return "Distribution date cannot be before the program start date.";
+    }
   }
 
-  if (selectedDate > maxDate) {
-    return "Distribution date cannot exceed 1 year from today.";
+  if (programEndDate) {
+    const end = new Date(programEndDate);
+    end.setHours(0, 0, 0, 0);
+    if (selectedDate > end) {
+      return "Distribution date cannot exceed the program end date.";
+    }
   }
 
+  return null;
+}
+
+
+export function validateSubsidyAmount(amount, availableBudget) {
+  const available = parseFloat(availableBudget) || 0;
+  const newAmount = parseFloat(amount) || 0;
+
+  if (available <= 0) {
+    return "No available amount left for this program.";
+  }
+  if (newAmount > available) {
+    return `Amount exceeds available budget. Available: ₱${available.toLocaleString()}`;
+  }
   return null;
 }

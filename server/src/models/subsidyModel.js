@@ -8,23 +8,49 @@ export async function getAllSubsidy() {
   const [rows] = await db.query(`
     SELECT 
       d.DistributionID,
+      d.ProgramID,
       d.TotalAmount,
-      d.DistributionDate,
+      DATE_FORMAT(d.DistributionDate, '%Y-%m-%d') AS DistributionDate,
       d.Remarks,
       p.ProgramName,
+      p.Budget AS ProgramBudget,
+      DATE_FORMAT(p.StartDate, '%Y-%m-%d') AS ProgramStartDate,
+      DATE_FORMAT(p.EndDate, '%Y-%m-%d') AS ProgramEndDate,    
 
       -- 💰 total distributed money
       COALESCE(SUM(
         CASE WHEN sd.IsDistributed = 1 THEN sd.Amount ELSE 0 END
       ), 0) AS TotalDistributed,
 
-      -- 👨‍🌾 total assigned farmers (ALL farmers)
+      -- 👨‍🌾 total assigned farmers
       COALESCE(COUNT(sd.FarmerID), 0) AS TotalFarmers,
 
-      -- ✅ distributed farmers count (optional but useful)
+      -- ✅ distributed farmers count
       COALESCE(SUM(
         CASE WHEN sd.IsDistributed = 1 THEN 1 ELSE 0 END
-      ), 0) AS DistributedFarmers
+      ), 0) AS DistributedFarmers,
+
+      -- 💵 total subsidy for this program (across all distributions)
+      COALESCE((
+        SELECT SUM(TotalAmount)
+        FROM tblSubsidyDistribution
+        WHERE ProgramID = d.ProgramID
+      ), 0) AS TotalSubsidy,
+
+      -- 🏦 remaining budget
+      p.Budget - COALESCE((
+        SELECT SUM(TotalAmount)
+        FROM tblSubsidyDistribution
+        WHERE ProgramID = d.ProgramID
+      ), 0) AS RemainingBudget,
+
+      -- 💵 available budget excluding self (for edit validation) 👈
+      p.Budget - COALESCE((
+        SELECT SUM(TotalAmount)
+        FROM tblSubsidyDistribution
+        WHERE ProgramID = d.ProgramID
+          AND DistributionID != d.DistributionID
+      ), 0) AS AvailableBudget
 
     FROM tblSubsidyDistribution d
 
@@ -36,10 +62,14 @@ export async function getAllSubsidy() {
 
     GROUP BY 
       d.DistributionID,
+      d.ProgramID,
       d.TotalAmount,
       d.DistributionDate,
       d.Remarks,
-      p.ProgramName
+      p.ProgramName,
+      p.Budget,
+      p.StartDate,
+      p.EndDate   
 
     ORDER BY d.DistributionDate DESC
   `);
@@ -47,7 +77,6 @@ export async function getAllSubsidy() {
   return rows || [];
 }
 
- 
 
 // --------- CREATE SUBSIDY ---------
 export async function createSubsidy(subsidy) {
@@ -65,6 +94,30 @@ export async function createSubsidy(subsidy) {
 
   return {
     DistributionID: result.insertId,
+    ...subsidy,
+  };
+}
+
+
+// --------- UPDATE SUBSIDY ---------
+export async function updateSubsidy(id, subsidy) {
+  const { TotalAmount, DistributionDate, Remarks } = subsidy;
+
+  const query = `
+    UPDATE tblSubsidyDistribution
+    SET
+      TotalAmount = ?,
+      DistributionDate = ?,
+      Remarks = ?
+    WHERE DistributionID = ?
+  `;
+
+  const values = [TotalAmount, DistributionDate, Remarks, id];
+
+  await db.query(query, values);
+
+  return {
+    DistributionID: id,
     ...subsidy,
   };
 }
@@ -111,7 +164,7 @@ export async function getAvailableFarmer(distributionID, search = "") {
 
 
 
-// --------- CREATE FARMER SUBSIDY ---------
+// --------- CREATE FARMER DISTRIBUTION ---------
 export async function createDistribution(distribution) {
   const {
     DistributionID,
@@ -176,17 +229,15 @@ export async function deleteDistribution(id) {
 
 
 
-
-
-// --------- GET SUBSIDY BY ID ---------
-export async function getSubsidyById(id) {
+// --------- GET SUBSIDY DETAILS ---------
+export async function getSubsidyDetails(id) {
   const [rows] = await db.query(
     `
     SELECT 
       d.DistributionID,
       d.ProgramID,
-      d.TotalAmount,
-      d.DistributionDate,
+      d.TotalAmount, 
+      DATE_FORMAT(d.DistributionDate, '%Y-%m-%d') AS DistributionDate,
       d.Remarks,
 
       p.ProgramName,
@@ -248,35 +299,66 @@ export async function getSubsidyById(id) {
 }
 
 
-// --------- GET PROGRAM BUDGET SUMMARY ---------
-export async function getProgramBudgetSummary(programID) {
+
+// ----------------------------- VALIDATIONS -----------------------------
+
+
+
+// --------- GET SUBSIDY BY ID ---------
+export async function getSubsidyById(id) {
   const [rows] = await db.query(
     `
-    SELECT
-      p.ProgramID,
-      p.ProgramName,
-      p.Budget AS ProgramBudget,
-
-      COALESCE(SUM(d.TotalAmount), 0) AS TotalSubsidyBudget,
-
-      (
-        p.Budget - COALESCE(SUM(d.TotalAmount), 0)
-      ) AS RemainingBudget
-
-    FROM tblPrograms p
-
-    LEFT JOIN tblSubsidyDistribution d
-      ON p.ProgramID = d.ProgramID
-
-    WHERE p.ProgramID = ?
-
-    GROUP BY
-      p.ProgramID,
-      p.ProgramName,
-      p.Budget
+    SELECT 
+      d.DistributionID,
+      d.ProgramID,
+      d.TotalAmount,
+      DATE_FORMAT(d.DistributionDate, '%Y-%m-%d') AS DistributionDate,
+      d.Remarks,
+      -- check if any farmer has been distributed
+      COALESCE(SUM(
+        CASE WHEN sd.IsDistributed = 1 THEN 1 ELSE 0 END
+      ), 0) AS DistributedCount
+    FROM tblSubsidyDistribution d
+    LEFT JOIN tblSubsidyDistributionDetails sd
+      ON d.DistributionID = sd.DistributionID
+    WHERE d.DistributionID = ?
+    GROUP BY 
+      d.DistributionID,
+      d.ProgramID,
+      d.TotalAmount,
+      d.DistributionDate,
+      d.Remarks
     `,
-    [programID]
+    [id]
   );
-
   return rows[0] || null;
+}
+
+
+// --------- GET TOTAL SUBSIDY BY PROGRAM ---------
+export async function getTotalSubsidyByProgram(programId, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT COALESCE(SUM(TotalAmount), 0) AS TotalSubsidy
+    FROM tblSubsidyDistribution
+    WHERE ProgramID = ?
+      AND (? IS NULL OR DistributionID != ?)
+    `,
+    [programId, excludeId, excludeId]
+  );
+  return rows[0].TotalSubsidy;
+}
+
+
+// --------- GET TOTAL ASSIGNED AMOUNT ---------
+export async function getTotalAssignedAmount(distributionID) {
+  const [rows] = await db.query(
+    `
+    SELECT COALESCE(SUM(Amount), 0) AS TotalAssigned
+    FROM tblSubsidyDistributionDetails
+    WHERE DistributionID = ?
+    `,
+    [distributionID]
+  );
+  return rows[0].TotalAssigned;
 }

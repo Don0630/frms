@@ -34,7 +34,18 @@ export async function saveSubsidy(req, res, next) {
 }
 
 
+// ------------- UPDATE SUBSIDY ------------- 👈
+export async function updateSubsidy(req, res, next) {
+  try {
+    const updated = await subsidyService.editSubsidy(req.params.id, req.body);
+    return successResponse(res, "Subsidy updated successfully", updated);
+  } catch (err) {
+    return next(err);
+  }
+}
 
+
+// ------------- SEARCH AVAILABLE -------------
 export async function getAvailableFarmer(req, res, next) {
   try {
     const distributionID = req.query.distributionID;
@@ -64,7 +75,7 @@ export async function getAvailableFarmer(req, res, next) {
 }
 
 
-// ------------- ADD FARMER SUBSIDY -------------
+// ------------- ADD FARMER DISTRIBUTION -------------
 export async function saveDistribution(req, res, next) {
   try {
     // console.log("req.body:", req.body);
@@ -110,9 +121,9 @@ export async function deleteDistribution(req, res) {
 
 
 
-export async function getSubsidyById(req, res, next) {
+export async function getSubsidyDetails(req, res, next) {
   try {
-    const subsidy = await subsidyService.fetchSubsidyById(req.params.id);
+    const subsidy = await subsidyService.fetchSubsidyDetails(req.params.id);
 
     if (!subsidy) {
       return errorResponse(res, "Subsidy not found", 404);

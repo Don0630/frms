@@ -1,72 +1,48 @@
 // src/api/subsidyApi.js
-import { apiFetch } from "./apiFetch.js";
-
+import api from "./api.js";
 
 // ------------ FETCH ALL SUBSIDY ------------
 export async function fetchAllSubsidy() {
-  return apiFetch("/subsidy/subsidiesData");
+  return api.get("/subsidy/subsidiesData");
 }
 
 // ------------ ADD SUBSIDY ------------
 export async function addSubsidy(subsidy) {
-  return await apiFetch("/subsidy/addSubsidy", {
-    method: "POST",
-    body: JSON.stringify(subsidy),
-  });
+  return api.post("/subsidy/addSubsidy", subsidy);
 }
 
 
-// ------------ FETCH SUBSIDY BY ID------------
- export async function fetchSubsidyById(id) {
-  return apiFetch(`/subsidy/subsidyById/${id}`);
+// ------------ UPDATE SUBSIDY ------------
+export async function updateSubsidy(subsidy) {
+  return api.put(`/subsidy/updateSubsidy/${subsidy.DistributionID}`, subsidy);
 }
 
+// ------------ FETCH SUBSIDY DETAILS ------------
+export async function fetchSubsidyDetails(id) {
+  return api.get(`/subsidy/subsidyDetails/${id}`);
+}
 
-
-// ------------ ADD FARMER SUBSIDY ------------
+// ------------ ADD DISTRIBUTION ------------
 export async function addDistribution(distribution) {
-  return await apiFetch("/subsidy/addDistribution", {
-    method: "POST",
-    body: JSON.stringify(distribution),
-  });
+  return api.post("/subsidy/addDistribution", distribution);
 }
-
-
 
 // ------------ UPDATE DISTRIBUTION ------------
 export async function updateDistribution(distribution) {
-  return await apiFetch(
-    `/subsidy/updateDistribution/${distribution.DistributionDetailsID}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(distribution),
-    }
-  );
+  return api.put(`/subsidy/updateDistribution/${distribution.DistributionDetailsID}`, distribution);
 }
-
 
 // ------------ DELETE DISTRIBUTION ------------
 export async function deleteDistribution(id) {
-  return await apiFetch(`/subsidy/deleteDistribution/${id}`, {
-    method: "DELETE",
-  });
+  return api.delete(`/subsidy/deleteDistribution/${id}`);
 }
-
 
 // ------------ FETCH AVAILABLE FARMER FOR SUBSIDY ------------
 export async function fetchAvailableFarmer(distributionID, search = "") {
-  const params = new URLSearchParams();
-
-  if (distributionID != null) {
-    params.append("distributionID", distributionID);
-  }
-
-  if (search.trim()) {
-    params.append("search", search.trim());
-  }
-
-  const url = `/subsidy/availableFarmer?${params.toString()}`;
-  return await apiFetch(url); 
+  return api.get("/subsidy/availableFarmer", {
+    params: {
+      ...(distributionID != null && { distributionID }),
+      ...(search.trim() && { search: search.trim() }),
+    },
+  });
 }
-
-

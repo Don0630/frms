@@ -14,7 +14,6 @@ export async function getAllProgram(req, res, next) {
     }
       return successResponse(res, "Programs record fetched successfully", programsData, 200);
   } catch (err) {
-    console.error("Error fetching Programs Data:", err);
     return next(err);
   }
 
@@ -28,7 +27,6 @@ export async function saveProgram(req, res, next) {
     const newProgram = await programService.addProgram(req.body);
     return successResponse(res, "Program added successfully", newProgram, 201);
   } catch (err) {
-    console.error("Error saving Program:", err);
     return next(err);
   }
 }

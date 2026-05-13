@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
-import {
- pageButtonPrimary
-} from "../components/common/PageUI";
+import { pageButtonPrimary } from "../components/common/PageUI";
+import toast from "react-hot-toast";
 
 import { useFarmerDetails } from "../hooks/useFarmerDetails";
 import { useFarm } from "../hooks/useFarm";
@@ -76,8 +74,7 @@ export default function FarmerDetails() {
     return <div className="p-4 text-red-500">Farmer not found</div>;
   }
 
-  const fullName =
-    `${farmer.FirstName} ${farmer.MiddleName || ""} ${farmer.LastName}`.trim();
+  const fullName = `${farmer.FirstName} ${farmer.MiddleName ? `${farmer.MiddleName[0]}.` : ""} ${farmer.LastName}`.trim();
 
   // ================= COLUMNS =================
   const columns = [
@@ -159,11 +156,7 @@ export default function FarmerDetails() {
 
             <div className="flex items-center gap-2">
               <Calendar size={14} />
-              {new Date(farmer.DateOfBirth).toLocaleDateString("en-PH", {
-  year: "numeric",
-  month: "long",
-  day: "2-digit",
-})}
+              {farmer.DateOfBirth}
             </div>
 
           </div>
@@ -210,56 +203,57 @@ export default function FarmerDetails() {
 
       {/* ================= MODALS ================= */}
 
-      {addModal && (
-        <AddFarmModal
-          farmer={farmer}
-          onClose={() => setAddModal(false)}
-          loading={createFarmMutation.isPending}
-          onSubmit={(data) =>
-            createFarmMutation.mutate(
-              {
-                FarmerID: farmer.FarmerID,
-                ...data,
-              },
-              {
-                onSuccess: () => setAddModal(false),
-              }
-            )
-          }
-        />
-      )}
-
-   {editModal && (
-  <EditFarmModal
-    selectedFarm={editModal}
-    onClose={() => setEditModal(null)}
-    loading={updateFarmMutation.isPending}
-    onSubmit={(form) =>
-      updateFarmMutation.mutate(
-        {
-          id: editModal.FarmID,
-          data: form,
-        },
-        {
-          onSuccess: () => setEditModal(null),
-        }
-      )
+{addModal && (
+  <AddFarmModal
+    farmer={farmer}
+    onClose={() => setAddModal(false)}
+    loading={createFarmMutation.isPending}
+    onSubmit={(data) =>
+      createFarmMutation.mutateAsync({
+        FarmerID: farmer.FarmerID,
+        ...data,
+      }).then((res) => {
+        setAddModal(false);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
     }
   />
 )}
 
-     {deleteModal && (
+{editModal && (
+  <EditFarmModal
+    selectedFarm={editModal}
+    onClose={() => setEditModal(null)}
+    loading={updateFarmMutation.isPending}
+    onSubmit={(data) =>
+      updateFarmMutation.mutateAsync({ id: editModal.FarmID, data }).then((res) => {
+        setEditModal(null);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
+    }
+  />
+)}
+
+{deleteModal && (
   <DeleteFarmModal
     farm={deleteModal}
     loading={deleteFarmMutation.isPending}
     onClose={() => setDeleteModal(null)}
     onConfirm={() =>
-      deleteFarmMutation.mutate(deleteModal.FarmID, {
-        onSuccess: () => setDeleteModal(null),
+      deleteFarmMutation.mutateAsync(deleteModal.FarmID).then((res) => {
+        setDeleteModal(null);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
       })
     }
   />
 )}
+
     </>
   );
 }

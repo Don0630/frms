@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchSubsidyById } from "../api/subsidyApi";
+import { fetchSubsidyDetails } from "../api/subsidyApi";
 
 export function useSubsidyDetails(id) {
   return useQuery({
     queryKey: ["subsidy", id],
-    queryFn: () => fetchSubsidyById(id),
+    queryFn: () => fetchSubsidyDetails(id),
     enabled: !!id,
   });
 }

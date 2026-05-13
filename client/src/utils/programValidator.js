@@ -52,3 +52,59 @@ export function programDateRange(
 
   return null;
 }
+
+
+export function validateProgramStatus(status) {
+  const allowedStatuses = ["Active", "Completed", "Dropped"];
+
+  if (!allowedStatuses.includes(status)) {
+    return "Invalid status!";
+  }
+
+  return null;
+}
+
+
+// --------- BUDGET VALIDATION ---------
+export function validateProgramBudget(newBudget, totalDistributed) {
+  if (parseFloat(newBudget) < totalDistributed) {
+    return `Budget cannot be less than the total already distributed (₱${Number(totalDistributed).toLocaleString()})`;
+  }
+  return null;
+}
+
+// --------- STATUS CHANGE VALIDATION ---------
+export function validateProgramStatusChange(newStatus, currentStatus, pendingDistributions, budget, totalDistributed) {
+  
+  // Dropped → Completed not allowed
+  if (currentStatus === "Dropped" && newStatus === "Completed") {
+    return `Cannot set to "Completed" — program was dropped`;
+  }
+
+  // Completed → Dropped not allowed
+  if (currentStatus === "Completed" && newStatus === "Dropped") {
+    return `Cannot set to "Dropped" — program is already completed`;
+  }
+
+  // Active → Dropped
+  if (newStatus === "Dropped") {
+    if (parseFloat(totalDistributed) > 0) {
+      return `Cannot set to "Dropped" — budget has already been distributed (₱${Number(totalDistributed).toLocaleString()})`;
+    }
+    if (pendingDistributions > 0) {
+      return `Cannot set to "Dropped" — there are ${pendingDistributions} pending distributions`;
+    }
+  }
+
+  // Active → Completed
+  if (newStatus === "Completed") {
+    if (pendingDistributions > 0) {
+      return `Cannot set to "Completed" — there are ${pendingDistributions} pending distributions`;
+    }
+    if (parseFloat(totalDistributed) < parseFloat(budget)) {
+      return `Cannot set to "Completed" — budget is not yet fully distributed (₱${Number(totalDistributed).toLocaleString()} of ₱${Number(budget).toLocaleString()})`;
+    }
+  }
+
+  return null;
+}

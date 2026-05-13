@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -49,57 +50,62 @@ export default function EditLivestockModal({
 
   // ================= VALIDATION =================
 const validate = () => {
-    // 1. Required fields check
-    const requiredError = validators.validateRequiredFields(
-  form,
-  [
-    "Type",
-    "Breed",
-    "AverageProduction",
-    "MarketPrice",
-  ],
-  {
-    Type: "Livestock type",
-    Breed: "Breed",
-    AverageProduction: "Average production",
-    MarketPrice: "Market price",
-  }
-);
-    if (requiredError) return requiredError;
+  const requiredError = validators.validateRequiredFields(form,
+    ["Type", "Breed", "AverageProduction", "MarketPrice"],
+    {
+      Type: "Livestock type",
+      Breed: "Breed",
+      AverageProduction: "Average production",
+      MarketPrice: "Market price",
+    }
+  );
+  if (requiredError) return requiredError;
 
-
-
-    // No Changes Check
-const noChangesError = validators.validateNoChanges(
-  selectedLivestock,
-  form,
-  [
-    "Type",
-      "Breed",
-      "AverageProduction",
-      "MarketPrice", 
-  ]
-);
+  const noChangesError = validators.validateNoChanges(selectedLivestock, form,
+    ["Type", "Breed", "AverageProduction", "MarketPrice"]
+  );
   if (noChangesError) return noChangesError;
 
-    return "";
-  };
+  // 👈 missing in your current code
+  const aveProdError = validators.validatePositiveNumber(form.AverageProduction, "Average Production");
+  if (aveProdError) return aveProdError;
 
-  // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+  const marketPriceError = validators.validatePositiveNumber(form.MarketPrice, "Market Price");
+  if (marketPriceError) return marketPriceError;
 
-    const err = validate();
-    if (err) return setError(err);
+  return "";
+};
 
-    onSubmit({
+// ================= SUBMIT =================
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  const err = validate();
+  if (err) return setError(err);
+
+  try {
+    await onSubmit({
       Type: form.Type,
       Breed: form.Breed,
       AverageProduction: parseFloat(form.AverageProduction),
       MarketPrice: parseFloat(form.MarketPrice),
     });
-  };
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal

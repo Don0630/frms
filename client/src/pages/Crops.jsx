@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Plus, Info, Edit } from "lucide-react";
 
 import {
@@ -198,32 +199,32 @@ export default function Crops() {
         />
       )}
 
-  {showAddModal && (
+{showAddModal && (
   <AddCropModal
     onClose={() => setShowAddModal(false)}
     onSubmit={(data) =>
-      createCropMutation.mutate(data, {
-        onSuccess: () => setShowAddModal(false),
+      createCropMutation.mutateAsync(data).then((res) => {
+        setShowAddModal(false);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
       })
     }
     loading={createCropMutation.isPending}
   />
 )}
 
-    {editModal && (
+{editModal && (
   <EditCropModal
     selectedCrop={editModal}
     onClose={() => setEditModal(null)}
     onSubmit={(data) =>
-      updateCropMutation.mutate(
-        {
-          id: editModal.CropID,
-          data,
-        },
-        {
-          onSuccess: () => setEditModal(null),
-        }
-      )
+      updateCropMutation.mutateAsync({ id: editModal.CropID, data }).then((res) => {
+        setEditModal(null);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
     }
     loading={updateCropMutation.isPending}
   />

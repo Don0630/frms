@@ -86,8 +86,34 @@ export async function getSearchCrop(search = "") {
     ORDER BY c.CropName
     LIMIT 3
     `,
-    [searchPattern, searchPattern]
+    [searchPattern]
   );
 
   return rows || [];
+}
+
+
+// --------- GET CROP BY ID ---------
+export async function getCropById(id) {
+  const [rows] = await db.query(
+    `SELECT CropID FROM tblCrops WHERE CropID = ? LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+
+// --------- FIND DUPLICATE CROP NAME ---------
+export async function findDuplicateCrop(CropName, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT CropID
+    FROM tblCrops
+    WHERE CropName = ?
+      AND (? IS NULL OR CropID != ?)
+    LIMIT 1
+    `,
+    [CropName, excludeId, excludeId]
+  );
+  return rows[0] || null;
 }

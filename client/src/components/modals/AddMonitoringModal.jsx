@@ -97,38 +97,25 @@ export default function AddMonitoringModal({
     useDebounce(searchLivestock, 300);
 
   // ================= QUERIES =================
-  const { searchFarmerQuery } =
-    useSearchFarmer(debouncedFarmer);
+  const { searchFarmerQuery } = useSearchFarmer(debouncedFarmer);
 
-  const { searchCropQuery } =
-    useSearchCrop(debouncedCrop);
+  const { searchCropQuery } = useSearchCrop(debouncedCrop);
 
-  const { searchLivestockQuery } =
-    useSearchLivestock(
+  const { searchLivestockQuery } = useSearchLivestock(
       debouncedLivestock
     );
 
-  const availableFarmers =
-    searchFarmerQuery?.data?.data || [];
+  const availableFarmers = searchFarmerQuery?.data?.data || [];
 
-  const availableCrops =
-    searchCropQuery?.data?.data || [];
+  const availableCrops = searchCropQuery?.data?.data || [];
 
-  const availableLivestock =
-    searchLivestockQuery?.data?.data ||
-    [];
+  const availableLivestock = searchLivestockQuery?.data?.data || [];
 
-  const loadingFarmer =
-    searchFarmerQuery?.isLoading ||
-    searchFarmerQuery?.isFetching;
+  const loadingFarmer = searchFarmerQuery?.isLoading || searchFarmerQuery?.isFetching;
 
-  const loadingCrop =
-    searchCropQuery?.isLoading ||
-    searchCropQuery?.isFetching;
+  const loadingCrop = searchCropQuery?.isLoading || searchCropQuery?.isFetching;
 
-  const loadingLivestock =
-    searchLivestockQuery?.isLoading ||
-    searchLivestockQuery?.isFetching;
+  const loadingLivestock = searchLivestockQuery?.isLoading || searchLivestockQuery?.isFetching;
 
   // ================= OUTSIDE CLICK =================
   useEffect(() => {

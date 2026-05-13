@@ -6,8 +6,8 @@ import {
   modalButtonSecondary,
 } from "../common/ModalUI";
 
-export default function DeleteDistributionModal({
-  distribution,
+export default function DeleteFarmModal({
+  farm,
   onClose,
   onConfirm,
   loading = false,
@@ -26,19 +26,19 @@ export default function DeleteDistributionModal({
 
         {/* TITLE */}
         <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
-          Remove Distribution
+          Remove Farm
         </h2>
 
         {/* MESSAGE */}
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-          Are you sure you want to remove this farmer from the distribution?
+          Are you sure you want to remove this farm?
         </p>
+        
 
-        {/* OPTIONAL DETAILS */}
-        {distribution?.FirstName && (
+        {farm?.FarmBarangay && (
           <p className="text-sm mt-2 text-gray-800 dark:text-gray-200">
             <span className="font-medium">
-              {distribution.FirstName} {distribution.LastName}
+              {farm.FarmBarangay}, {farm.FarmMunicipality}, {farm.FarmProvince}
             </span>
           </p>
         )}

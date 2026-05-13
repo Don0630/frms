@@ -15,7 +15,6 @@ import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
-
 import AddFarmerModal from "../components/modals/AddFarmerModal";
 import EditFarmerModal from "../components/modals/EditFarmerModal";
 

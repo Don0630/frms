@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Plus, Info, Edit } from "lucide-react";
 
 import {
@@ -123,6 +124,11 @@ export default function Programs() {
     },
   ];
 
+  // ================= LOADING =================
+  if (programsQuery.isLoading) {
+    return <TablePageSkeleton />;
+  }
+
   // ================= ERROR =================
   if (programsQuery.isError) {
     return (
@@ -130,11 +136,6 @@ export default function Programs() {
         {programsQuery.error.message}
       </div>
     );
-  }
-
-  // ================= LOADING =================
-  if (programsQuery.isLoading) {
-    return <TablePageSkeleton />;
   }
 
   return (
@@ -208,38 +209,38 @@ export default function Programs() {
         />
       )}
 
-      {/* ADD */}
-      {addProgramModal && (
-        <AddProgramModal
-          onClose={() => setAddProgramModal(false)}
-          onSubmit={(data) =>
-            createProgramMutation.mutate(data, {
-              onSuccess: () => setAddProgramModal(false),
-            })
-          }
-          loading={createProgramMutation.isPending}
-        />
-      )}
+{/* ADD */}
+{addProgramModal && (
+  <AddProgramModal
+    onClose={() => setAddProgramModal(false)}
+    onSubmit={(data) =>
+      createProgramMutation.mutateAsync(data).then((res) => {
+        setAddProgramModal(false);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
+    }
+    loading={createProgramMutation.isPending}
+  />
+)}
 
-      {/* EDIT */}
-      {editModal && (
-        <EditProgramModal
-          selectedProgram={editModal}
-          onClose={() => setEditModal(null)}
-          onSubmit={(data) =>
-            updateProgramMutation.mutate(
-              {
-                id: editModal.ProgramID,
-                data,
-              },
-              {
-                onSuccess: () => setEditModal(null),
-              }
-            )
-          }
-          loading={updateProgramMutation.isPending}
-        />
-      )}
+{/* EDIT */}
+{editModal && (
+  <EditProgramModal
+    selectedProgram={editModal}
+    onClose={() => setEditModal(null)}
+    onSubmit={(data) =>
+      updateProgramMutation.mutateAsync({ id: editModal.ProgramID, data }).then((res) => {
+        setEditModal(null);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
+    }
+    loading={updateProgramMutation.isPending}
+  />
+)}
 
     </div>
   );

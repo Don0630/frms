@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -30,7 +31,7 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
     if (error) setError("");
   };
 
-
+  
 // ================= VALIDATION =================
  const validate = () => {
     // 1. Required fields check
@@ -65,19 +66,34 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
 
 
 // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
-    if (err) return setError(err);
+  const err = validate();
+  if (err) return setError(err);
 
-    onSubmit({
+  try {
+    await onSubmit({
       ...form,
       AverageYieldPerHectare: parseFloat(form.AverageYieldPerHectare),
       MarketPrice: parseFloat(form.MarketPrice),
     });
-  };
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal title="Add Crop" onClose={onClose} width="max-w-lg">

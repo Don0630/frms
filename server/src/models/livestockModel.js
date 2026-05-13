@@ -50,7 +50,6 @@ export async function getSearchLivestock(search = "") {
 }
 
 
-
 // --------- UPDATE LIVESTOCK ---------
 export async function updateLivestock(id, livestock) {
   const {
@@ -84,4 +83,30 @@ export async function updateLivestock(id, livestock) {
     LivestockID: id,
     ...livestock
   };
+}
+
+
+// --------- GET LIVESTOCK BY ID ---------
+export async function getLivestockById(id) {
+  const [rows] = await db.query(
+    `SELECT LivestockID FROM tblLivestock WHERE LivestockID = ? LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+// --------- FIND DUPLICATE LIVESTOCK ---------
+export async function findDuplicateLivestock(Type, Breed, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT LivestockID
+    FROM tblLivestock
+    WHERE Type = ?
+      AND Breed = ?
+      AND (? IS NULL OR LivestockID != ?)
+    LIMIT 1
+    `,
+    [Type, Breed, excludeId, excludeId]
+  );
+  return rows[0] || null;
 }

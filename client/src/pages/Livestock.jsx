@@ -1,4 +1,5 @@
-import { useState } from "react";
+import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
 import { Plus, Info, Edit } from "lucide-react";
 
 import {
@@ -50,9 +51,9 @@ export default function Livestock() {
   } = usePagination(filteredData, 10);
 
   // reset page when filter/search changes
-  useState(() => {
-    setCurrentPage(1);
-  }, [search, filter]);
+useEffect(() => {
+  setCurrentPage(1);
+}, [search, filter]);
 
   // ================= TABLE COLUMNS =================
   const columns = [
@@ -190,38 +191,38 @@ export default function Livestock() {
         />
       )}
 
-      {/* ADD */}
-      {addModal && (
-        <AddLivestockModal
-          onClose={() => setAddModal(false)}
-          onSubmit={(data) =>
-            createLivestockMutation.mutate(data, {
-              onSuccess: () => setAddModal(false),
-            })
-          }
-          loading={createLivestockMutation.isPending}
-        />
-      )}
+{/* ADD */}
+{addModal && (
+  <AddLivestockModal
+    onClose={() => setAddModal(false)}
+    onSubmit={(data) =>
+      createLivestockMutation.mutateAsync(data).then((res) => {
+        setAddModal(false);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
+    }
+    loading={createLivestockMutation.isPending}
+  />
+)}
 
-      {/* EDIT (FARMER PATTERN STYLE FIX) */}
-      {editModal && (
-        <EditLivestockModal
-          selectedLivestock={editModal}
-          onClose={() => setEditModal(null)}
-          onSubmit={(data) =>
-            updateLivestockMutation.mutate(
-              {
-                id: editModal.LivestockID,
-                data,
-              },
-              {
-                onSuccess: () => setEditModal(null),
-              }
-            )
-          }
-          loading={updateLivestockMutation.isPending}
-        />
-      )}
+{/* EDIT */}
+{editModal && (
+  <EditLivestockModal
+    selectedLivestock={editModal}
+    onClose={() => setEditModal(null)}
+    onSubmit={(data) =>
+      updateLivestockMutation.mutateAsync({ id: editModal.LivestockID, data }).then((res) => {
+        setEditModal(null);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
+    }
+    loading={updateLivestockMutation.isPending}
+  />
+)}
 
     </div>
   );

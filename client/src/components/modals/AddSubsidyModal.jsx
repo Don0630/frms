@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 
 import useDebounce from "../../hooks/useDebounce";
@@ -43,11 +44,9 @@ export default function AddSubsidyModal({
 
   const { availableProgramsQuery } = useProgram(debouncedSearch);
 
-  const availablePrograms =
-    availableProgramsQuery.data?.data || [];
+  const availablePrograms = availableProgramsQuery.data?.data || [];
 
-  const loadingPrograms =
-    availableProgramsQuery.isLoading;
+  const loadingPrograms = availableProgramsQuery.isLoading;
 
   // ================= OUTSIDE CLICK CLOSE =================
   useEffect(() => {
@@ -105,51 +104,51 @@ export default function AddSubsidyModal({
           Remarks: "Remarks",
         }
       );
-
     if (requiredError) return requiredError;
 
-    const totalAmountError =
-      validators.validatePositiveNumber(
-        form.TotalAmount,
-        "Total Amount"
-      );
+    const totalAmountError = validators.validatePositiveNumber(form.TotalAmount, "Total Amount");
+    if (totalAmountError) return totalAmountError;
 
-    if (totalAmountError)
-      return totalAmountError;
+    const budgetError = subsidyValidator.validateSubsidyAmount(form.TotalAmount,selectedProgram.AvailableBudget);
+    if (budgetError) return budgetError;
 
-    const dateError =
-      subsidyValidator.validateDistributionDate(
-        form.DistributionDate
-      );
-
+    const dateError = subsidyValidator.validateDistributionDate(form.DistributionDate, selectedProgram.StartDate, selectedProgram.EndDate);
     if (dateError) return dateError;
 
     return "";
   };
 
+
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
+  const err = validate();
+  if (err) return setError(err);
 
-    if (err) return setError(err);
-
-    onSubmit({
-      ProgramID:
-        selectedProgram.ProgramID,
-
-      TotalAmount: Number(
-        form.TotalAmount
-      ),
-
-      DistributionDate:
-        form.DistributionDate,
-
+  try {
+    await onSubmit({
+      ProgramID: selectedProgram.ProgramID,
+      TotalAmount: Number(form.TotalAmount),
+      DistributionDate: form.DistributionDate,
       Remarks: form.Remarks.trim(),
     });
-  };
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal
@@ -232,57 +231,45 @@ export default function AddSubsidyModal({
             availablePrograms.length >
               0 && (
 
-              <div
-                className={`${modalDropdown} absolute z-50`}
-              >
-                {availablePrograms.map(
-                  (program) => (
-                    <div
-                      key={
-                        program.ProgramID
-                      }
-                      onClick={() => {
-                        setSelectedProgram(
-                          program
-                        );
+<div
+  className={`${modalDropdown} absolute z-50`}
+>
+  {availablePrograms.map((program) => (
+    <div
+      key={program.ProgramID}
+      onClick={() => {
+        setSelectedProgram(program);
+        setSearchProgram(program.ProgramName);
+        setShowDropdown(false);
+      }}
+      className={modalDropdownItem}
+    >
 
-                        setSearchProgram(
-                          program.ProgramName
-                        );
 
-                        setShowDropdown(
-                          false
-                        );
-                      }}
-                      className={
-                        modalDropdownItem
-                      }
-                    >
-                      <div>
-                        {
-                          program.ProgramName
-                        }
-                      </div>
+<div className="flex items-center justify-between gap-2">
+  <span className="text-gray-800 dark:text-gray-100 truncate">
+    <span className="font-medium">{program.ProgramName}</span>
+    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
+      - Total: {Number(program.Budget || 0).toLocaleString("en-PH", {
+        style: "currency",
+        currency: "PHP",
+        minimumFractionDigits: 2,
+      })}
+    </span>
+  </span>
 
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        Budget:{" "}
-                        {Number(
-                          program.Budget || 0
-                        ).toLocaleString(
-                          "en-PH",
-                          {
-                            style:
-                              "currency",
-                            currency:
-                              "PHP",
-                            minimumFractionDigits: 2,
-                          }
-                        )}
-                      </span>
-                    </div>
-                  )
-                )}
-              </div>
+  <span className="text-xs text-green-600 dark:text-green-400 shrink-0">
+    Available: {Number(program.AvailableBudget || 0).toLocaleString("en-PH", {
+      style: "currency",
+      currency: "PHP",
+      minimumFractionDigits: 2,
+    })}
+  </span>
+</div>
+
+    </div>
+  ))}
+</div>
             )}
         </div>
 
