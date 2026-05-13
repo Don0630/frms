@@ -8,7 +8,6 @@ const api = axios.create({
 // ✅ Attach token automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  console.log("TOKEN:", token); 
   const isAuthEndpoint = config.url?.startsWith("/auth");
   if (token && !isAuthEndpoint) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -16,12 +15,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ✅ Unwrap response + handle global errors
 api.interceptors.response.use(
-  (response) => response.data, // 👈 returns { success, message, data } directly
+  (response) => response.data,
   (error) => {
     const status = error?.response?.status;
-    if (status === 401) window.location.href = "/sessionexpired";
+    if (status === 401) {
+      localStorage.removeItem("token"); // 👈
+      localStorage.removeItem("user"); // 👈
+      window.location.href = "/sessionexpired";
+    }
     if (status === 403) window.location.href = "/unauthorized";
     return Promise.reject(error);
   }
