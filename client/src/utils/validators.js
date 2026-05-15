@@ -1,3 +1,5 @@
+
+// =============================== REQUIRED FIELDS VALIDATOR ===============================
 export function validateRequiredFields(data, fields, labels = {}) {
   for (const field of fields) {
     const value = data?.[field];
@@ -15,7 +17,7 @@ export function validateRequiredFields(data, fields, labels = {}) {
   return null;
 }
 
-
+// =============================== NO CHANGES VALIDATOR ===============================
 export function validateNoChanges(originalData, newData, fields = []) {
   const normalize = (obj) =>
     fields.reduce((acc, key) => {
@@ -38,6 +40,7 @@ export function validateNoChanges(originalData, newData, fields = []) {
 }
 
 
+// =============================== DATE OF BIRTH VALIDATOR ===============================
 export function validatePHAge(dateOfBirth) {
  
   const dob = new Date(dateOfBirth);
@@ -62,7 +65,7 @@ export function validatePHAge(dateOfBirth) {
 }
 
 
-
+// =============================== PH NUMBER VALIDATOR ===============================
 export function validatePHMobileNumber(number) {
 
   const cleaned = number.trim();
@@ -83,7 +86,7 @@ export function validatePHMobileNumber(number) {
 }
 
 
-
+// =============================== EMAIL VALIDATOR VALIDATOR ===============================
 export function validateEmail(email) {
   if (!email) return "Email is required";
 
@@ -99,7 +102,7 @@ export function validateEmail(email) {
 }
 
 
-
+// =============================== NO ZERO ALLOWED ===============================
 export function validatePositiveNumber(value, fieldName = "Field") {
   if (value === null || value === undefined || value === "") {
     return `${fieldName} is required.`;
@@ -119,7 +122,7 @@ export function validatePositiveNumber(value, fieldName = "Field") {
 }
 
 
-
+// =============================== GENDER VALIDATOR ===============================
 export function validateGender(gender) {
   const allowedGenders = [
     "Male",

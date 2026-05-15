@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
+
+import useDebounce from "../../hooks/useDebounce";
+import { useAvailableFarmer } from "../../hooks/useAvailableFarmer";
+
+import * as validators from "../../utils/validators";
+import * as distributionValidator from "../../utils/distributionValidator";
 
 import {
   modalInput,
@@ -10,13 +17,9 @@ import {
   modalButtonSecondary,
 } from "../common/ModalUI";
 
-import useDebounce from "../../hooks/useDebounce";
-import { useAvailableFarmer } from "../../hooks/useAvailableFarmer";
-
-import * as validators from "../../utils/validators";
-
 export default function AddDistributionModal({
   distributionID,
+  remainingAmount,
   onClose,
   onSubmit,
   loading,
@@ -25,6 +28,8 @@ export default function AddDistributionModal({
   // ================= FARMER SEARCH =================
   const [searchFarmer, setSearchFarmer] = useState("");
   const [selectedFarmer, setSelectedFarmer] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const wrapperRef = useRef(null);
 
   // ================= FORM STATE =================
   const [form, setForm] = useState({
@@ -32,184 +37,119 @@ export default function AddDistributionModal({
   });
 
   const [error, setError] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const wrapperRef = useRef(null);
 
   // ================= DEBOUNCE =================
-  const debouncedSearch = useDebounce(
-    searchFarmer,
-    300
-  );
-
-  const availableFarmerQuery =
-    useAvailableFarmer(
-      distributionID,
-      debouncedSearch
-    );
-
-  const availableFarmers =
-    availableFarmerQuery.data?.data || [];
-
-  const loadingFarmers =
-    availableFarmerQuery.isLoading;
+  const debouncedSearch = useDebounce(searchFarmer, 300);
+  const availableFarmerQuery = useAvailableFarmer(distributionID, debouncedSearch);
+  const availableFarmers = availableFarmerQuery.data?.data || [];
+  const loadingFarmers = availableFarmerQuery.isLoading || availableFarmerQuery.isFetching;
 
   // ================= OUTSIDE CLICK CLOSE =================
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (
-        wrapperRef.current &&
-        !wrapperRef.current.contains(
-          e.target
-        )
-      ) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setShowDropdown(false);
       }
     };
-
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
-
-    return () =>
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setForm((prev) => ({ ...prev, [name]: value }));
     if (error) setError("");
   };
 
   // ================= VALIDATION =================
   const validate = () => {
+    if (!selectedFarmer) return "Please select a Farmer!";
 
-    if (!selectedFarmer)
-      return "Please select a Farmer!";
+    const requiredError = validators.validateRequiredFields(
+      form,
+      ["Amount"],
+      { Amount: "Amount" }
+    );
+    if (requiredError) return requiredError;
 
-    const requiredError =
-      validators.validateRequiredFields(
-        form,
-        ["Amount"],
-        {
-          Amount: "Amount",
-        }
-      );
+    const amountError = validators.validatePositiveNumber(form.Amount, "Amount");
+    if (amountError) return amountError;
 
-    if (requiredError)
-      return requiredError;
-
-    const amountError =
-      validators.validatePositiveNumber(
-        form.Amount,
-        "Amount"
-      );
-
-    if (amountError)
-      return amountError;
+    const distAmountError = distributionValidator.validateDistributionAmount(form.Amount, remainingAmount);
+    if (distAmountError) return distAmountError;
 
     return "";
   };
 
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const err = validate();
-
     if (err) return setError(err);
 
-    onSubmit({
-      FarmerID:
-        selectedFarmer.FarmerID,
+    try {
+      await onSubmit({
+        FarmerID: selectedFarmer.FarmerID,
+        Amount: Number(form.Amount),
+      });
+    } catch (error) {
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || error.message;
 
-      Amount: Number(form.Amount),
-    });
+      if (status === 400 || status === 409) {
+        setError(message);
+      } else if (status === 500) {
+        toast.error("Something went wrong. Please try again.");
+      } else if (!error.response) {
+        toast.error("Network error. Please check your connection.");
+      } else {
+        toast.error(message);
+      }
+    }
   };
 
   return (
-    <Modal
-      title="Add Distribution"
-      onClose={onClose}
-      width="max-w-lg"
-    >
-      {/* ERROR */}
-      {error && (
-        <p className="text-red-500 text-sm mb-3">
-          {error}
-        </p>
-      )}
+    <Modal title="Add Distribution" onClose={onClose} width="max-w-lg">
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 text-sm"
-      >
+      {/* ERROR */}
+      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
         {/* ================= FARMER SEARCH ================= */}
-        <div
-          className="relative"
-          ref={wrapperRef}
-        >
+        <div className="relative" ref={wrapperRef}>
 
           <div className="flex items-center justify-between">
-
-            <label className={modalLabel}>
-              Select Farmer *
-            </label>
+            <label className={modalLabel}>Select Farmer *</label>
 
             <div className="text-xs min-h-[16px] flex items-center">
-
               {loadingFarmers ? (
                 <span className="text-green-600 animate-pulse">
                   Searching farmers...
                 </span>
-
               ) : !loadingFarmers &&
                 !selectedFarmer &&
                 availableFarmers.length === 0 &&
                 searchFarmer.length > 0 ? (
-
-                <span className="text-red-400">
-                  No farmers found!
-                </span>
-
+                <span className="text-red-400">No farmers found!</span>
               ) : (
-                <span className="opacity-0">
-                  .
-                </span>
+                <span className="opacity-0">.</span>
               )}
-
             </div>
           </div>
 
-          {/* INPUT */}
           <input
             type="text"
             placeholder="Search farmer..."
             value={searchFarmer}
-            onFocus={() =>
-              setShowDropdown(true)
-            }
+            onFocus={() => setShowDropdown(true)}
             onChange={(e) => {
-              setSearchFarmer(
-                e.target.value
-              );
-
+              setSearchFarmer(e.target.value);
               setSelectedFarmer(null);
-
               setShowDropdown(true);
-
               if (error) setError("");
             }}
             className={modalInput}
@@ -217,88 +157,50 @@ export default function AddDistributionModal({
 
           {/* DROPDOWN */}
           {showDropdown &&
-            !selectedFarmer &&
-            availableFarmers.length >
-              0 && (
-
-              <div
-                className={`${modalDropdown} absolute z-50 w-full`}
-              >
-                {availableFarmers.map(
-                  (farmer) => (
-                    <div
-                      key={
-                        farmer.FarmerID
-                      }
-                      onClick={() => {
-                        setSelectedFarmer(
-                          farmer
-                        );
-
-                        setSearchFarmer(
-                          `${farmer.FirstName} ${farmer.LastName}`
-                        );
-
-                        setShowDropdown(
-                          false
-                        );
-                      }}
-                      className={
-                        modalDropdownItem
-                      }
-                    >
-                      {farmer.FirstName}{" "}
-                      {farmer.LastName}
-                    </div>
-                  )
-                )}
+            !loadingFarmers &&
+            availableFarmers.length > 0 && (
+              <div className={`${modalDropdown} absolute z-50 w-full`}>
+                {availableFarmers.map((farmer) => (
+                  <div
+                    key={farmer.FarmerID}
+                    onClick={() => {
+                      setSelectedFarmer(farmer);
+                      setSearchFarmer(`${farmer.LastName}, ${farmer.FirstName}${farmer.MiddleName ? ` ${farmer.MiddleName}` : ""}`);
+                      setShowDropdown(false);
+                    }}
+                    className={modalDropdownItem}
+                  >
+                     {farmer.LastName}, {farmer.FirstName}{farmer.MiddleName ? ` ${farmer.MiddleName}` : ""}
+                  </div>
+                ))}
               </div>
             )}
         </div>
 
-        {/* ================= AMOUNT ================= */}
-        <div>
-
-          <label className={modalLabel}>
-            Amount
-          </label>
-
-          <input
-            type="number"
-            step="0.01"
-            name="Amount"
-            value={form.Amount}
-            onChange={handleChange}
-            className={`${modalInput} dark:[color-scheme:dark]`}
-          />
-
-        </div>
+{/* ================= AMOUNT ================= */}
+<div>
+  <label className={modalLabel}>Amount</label>
+  <input
+    type="number"
+    step="0.01"
+    name="Amount"
+    value={form.Amount}
+    onChange={handleChange}
+    className={`${modalInput} dark:[color-scheme:dark]`}
+  />
+  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+    Unassigned: ₱{Number(remainingAmount || 0).toLocaleString()}
+  </p>
+</div>
 
         {/* ================= ACTIONS ================= */}
         <div className="flex justify-end gap-2 pt-2">
-
-          <button
-            type="button"
-            onClick={onClose}
-            className={
-              modalButtonSecondary
-            }
-          >
+          <button type="button" onClick={onClose} className={modalButtonSecondary}>
             Cancel
           </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={
-              modalButtonPrimary
-            }
-          >
-            {loading
-              ? "Saving..."
-              : "Assign Subsidy"}
+          <button type="submit" disabled={loading} className={modalButtonPrimary}>
+            {loading ? "Saving..." : "Assign Subsidy"}
           </button>
-
         </div>
 
       </form>

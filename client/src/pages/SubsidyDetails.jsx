@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import {
   Plus,
   HandCoins,
-  Trash2,
-  ArrowLeft,
+  Trash2, 
   BanknoteX,
+  Mars, Venus, Users 
 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import {
  pageButtonPrimary
@@ -27,12 +28,10 @@ import DeleteDistributionModal from "../components/modals/DeleteDistributionModa
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function SubsidyDetails() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id } = useParams(); 
 
   // QUERY
-  const { data, isLoading, isError } =
-    useSubsidyDetails(id);
+  const { data, isLoading, isError } = useSubsidyDetails(id);
 
   // MUTATIONS
   const {
@@ -89,6 +88,15 @@ export default function SubsidyDetails() {
   }, [search, filter, setCurrentPage]);
 
   
+
+  const getGenderIcon = (gender) => {
+    if (gender?.toLowerCase() === "male")
+      return <Mars className="w-4 h-4 text-blue-500" />;
+    if (gender?.toLowerCase() === "female")
+      return <Venus className="w-4 h-4 text-pink-500" />;
+    return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
+  };
+
 // ================= LOADING =================
   if (isLoading) {
     return <TablePageSkeleton />;
@@ -107,20 +115,11 @@ export default function SubsidyDetails() {
   const totalAmount = Number(
     selectedSubsidy.TotalAmount || 0
   );
+const distributed = Number(selectedSubsidy.DistributedAmount || 0);
+const remaining = Number(selectedSubsidy.RemainingBalance || 0);
+const unassigned = Number(selectedSubsidy.UnassignedAmount || 0);
+const totalFarmers = selectedSubsidy.TotalFarmers;
 
-  const distributed = farmers.reduce(
-    (sum, farmer) =>
-      farmer.IsDistributed
-        ? sum + Number(farmer.Amount || 0)
-        : sum,
-    0
-  );
-
-  const remaining =
-    totalAmount - distributed;
-
-  const totalFarmers =
-    farmers.length;
 
   // TABLE COLUMNS
   const columns = [
@@ -128,9 +127,10 @@ export default function SubsidyDetails() {
       key: "farmer",
       label: "Farmer",
       render: (f) => (
-        <div className="font-medium text-gray-800 dark:text-gray-200">
-          {f.FirstName} {f.LastName}
-        </div>
+<div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+  {getGenderIcon(f.Gender)}
+  {f.FirstName} {f.MiddleName ? `${f.MiddleName[0]}.` : ""} {f.LastName}
+</div>
       ),
     },
     {
@@ -232,14 +232,6 @@ export default function SubsidyDetails() {
             </p>
           </div>
 
-          <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Total Budget
-            </p>
-            <p className="font-semibold text-gray-800 dark:text-gray-200 mt-1">
-              ₱ {totalAmount.toLocaleString()}
-            </p>
-          </div>
 
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -254,7 +246,16 @@ export default function SubsidyDetails() {
 
         <div className="border-t border-gray-200 dark:border-gray-700" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          
+          <div className="bg-blue-500 rounded-xl p-4">
+            <p className="text-xs text-white">
+              Total Amount
+            </p>
+            <p className="text-xl font-bold text-white mt-1">
+              ₱ {totalAmount.toLocaleString()}
+            </p>
+          </div>
 
           <div className="bg-green-600 rounded-xl p-4">
             <p className="text-xs text-white">
@@ -271,6 +272,15 @@ export default function SubsidyDetails() {
             </p>
             <p className="text-xl font-bold text-white mt-1">
               ₱ {remaining.toLocaleString()}
+            </p>
+          </div>
+
+          <div className="bg-orange-500 rounded-xl p-4">
+            <p className="text-xs text-white">
+              Unassigned Amount
+            </p>
+            <p className="text-xl font-bold text-white mt-1">
+              ₱ {unassigned.toLocaleString()}
             </p>
           </div>
 
@@ -344,28 +354,29 @@ export default function SubsidyDetails() {
         />
       </div>
 
-      {/* MODALS */}
-    {addModal && (
+{/* ADD MODAL */}
+{addModal && (
   <AddDistributionModal
     distributionID={id}
     loading={createDistributionMutation.isPending}
+    remainingAmount={selectedSubsidy.UnassignedAmount}
     onClose={() => setAddModal(false)}
     onSubmit={(form) =>
-      createDistributionMutation.mutate(
-        {
-          DistributionID: id,
-          ...form,
-        },
-        {
-          onSuccess: () => setAddModal(false),
-        }
-      )
+      createDistributionMutation.mutateAsync({
+        DistributionID: id,
+        ...form,
+      }).then((res) => {
+        setAddModal(false);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
     }
   />
 )}
 
-
- {actionModal && (
+{/* ACTION MODAL */}
+{actionModal && (
   <ActionDistributionModal
     selectedDistribution={actionModal}
     actionType={actionType}
@@ -375,39 +386,41 @@ export default function SubsidyDetails() {
     }}
     loading={updateDistributionMutation.isPending}
     onConfirm={() =>
-      updateDistributionMutation.mutate(
-        {
-          id: actionModal.DistributionDetailsID,
-          data: {
-            IsDistributed: actionType === "distribute" ? 1 : 0,
-          },
+      updateDistributionMutation.mutateAsync({
+        id: actionModal.DistributionDetailsID,
+        data: {
+          IsDistributed: actionType === "distribute" ? 1 : 0,
         },
-        {
-          onSuccess: () => {
-            setActionModal(null);
-            setActionType(null);
-          },
-        }
-      )
+      }).then((res) => {
+        setActionModal(null);
+        setActionType(null);
+        toast.success(
+          actionType === "distribute"
+            ? "Subsidy distributed successfully!"
+            : "Distribution cancelled successfully!"
+        );
+      }).catch((error) => {
+        throw error;
+      })
     }
   />
 )}
 
-   {/* DELETE MODAL */}
+{/* DELETE MODAL */}
 {deleteModal && (
   <DeleteDistributionModal
     distribution={deleteModal}
     loading={deleteDistributionMutation.isPending}
     onClose={() => setDeleteModal(null)}
     onConfirm={() =>
-      deleteDistributionMutation.mutate(
-        deleteModal.DistributionDetailsID,
-        {
-          onSuccess: () => {
-            setDeleteModal(null); 
-          },
-        }
-      )
+      deleteDistributionMutation.mutateAsync(
+        deleteModal.DistributionDetailsID
+      ).then((res) => {
+        setDeleteModal(null);
+        toast.success(res.message);
+      }).catch((error) => {
+        throw error;
+      })
     }
   />
 )}

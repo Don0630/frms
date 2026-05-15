@@ -20,8 +20,8 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
     if (status === 401) {
-      localStorage.removeItem("token"); // 👈
-      localStorage.removeItem("user"); // 👈
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       window.location.href = "/sessionexpired";
     }
     if (status === 403) window.location.href = "/unauthorized";

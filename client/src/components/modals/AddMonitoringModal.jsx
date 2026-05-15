@@ -1,9 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-} from "react";
-
+import React, { useState, useEffect, useRef, } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 
 import useSearchFarmer from "../../hooks/useSearchFarmer";
@@ -30,30 +26,14 @@ export default function AddMonitoringModal({
 }) {
 
   // ================= SEARCH STATES =================
-  const [searchFarmer, setSearchFarmer] =
-    useState("");
-
-  const [searchCrop, setSearchCrop] =
-    useState("");
-
-  const [
-    searchLivestock,
-    setSearchLivestock,
-  ] = useState("");
+  const [searchFarmer, setSearchFarmer] = useState("");
+  const [searchCrop, setSearchCrop] = useState("");
+  const [searchLivestock, setSearchLivestock] = useState("");
 
   // ================= SELECTED =================
-  const [
-    selectedFarmer,
-    setSelectedFarmer,
-  ] = useState(null);
-
-  const [selectedCrop, setSelectedCrop] =
-    useState(null);
-
-  const [
-    selectedLivestock,
-    setSelectedLivestock,
-  ] = useState(null);
+  const [selectedFarmer, setSelectedFarmer] = useState(null);
+  const [selectedCrop, setSelectedCrop] = useState(null);
+  const [selectedLivestock, setSelectedLivestock] = useState(null);
 
   // ================= FORM STATE =================
   const [form, setForm] = useState({
@@ -66,20 +46,9 @@ export default function AddMonitoringModal({
   const [error, setError] = useState("");
 
   // ================= DROPDOWNS =================
-  const [
-    showFarmerDropdown,
-    setShowFarmerDropdown,
-  ] = useState(false);
-
-  const [
-    showCropDropdown,
-    setShowCropDropdown,
-  ] = useState(false);
-
-  const [
-    showLivestockDropdown,
-    setShowLivestockDropdown,
-  ] = useState(false);
+  const [showFarmerDropdown, setShowFarmerDropdown] = useState(false);
+  const [showCropDropdown, setShowCropDropdown] = useState(false);
+  const [showLivestockDropdown, setShowLivestockDropdown] = useState(false);
 
   // ================= REFS =================
   const farmerRef = useRef(null);
@@ -87,34 +56,21 @@ export default function AddMonitoringModal({
   const livestockRef = useRef(null);
 
   // ================= DEBOUNCE =================
-  const debouncedFarmer =
-    useDebounce(searchFarmer, 300);
-
-  const debouncedCrop =
-    useDebounce(searchCrop, 300);
-
-  const debouncedLivestock =
-    useDebounce(searchLivestock, 300);
+  const debouncedFarmer = useDebounce(searchFarmer, 300);
+  const debouncedCrop = useDebounce(searchCrop, 300);
+  const debouncedLivestock = useDebounce(searchLivestock, 300);
 
   // ================= QUERIES =================
   const { searchFarmerQuery } = useSearchFarmer(debouncedFarmer);
-
   const { searchCropQuery } = useSearchCrop(debouncedCrop);
-
-  const { searchLivestockQuery } = useSearchLivestock(
-      debouncedLivestock
-    );
+  const { searchLivestockQuery } = useSearchLivestock(debouncedLivestock);
 
   const availableFarmers = searchFarmerQuery?.data?.data || [];
-
   const availableCrops = searchCropQuery?.data?.data || [];
-
   const availableLivestock = searchLivestockQuery?.data?.data || [];
 
   const loadingFarmer = searchFarmerQuery?.isLoading || searchFarmerQuery?.isFetching;
-
   const loadingCrop = searchCropQuery?.isLoading || searchCropQuery?.isFetching;
-
   const loadingLivestock = searchLivestockQuery?.isLoading || searchLivestockQuery?.isFetching;
 
   // ================= OUTSIDE CLICK =================
@@ -122,54 +78,32 @@ export default function AddMonitoringModal({
     const handleClickOutside = (e) => {
 
       if (
-        farmerRef.current &&
-        !farmerRef.current.contains(
-          e.target
-        )
+        farmerRef.current && !farmerRef.current.contains(e.target)
       ) {
         setShowFarmerDropdown(false);
       }
 
       if (
-        cropRef.current &&
-        !cropRef.current.contains(
-          e.target
-        )
+        cropRef.current && !cropRef.current.contains(e.target)
       ) {
         setShowCropDropdown(false);
       }
 
-      if (
-        livestockRef.current &&
-        !livestockRef.current.contains(
-          e.target
-        )
+      if (livestockRef.current && !livestockRef.current.contains(e.target)
       ) {
         setShowLivestockDropdown(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown",handleClickOutside);
 
-    return () =>
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
+    setForm((prev) => ({...prev,[name]: value,}));
     if (error) setError("");
   };
 
@@ -179,89 +113,69 @@ export default function AddMonitoringModal({
     if (!selectedFarmer)
       return "Please select a Farmer!";
 
-    const requiredError =
-      validators.validateRequiredFields(
+    const requiredError = validators.validateRequiredFields(
         form,
         [
           "ReportDate",
+          "ProductionVolume",
           "Issues",
           "Remarks",
         ],
         {
-          ReportDate:
-            "Report Date",
+          ReportDate: "Report Date",
+          ProductionVolume: "Production Volume",
           Issues: "Issues",
           Remarks: "Remarks",
         }
       );
+    if (requiredError)return requiredError;
 
-    if (requiredError)
-      return requiredError;
-
-    const dateError =
-      monitoringValidator.validateMonitoringDate(
-        form.ReportDate,
-        "Report Date"
-      );
-
+    const dateError = monitoringValidator.validateMonitoringDate(form.ReportDate,"Report Date");
     if (dateError) return dateError;
 
-    // optional production validation
-    if (
-      form.ProductionVolume !== ""
-    ) {
-      const productionError =
-        validators.validatePositiveNumber(
-          form.ProductionVolume,
-          "Production Volume"
-        );
-
-      if (productionError)
-        return productionError;
-    }
+    const productionError = validators.validatePositiveNumber(form.ProductionVolume, "Production Volume");
+    if (productionError) return productionError;
 
     return "";
   };
 
+
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError("");
 
-    setError("");
+      const err = validate();
+      if (err) return setError(err);
+      console.log(form);
+      try {
+        await onSubmit({
+          FarmerID: selectedFarmer.FarmerID,
+          CropID: selectedCrop?.CropID || null,
+          LivestockID: selectedLivestock?.LivestockID || null,
+          ...form,
+          ProductionVolume: Number(form.ProductionVolume),
+          Issues: form.Issues.trim(),
+          Remarks: form.Remarks.trim(),
+        });
+      } catch (error) {
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message || error.message;
 
-    const err = validate();
+        if (status === 400 || status === 409) {
+          setError(message);
+        } else if (status === 500) {
+          toast.error("Something went wrong. Please try again.");
+        } else if (!error.response) {
+          toast.error("Network error. Please check your connection.");
+        } else {
+          toast.error(message);
+        }
+      }
+    };
 
-    if (err) return setError(err);
 
-    onSubmit({
-      FarmerID:
-        selectedFarmer.FarmerID,
-
-      CropID:
-        selectedCrop?.CropID ||
-        null,
-
-      LivestockID:
-        selectedLivestock?.LivestockID ||
-        null,
-
-      ReportDate:
-        form.ReportDate,
-
-      ProductionVolume:
-        form.ProductionVolume === ""
-          ? null
-          : Number(
-              form.ProductionVolume
-            ),
-
-      Issues: form.Issues.trim(),
-
-      Remarks:
-        form.Remarks.trim(),
-    });
-  };
-
+  
   return (
     <Modal
       title="Add Monitoring"
@@ -301,10 +215,8 @@ export default function AddMonitoringModal({
 
               ) : !loadingFarmer &&
                 !selectedFarmer &&
-                availableFarmers.length ===
-                  0 &&
-                searchFarmer.length >
-                  0 ? (
+                availableFarmers.length === 0 &&
+                searchFarmer.length > 0 ? (
 
                 <span className="text-red-400">
                   No farmer found!
@@ -322,37 +234,22 @@ export default function AddMonitoringModal({
           <input
             value={searchFarmer}
             onFocus={() =>
-              setShowFarmerDropdown(
-                true
-              )
+              setShowFarmerDropdown(true)
             }
             onChange={(e) => {
-              setSearchFarmer(
-                e.target.value
-              );
+              setSearchFarmer( e.target.value);
+              setSelectedFarmer(null);
+              setShowFarmerDropdown(true);
 
-              setSelectedFarmer(
-                null
-              );
-
-              setShowFarmerDropdown(
-                true
-              );
-
-              if (error)
-                setError("");
+              if (error)setError("");
             }}
             className={modalInput}
           />
 
           {showFarmerDropdown &&
             !loadingFarmer &&
-            availableFarmers.length >
-              0 && (
-
-              <div
-                className={`${modalDropdown} absolute z-50`}
-              >
+            availableFarmers.length >0 && (
+              <div className={`${modalDropdown} absolute z-50`}>
                 {availableFarmers.map(
                   (farmer) => (
                     <div
@@ -360,28 +257,15 @@ export default function AddMonitoringModal({
                         farmer.FarmerID
                       }
                       onClick={() => {
-                        setSelectedFarmer(
-                          farmer
-                        );
-
-                        setSearchFarmer(
-                          `${farmer.FirstName} ${farmer.LastName}`
-                        );
-
-                        setShowFarmerDropdown(
-                          false
-                        );
+                        setSelectedFarmer(farmer);
+                        setSearchFarmer(`${farmer.LastName}, ${farmer.FirstName}${farmer.MiddleName ? ` ${farmer.MiddleName}` : ""}`);
+                        setShowFarmerDropdown(false);
                       }}
                       className={
                         modalDropdownItem
                       }
                     >
-                      {
-                        farmer.FirstName
-                      }{" "}
-                      {
-                        farmer.LastName
-                      }
+                      {farmer.LastName}, {farmer.FirstName}{farmer.MiddleName ? ` ${farmer.MiddleName}` : ""}
                     </div>
                   )
                 )}
@@ -576,28 +460,13 @@ export default function AddMonitoringModal({
                           livestock.LivestockID
                         }
                         onClick={() => {
-                          setSelectedLivestock(
-                            livestock
-                          );
-
-                          setSearchLivestock(
-                            `${livestock.Type} ${livestock.Breed || ""}`
-                          );
-
-                          setShowLivestockDropdown(
-                            false
-                          );
+                          setSelectedLivestock(livestock);
+                          setSearchLivestock(`${livestock.Type} - ${livestock.Breed || "Unknown"}`);
+                          setShowLivestockDropdown(false);
                         }}
-                        className={
-                          modalDropdownItem
-                        }
+                        className={modalDropdownItem}
                       >
-                        {
-                          livestock.Type
-                        }{" "}
-                        -{" "}
-                        {livestock.Breed ||
-                          "Unknown"}
+                        { livestock.Type}{" "}-{" "}{livestock.Breed || "Unknown"}
                       </div>
                     )
                   )}

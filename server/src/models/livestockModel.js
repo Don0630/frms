@@ -27,11 +27,10 @@ export async function createLivestock(livestock) {
   };
 }
 
-
+ 
 // --------------- SEARCH LIVESTOCK (GENERAL) ---------------
 export async function getSearchLivestock(search = "") {
   const searchPattern = `%${search}%`;
-
   const [rows] = await db.query(
     `
     SELECT 
@@ -39,13 +38,17 @@ export async function getSearchLivestock(search = "") {
       l.Type,
       l.Breed
     FROM tblLivestock l
-    WHERE (l.Type LIKE ? OR l.Breed LIKE ?)
-    ORDER BY l.Type
-    LIMIT 3
+    WHERE (
+      l.Type LIKE ?
+      OR l.Breed LIKE ?
+      OR CONCAT(l.Type, ' - ', l.Breed) LIKE ?
+      OR CONCAT(l.Type, ' ', l.Breed) LIKE ?
+    )
+    ORDER BY l.Type, l.Breed
+    LIMIT 10
     `,
-    [searchPattern, searchPattern]
+    [searchPattern, searchPattern, searchPattern, searchPattern]
   );
-
   return rows || [];
 }
 

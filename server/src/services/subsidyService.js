@@ -50,8 +50,6 @@ export async function addSubsidy(subsidy) {
     throwError("Distribution date cannot exceed the program end date", "INVALID_DATE", 400);
   }
 
-
-
   return await subsidyModel.createSubsidy(subsidy);
 }
 
@@ -125,17 +123,77 @@ export async function fetchAvailableFarmer(distributionID, search = "") {
 
 // ------------------ ADD DISTRIBUTION ------------------
 export async function addDistribution(distribution) {
+  const distributionID = parseInt(distribution.DistributionID);
+  const farmerID = parseInt(distribution.FarmerID);
+  const amount = parseFloat(distribution.Amount);
+
+  // 1. Check subsidy exists
+  const subsidy = await subsidyModel.getSubsidyById(distributionID);
+  if (!subsidy) throwError("Subsidy not found", "NOT_FOUND", 404);
+
+  // 2. Farmer not already in this distribution
+  const alreadyAdded = await subsidyModel.getFarmerInDistribution(distributionID, farmerID);
+  if (alreadyAdded) throwError("Farmer is already added to this distribution", "DUPLICATE_ENTRY", 400);
+
+  // 3. Amount cannot exceed unassigned budget (reuse existing model fn)
+  const totalAssigned = parseFloat(await subsidyModel.getTotalAssignedAmount(distributionID));
+  const unassigned = parseFloat(subsidy.TotalAmount) - totalAssigned;
+
+  if (amount > unassigned) {
+    throwError(
+      `Amount exceeds unassigned budget. Available: ₱${unassigned.toLocaleString()}`,
+      "BUDGET_EXCEEDED",
+      400
+    );
+  }
+
   return await subsidyModel.createDistribution(distribution);
 }
 
 // ------------------ EDIT DISTRIBUTION ------------------
 export async function editDistribution(id, distribution) {
-  return await subsidyModel.updateDistribution(id, distribution);
+  const distributionId = parseInt(id);
+
+  // 1. Check exists
+  const existing = await subsidyModel.getDistributionDetailById(distributionId);
+  if (!existing) throwError("Distribution record not found", "NOT_FOUND", 404);
+
+  // 2. Distribute action
+  if (distribution.IsDistributed === 1) {
+    if (existing.IsDistributed === 1) {
+      throwError("Already distributed", "INVALID_OPERATION", 400);
+    }
+
+    // Check program is still active
+    const subsidy = await subsidyModel.getSubsidyById(existing.DistributionID);
+    const program = await programModel.getProgramById(subsidy.ProgramID);
+    if (program.Status !== "Active") {
+      throwError("Cannot distribute — program is no longer active", "INVALID_OPERATION", 400);
+    }
+  }
+
+  // 3. Cancel action
+  if (distribution.IsDistributed === 0) {
+    if (existing.IsDistributed === 0) {
+      throwError("Distribution is already pending", "INVALID_OPERATION", 400);
+    }
+  }
+
+  return await subsidyModel.updateDistribution(distributionId, distribution);
 }
+   
 
 // ------------------ REMOVE DISTRIBUTION ------------------
 export async function removeDistribution(id) {
-  return await subsidyModel.deleteDistribution(id);
+  const distributionId = parseInt(id);
+  const existing = await subsidyModel.getDistributionDetailById(distributionId);
+  if (!existing) throwError("Distribution record not found", "NOT_FOUND", 404);
+
+  if (Number(existing.IsDistributed) === 1) {
+    throwError("Cannot delete a record that has already been distributed", "INVALID_OPERATION", 400);
+  }
+
+  return await subsidyModel.deleteDistribution(distributionId);
 }
 
 // ------------------ FETCH SUBSIDY DETAILS ------------------

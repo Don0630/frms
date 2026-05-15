@@ -1,27 +1,17 @@
-// src/api/monitoringApi.js
-import { apiFetch } from "./apiFetch.js";
-
+import api from "./api.js";
 
 // ------------ FETCH ALL MONITORING ------------
 export async function fetchAllMonitoring() {
-  return apiFetch("/monitoring/monitoringsData");
+  return api.get("/monitoring/monitoringsData");
 }
-
 
 // ------------ ADD MONITORING ------------
 export async function addMonitoring(monitoring) {
-  return await apiFetch("/monitoring/addMonitoring", {
-    method: "POST",
-    body: JSON.stringify(monitoring),
-  });
+  return api.post("/monitoring/addMonitoring", monitoring);
 }
 
-// ------------ UPDATE Monitoring ------------
+// ------------ UPDATE MONITORING ------------
 export async function updateMonitoring(monitoring) {
-  return await apiFetch(`/monitoring/updateMonitoring/${monitoring.ReportID}`, {
-    method: "PUT",
-    body: JSON.stringify(monitoring),
-  });
+  const { ReportID, ...data } = monitoring;
+  return api.put(`/monitoring/updateMonitoring/${ReportID}`, data);
 }
-
-

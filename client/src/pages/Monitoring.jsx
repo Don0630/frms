@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
-import {
-  Plus,
-  Info,
-  Users,
-  Mars,
-  Venus,
-  Edit
-} from "lucide-react";
-
-
-import {
- pageButtonPrimary
-} from "../components/common/PageUI";
-
+import { Plus, Info, Users, Mars, Venus, Edit } from "lucide-react";
+import { pageButtonPrimary } from "../components/common/PageUI";
+import toast from "react-hot-toast";
 
 import useMonitoring from "../hooks/useMonitoring";
 
@@ -59,8 +48,7 @@ export default function Monitoring() {
     ],
     filterFn: (item) =>
       filter === "All" ||
-      item.Gender?.toLowerCase() ===
-        filter.toLowerCase(),
+      item.Gender?.toLowerCase() === filter.toLowerCase(),
   });
 
   // ================= PAGINATION =================
@@ -79,17 +67,12 @@ export default function Monitoring() {
   // ================= GENDER ICON =================
   const getGenderIcon = (gender) => {
     if (gender?.toLowerCase() === "male") {
-      return (
-        <Mars className="w-4 h-4 text-blue-500" />
-      );
+      return ( <Mars className="w-4 h-4 text-blue-500" /> );
     }
-
     if (
       gender?.toLowerCase() === "female"
     ) {
-      return (
-        <Venus className="w-4 h-4 text-pink-500" />
-      );
+      return ( <Venus className="w-4 h-4 text-pink-500" />);
     }
 
     return (
@@ -106,9 +89,7 @@ export default function Monitoring() {
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
 
-          {item.FirstName
-            ? `${item.FirstName} ${item.LastName}`
-            : "N/A"}
+          {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
 
           <button
             onClick={() =>
@@ -273,9 +254,14 @@ export default function Monitoring() {
         <AddMonitoringModal
           onClose={() => setAddMonitoringModal(false)}
           onSubmit={(data) =>
-            createMonitoringMutation.mutate(data, {
-              onSuccess: () => setAddMonitoringModal(false),
-            })
+            createMonitoringMutation.mutateAsync(data)
+              .then((res) => {
+                setAddMonitoringModal(false);
+                toast.success(res.message);
+              })
+              .catch((error) => {
+                throw error;
+              })
           }
           loading={createMonitoringMutation.isPending}
         />
@@ -287,16 +273,11 @@ export default function Monitoring() {
     monitoring={editMonitoringModal}
     onClose={() => setEditMonitoringModal(null)}
     onSubmit={(data) =>
-      updateMonitoringMutation.mutate(
-        {
-          id: editMonitoringModal.ReportID,
-          data,
-        },
-        {
-          onSuccess: () => setEditMonitoringModal(null),
-        }
-      )
-    }
+            updateMonitoringMutation.mutateAsync({ id: editMonitoringModal.ReportID, data }).then((res) => {
+              setEditMonitoringModal(null);
+              toast.success(res.message);
+            }).catch((error) => { throw error; })
+          }
     loading={updateMonitoringMutation.isPending}
   />
 )}

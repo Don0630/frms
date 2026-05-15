@@ -22,6 +22,35 @@ export function validateAddSubsidy(req, res, next) {
   }
 }
 
+
+
+
+// ---------------------- EDIT SUBSIDY ----------------------
+export function validateEditSubsidy(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Subsidy ID is required", "MISSING_ID", 400);
+    }
+
+    validators.validateRequiredFields(req.body,
+      ["TotalAmount", "DistributionDate", "Remarks"],
+      {
+        TotalAmount: "Total amount",
+        DistributionDate: "Distribution date",
+        Remarks: "Remarks",
+      }
+    );
+
+    validators.validateID(req.params.id, "Subsidy ID");
+
+    validators.validatePositiveNumber(req.body.TotalAmount, "Total amount");
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 // ---------------------- ADD DISTRIBUTION ----------------------
 export function validateAddDistribution(req, res, next) {
   try {
@@ -34,37 +63,10 @@ export function validateAddDistribution(req, res, next) {
       }
     );
 
+    validators.validateID(req.body.DistributionID, "Distribution ID");
+    validators.validateID(req.body.FarmerID, "Farmer ID");
+
     validators.validatePositiveNumber(req.body.Amount, "Amount");
-
-    next();
-  } catch (err) {
-    next(err);
-  }
-}
-
-
-// ---------------------- EDIT SUBSIDY ----------------------
-export function validateEditSubsidy(req, res, next) {
-  try {
-    if (!req.params.id) {
-      throwError("Subsidy ID is required", "MISSING_ID", 400);
-    }
-
-    const id = parseInt(req.params.id);
-    if (isNaN(id) || id <= 0) {
-      throwError("Invalid Subsidy ID", "INVALID_ID", 400);
-    }
-
-    validators.validateRequiredFields(req.body,
-      ["TotalAmount", "DistributionDate", "Remarks"],
-      {
-        TotalAmount: "Total amount",
-        DistributionDate: "Distribution date",
-        Remarks: "Remarks",
-      }
-    );
-
-    validators.validatePositiveNumber(req.body.TotalAmount, "Total amount");
 
     next();
   } catch (err) {

@@ -34,7 +34,7 @@ export async function saveSubsidy(req, res, next) {
 }
 
 
-// ------------- UPDATE SUBSIDY ------------- 👈
+// ------------- UPDATE SUBSIDY -------------
 export async function updateSubsidy(req, res, next) {
   try {
     const updated = await subsidyService.editSubsidy(req.params.id, req.body);

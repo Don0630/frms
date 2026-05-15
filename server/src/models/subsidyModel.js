@@ -122,8 +122,7 @@ export async function updateSubsidy(id, subsidy) {
   };
 }
 
-
-
+ 
 // --------------- SEARCH AVAILABLE FARMERS (NOT YET IN DISTRIBUTION) ---------------
 export async function getAvailableFarmer(distributionID, search = "") {
   const searchPattern = `%${search}%`;
@@ -133,6 +132,7 @@ export async function getAvailableFarmer(distributionID, search = "") {
     SELECT 
       f.FarmerID,
       f.FirstName,
+      f.MiddleName,
       f.LastName,
       f.Barangay,
       f.Municipality,
@@ -144,15 +144,33 @@ export async function getAvailableFarmer(distributionID, search = "") {
       WHERE d.FarmerID = f.FarmerID
         AND d.DistributionID = ?
     )
-    AND (
-      f.FirstName LIKE ?
-      OR f.LastName LIKE ?
-    )
+AND (
+  -- FirstName MiddleName LastName
+  CONCAT(
+    f.FirstName, ' ',
+    COALESCE(f.MiddleName, ''), ' ',
+    f.LastName
+  ) LIKE ?
+  OR
+  -- LastName, FirstName MiddleName
+  CONCAT(
+    f.LastName, ', ',
+    f.FirstName, ' ',
+    COALESCE(f.MiddleName, '')
+  ) LIKE ?
+  OR
+  -- LastName FirstName (no comma, for partial searches)
+  CONCAT(
+    f.LastName, ' ',
+    f.FirstName
+  ) LIKE ?
+)
     ORDER BY f.FirstName, f.LastName
-    LIMIT 5
+    LIMIT 3
     `,
     [
       distributionID,
+      searchPattern,
       searchPattern,
       searchPattern,
     ]
@@ -161,6 +179,104 @@ export async function getAvailableFarmer(distributionID, search = "") {
   return rows || [];
 }
 
+
+
+// --------- GET SUBSIDY DETAILS ---------
+export async function getSubsidyDetails(id) {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      d.DistributionID,
+      d.ProgramID,
+      d.TotalAmount, 
+      DATE_FORMAT(d.DistributionDate, '%Y-%m-%d') AS DistributionDate,
+      d.Remarks,
+
+      p.ProgramName,
+
+      -- Precomputed summary values
+      COALESCE((
+        SELECT SUM(Amount)
+        FROM tblSubsidyDistributionDetails
+        WHERE DistributionID = d.DistributionID
+          AND IsDistributed = 1
+      ), 0) AS DistributedAmount,
+
+      COALESCE((
+        SELECT SUM(Amount)
+        FROM tblSubsidyDistributionDetails
+        WHERE DistributionID = d.DistributionID
+      ), 0) AS AssignedAmount,
+
+      (
+        SELECT COUNT(*)
+        FROM tblSubsidyDistributionDetails
+        WHERE DistributionID = d.DistributionID
+      ) AS TotalFarmers,
+
+      sd.DistributionDetailsID,
+      sd.Amount,
+      sd.IsDistributed,
+
+      f.FarmerID,
+      f.FirstName,
+      f.MiddleName,
+      f.LastName,
+      f.Gender,
+      f.ContactNumber,
+      f.Email
+
+    FROM tblSubsidyDistribution d
+
+    LEFT JOIN tblPrograms p
+      ON d.ProgramID = p.ProgramID
+
+    LEFT JOIN tblSubsidyDistributionDetails sd
+      ON d.DistributionID = sd.DistributionID
+
+    LEFT JOIN tblFarmers f
+      ON sd.FarmerID = f.FarmerID
+
+    WHERE d.DistributionID = ?
+    `,
+    [id]
+  );
+
+  if (rows.length === 0) return null;
+
+  const subsidy = {
+    DistributionID: rows[0].DistributionID,
+    ProgramID: rows[0].ProgramID,
+    ProgramName: rows[0].ProgramName,
+    TotalAmount: rows[0].TotalAmount,
+    DistributionDate: rows[0].DistributionDate,
+    Remarks: rows[0].Remarks,
+    DistributedAmount: rows[0].DistributedAmount,  // ✅ precomputed
+    UnassignedAmount: rows[0].TotalAmount - rows[0].AssignedAmount,     // ✅ precomputed
+    TotalFarmers: rows[0].TotalFarmers,            // ✅ precomputed
+    RemainingBalance: rows[0].TotalAmount - rows[0].DistributedAmount, // ✅ simple derive
+    Farmers: [],
+  };
+
+  for (const row of rows) {
+    if (row.FarmerID) {
+      subsidy.Farmers.push({
+        DistributionDetailsID: row.DistributionDetailsID,
+        FarmerID: row.FarmerID,
+        FirstName: row.FirstName,
+        MiddleName: row.MiddleName,
+        LastName: row.LastName,
+        Gender: row.Gender,
+        ContactNumber: row.ContactNumber,
+        Email: row.Email,
+        Amount: row.Amount,
+        IsDistributed: row.IsDistributed,
+      });
+    }
+  }
+
+  return subsidy;
+}
 
 
 
@@ -229,75 +345,6 @@ export async function deleteDistribution(id) {
 
 
 
-// --------- GET SUBSIDY DETAILS ---------
-export async function getSubsidyDetails(id) {
-  const [rows] = await db.query(
-    `
-    SELECT 
-      d.DistributionID,
-      d.ProgramID,
-      d.TotalAmount, 
-      DATE_FORMAT(d.DistributionDate, '%Y-%m-%d') AS DistributionDate,
-      d.Remarks,
-
-      p.ProgramName,
-
-      sd.DistributionDetailsID,
-      sd.Amount,
-      sd.IsDistributed,
-
-      f.FarmerID,
-      f.FirstName,
-      f.LastName,
-      f.ContactNumber,
-      f.Email
-
-    FROM tblSubsidyDistribution d
-
-    LEFT JOIN tblPrograms p
-      ON d.ProgramID = p.ProgramID
-
-    LEFT JOIN tblSubsidyDistributionDetails sd
-      ON d.DistributionID = sd.DistributionID
-
-    LEFT JOIN tblFarmers f
-      ON sd.FarmerID = f.FarmerID
-
-    WHERE d.DistributionID = ?
-    `,
-    [id]
-  );
-
-  if (rows.length === 0) return null;
-
-  const subsidy = {
-    DistributionID: rows[0].DistributionID,
-    ProgramID: rows[0].ProgramID,
-    ProgramName: rows[0].ProgramName,
-    TotalAmount: rows[0].TotalAmount,
-    DistributionDate: rows[0].DistributionDate,
-    Remarks: rows[0].Remarks,
-    Farmers: [],
-  };
-
-  for (const row of rows) {
-    if (row.FarmerID) {
-      subsidy.Farmers.push({
-        DistributionDetailsID: row.DistributionDetailsID,
-        FarmerID: row.FarmerID,
-        FirstName: row.FirstName,
-        LastName: row.LastName,
-        ContactNumber: row.ContactNumber,
-        Email: row.Email,
-        Amount: row.Amount,
-        IsDistributed: row.IsDistributed,
-      });
-    }
-  }
-
-  return subsidy;
-}
-
 
 
 // ----------------------------- VALIDATIONS -----------------------------
@@ -361,4 +408,27 @@ export async function getTotalAssignedAmount(distributionID) {
     [distributionID]
   );
   return rows[0].TotalAssigned;
+}
+
+// --------- GET FARMER IN DISTRIBUTION ---------
+export async function getFarmerInDistribution(distributionID, farmerID) {
+  const [rows] = await db.query(
+    `SELECT DistributionDetailsID 
+     FROM tblSubsidyDistributionDetails 
+     WHERE DistributionID = ? AND FarmerID = ?`,
+    [distributionID, farmerID]
+  );
+  return rows[0] ?? null;
+}
+
+
+
+export async function getDistributionDetailById(id) {
+  const [rows] = await db.query(
+    `SELECT DistributionDetailsID, IsDistributed, DistributionID, Amount
+     FROM tblSubsidyDistributionDetails
+     WHERE DistributionDetailsID = ?`,
+    [id]
+  );
+  return rows[0] ?? null;
 }

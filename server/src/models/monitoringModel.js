@@ -13,6 +13,7 @@ export async function getAllMonitoring() {
       r.Remarks,
       f.FarmerID,
       f.FirstName,
+      f.MiddleName,
       f.LastName,
       f.Gender,
       c.CropID,
@@ -95,4 +96,22 @@ export async function updateMonitoring(id, monitoring) {
     ReportID: id,
     ...monitoring,
   };
+}
+
+
+
+// --------- FIND DUPLICATE MONITORING ---------
+export async function findDuplicateMonitoring(FarmerID, ReportDate, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT ReportID
+    FROM tblReportsAndMonitoring
+    WHERE FarmerID = ?
+      AND ReportDate = ?
+      AND (? IS NULL OR ReportID != ?)
+    LIMIT 1
+    `,
+    [FarmerID, ReportDate, excludeId, excludeId]
+  );
+  return rows[0] || null;
 }

@@ -258,24 +258,29 @@ export async function deleteFarm(id) {
 }
 
 
-// --------------- SEARCH FARMER (GENERAL) ---------------
+// --------------- SEARCH FARMER (GENERAL) --------------- 
 export async function getSearchFarmer(search = "") {
   const searchPattern = `%${search}%`;
-
   const [rows] = await db.query(
     `
     SELECT 
       f.FarmerID,
       f.FirstName,
+      f.MiddleName,
       f.LastName
     FROM tblFarmers f
-    WHERE (f.FirstName LIKE ? OR f.LastName LIKE ?)
+    WHERE (
+      CONCAT(f.FirstName, ' ', COALESCE(f.MiddleName, ''), ' ', f.LastName) LIKE ?
+      OR
+      CONCAT(f.LastName, ', ', f.FirstName, ' ', COALESCE(f.MiddleName, '')) LIKE ?
+      OR
+      CONCAT(f.LastName, ' ', f.FirstName) LIKE ?
+    )
     ORDER BY f.FirstName, f.LastName
-    LIMIT 3
+    LIMIT 10
     `,
-    [searchPattern, searchPattern]
+    [searchPattern, searchPattern, searchPattern]
   );
-
   return rows || [];
 }
 

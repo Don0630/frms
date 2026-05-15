@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 
 import useSearchFarmer from "../../hooks/useSearchFarmer";
@@ -59,7 +60,7 @@ export default function EditMonitoringModal({
     if (!monitoring) return;
 
     setForm({
-      ReportDate: monitoring.ReportDate?.split("T")[0] || "",
+      ReportDate: monitoring.ReportDate || "",
       ProductionVolume: monitoring.ProductionVolume || "",
       Issues: monitoring.Issues || "",
       Remarks: monitoring.Remarks || "",
@@ -71,20 +72,16 @@ export default function EditMonitoringModal({
         FarmerID: monitoring.FarmerID,
         FirstName: monitoring.FirstName,
         LastName: monitoring.LastName,
+        MiddleName: monitoring.MiddleName,
       };
 
-      setSelectedFarmer(farmer);
-      setSearchFarmer(
-        `${monitoring.FirstName} ${monitoring.LastName}`
-      );
+      setSelectedFarmer(farmer); 
+      setSearchFarmer(`${monitoring.LastName}, ${monitoring.FirstName}${monitoring.MiddleName ? ` ${monitoring.MiddleName}` : ""}`);
     }
 
     // CROP
     if (monitoring.CropName) {
-      const crop = {
-        CropID: monitoring.CropID,
-        CropName: monitoring.CropName,
-      };
+      const crop = {CropID: monitoring.CropID, CropName: monitoring.CropName,};
 
       setSelectedCrop(crop);
       setSearchCrop(monitoring.CropName);
@@ -92,103 +89,57 @@ export default function EditMonitoringModal({
 
     // LIVESTOCK
     if (monitoring.Type) {
-      const livestock = {
-        LivestockID: monitoring.LivestockID,
-        Type: monitoring.Type,
-        Breed: monitoring.Breed,
-      };
+      const livestock = {LivestockID: monitoring.LivestockID, Type: monitoring.Type, Breed: monitoring.Breed,};
 
       setSelectedLivestock(livestock);
-      setSearchLivestock(
-        `${monitoring.Type} ${monitoring.Breed || ""}`
-      );
+      setSearchLivestock(`${livestock.Type} - ${livestock.Breed || "Unknown"}`);
     }
   }, [monitoring]);
 
   // ================= OUTSIDE CLICK =================
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (
-        farmerRef.current &&
-        !farmerRef.current.contains(e.target)
-      ) {
+      if (farmerRef.current && !farmerRef.current.contains(e.target)) {
         setShowFarmerDropdown(false);
       }
 
-      if (
-        cropRef.current &&
-        !cropRef.current.contains(e.target)
-      ) {
+      if (cropRef.current && !cropRef.current.contains(e.target)) {
         setShowCropDropdown(false);
       }
 
-      if (
-        livestockRef.current &&
-        !livestockRef.current.contains(e.target)
-      ) {
+      if (livestockRef.current && !livestockRef.current.contains(e.target)) {
         setShowLivestockDropdown(false);
       }
     };
 
-    document.addEventListener(
-      "mousedown",
-      handleClickOutside
-    );
+    document.addEventListener("mousedown",handleClickOutside);
 
     return () =>
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside
-      );
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // ================= DEBOUNCE =================
   const debouncedFarmer = useDebounce(searchFarmer, 300);
   const debouncedCrop = useDebounce(searchCrop, 300);
-  const debouncedLivestock = useDebounce(
-    searchLivestock,
-    300
-  );
+  const debouncedLivestock = useDebounce(searchLivestock,300);
 
   // ================= QUERIES =================
-  const { searchFarmerQuery } =
-    useSearchFarmer(debouncedFarmer);
+  const { searchFarmerQuery } = useSearchFarmer(debouncedFarmer);
+  const { searchCropQuery } = useSearchCrop(debouncedCrop);
+  const { searchLivestockQuery } = useSearchLivestock(debouncedLivestock);
+  
+  const farmers = searchFarmerQuery?.data?.data || [];
+  const crops = searchCropQuery?.data?.data || [];
+  const livestock = searchLivestockQuery?.data?.data || [];
 
-  const { searchCropQuery } =
-    useSearchCrop(debouncedCrop);
-
-  const { searchLivestockQuery } =
-    useSearchLivestock(debouncedLivestock);
-
-  const farmers =
-    searchFarmerQuery?.data?.data || [];
-
-  const crops =
-    searchCropQuery?.data?.data || [];
-
-  const livestock =
-    searchLivestockQuery?.data?.data || [];
-
-  const loadingFarmer =
-    searchFarmerQuery?.isLoading ||
-    searchFarmerQuery?.isFetching;
-
-  const loadingCrop =
-    searchCropQuery?.isLoading ||
-    searchCropQuery?.isFetching;
-
-  const loadingLivestock =
-    searchLivestockQuery?.isLoading ||
-    searchLivestockQuery?.isFetching;
+  const loadingFarmer = searchFarmerQuery?.isLoading || searchFarmerQuery?.isFetching;
+  const loadingCrop = searchCropQuery?.isLoading || searchCropQuery?.isFetching;
+  const loadingLivestock = searchLivestockQuery?.isLoading || searchLivestockQuery?.isFetching;
 
   // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm((prev) => ({...prev,[name]: value,}));
 
     if (error) setError("");
   };
@@ -198,63 +149,43 @@ export default function EditMonitoringModal({
     if (!selectedFarmer)
       return "Please select a Farmer!";
 
-    const requiredError =
-      validators.validateRequiredFields(
+    const requiredError = validators.validateRequiredFields(
         form,
-        ["ReportDate", "Issues", "Remarks"],
+        ["ReportDate",
+          "ProductionVolume",
+          "Issues", 
+          "Remarks"],
         {
           ReportDate: "Report Date",
+          ProductionVolume: "Production Volume",
           Issues: "Issues",
           Remarks: "Remarks",
         }
       );
-
     if (requiredError) return requiredError;
 
-    const dateError =
-      monitoringValidator.validateMonitoringDate(
-        form.ReportDate,
-        "Report Date"
-      );
-
+    const dateError = monitoringValidator.validateMonitoringDate(form.ReportDate, "Report Date");
     if (dateError) return dateError;
 
-    if (form.ProductionVolume !== "") {
-      const productionError =
-        validators.validatePositiveNumber(
-          form.ProductionVolume,
-          "Production Volume"
-        );
-
-      if (productionError) return productionError;
-    }
-
-    const noChangesError =
-      validators.validateNoChanges(
+    const productionError = validators.validatePositiveNumber(form.ProductionVolume, "Production Volume");
+    if (productionError) return productionError;
+    
+    const noChangesError = validators.validateNoChanges(
         {
           FarmerID: monitoring.FarmerID,
           CropID: monitoring.CropID || "",
-          LivestockID:
-            monitoring.LivestockID || "",
-          ReportDate:
-            monitoring.ReportDate?.split(
-              "T"
-            )[0] || "",
-          ProductionVolume:
-            monitoring.ProductionVolume || "",
+          LivestockID: monitoring.LivestockID || "",
+          ReportDate: monitoring.ReportDate || "",
+          ProductionVolume: monitoring.ProductionVolume || "",
           Issues: monitoring.Issues || "",
           Remarks: monitoring.Remarks || "",
         },
         {
-          FarmerID:
-            selectedFarmer?.FarmerID || "",
+          FarmerID: selectedFarmer?.FarmerID || "",
           CropID: selectedCrop?.CropID || "",
-          LivestockID:
-            selectedLivestock?.LivestockID ||
-            "",
+          LivestockID: selectedLivestock?.LivestockID || "",
           ReportDate: form.ReportDate,
-          ProductionVolume:
-            form.ProductionVolume,
+          ProductionVolume: form.ProductionVolume,
           Issues: form.Issues,
           Remarks: form.Remarks,
         },
@@ -274,32 +205,44 @@ export default function EditMonitoringModal({
     return "";
   };
 
+
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError("");
 
-    const err = validate();
+      const err = validate();
+      if (err) return setError(err);
+      console.log(form);
+      try {
+        await onSubmit({
+          FarmerID: selectedFarmer.FarmerID,
+          CropID: selectedCrop?.CropID || null,
+          LivestockID: selectedLivestock?.LivestockID || null,
+          ...form,
+          ProductionVolume: Number(form.ProductionVolume),
+          Issues: form.Issues.trim(),
+          Remarks: form.Remarks.trim(),
+        });
+      } catch (error) {
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message || error.message;
 
-    if (err) return setError(err);
+        if (status === 400 || status === 409) {
+          setError(message);
+        } else if (status === 500) {
+          toast.error("Something went wrong. Please try again.");
+        } else if (!error.response) {
+          toast.error("Network error. Please check your connection.");
+        } else {
+          toast.error(message);
+        }
+      }
+    };
 
-    onSubmit({
-      FarmerID: selectedFarmer?.FarmerID,
-      CropID: selectedCrop?.CropID || null,
-      LivestockID:
-        selectedLivestock?.LivestockID || null,
 
-      ReportDate: form.ReportDate,
-      ProductionVolume:
-        form.ProductionVolume === ""
-          ? null
-          : Number(form.ProductionVolume),
 
-      Issues: form.Issues.trim(),
-      Remarks: form.Remarks.trim(),
-    });
-  };
-
+  
   if (!monitoring) return null;
 
   return (
@@ -378,18 +321,11 @@ export default function EditMonitoringModal({
                     }
                     onClick={() => {
                       setSelectedFarmer(f);
-
-                      setSearchFarmer(
-                        `${f.FirstName} ${f.LastName}`
-                      );
-
-                      setShowFarmerDropdown(
-                        false
-                      );
+                      setSearchFarmer(`${f.LastName}, ${f.FirstName}${f.MiddleName ? ` ${f.MiddleName}` : ""}`);
+                      setShowFarmerDropdown(false);
                     }}
                   >
-                    {f.FirstName}{" "}
-                    {f.LastName}
+                    {f.LastName}, {f.FirstName}{f.MiddleName ? ` ${f.MiddleName}` : ""}
                   </div>
                 ))}
               </div>
@@ -510,23 +446,12 @@ export default function EditMonitoringModal({
             <input
               value={searchLivestock}
               onFocus={() =>
-                setShowLivestockDropdown(
-                  true
-                )
+                setShowLivestockDropdown(true)
               }
-              onChange={(e) => {
-                setSearchLivestock(
-                  e.target.value
-                );
+              onChange={(e) => {setSearchLivestock(e.target.value);
 
-                setSelectedLivestock(
-                  null
-                );
-
-                setShowLivestockDropdown(
-                  true
-                );
-
+                setSelectedLivestock(null);
+                setShowLivestockDropdown(true);
                 if (error) setError("");
               }}
               className={modalInput}
@@ -540,23 +465,11 @@ export default function EditMonitoringModal({
                   {livestock.map((l) => (
                     <div
                       key={l.LivestockID}
-                      className={
-                        modalDropdownItem
-                      }
+                      className={modalDropdownItem}
                       onClick={() => {
-                        setSelectedLivestock(
-                          l
-                        );
-
-                        setSearchLivestock(
-                          `${l.Type} ${
-                            l.Breed || ""
-                          }`
-                        );
-
-                        setShowLivestockDropdown(
-                          false
-                        );
+                        setSelectedLivestock(l);
+                        setSearchLivestock(`${l.Type} - ${l.Breed || "Unknown"}`);
+                        setShowLivestockDropdown(false);
                       }}
                     >
                       {l.Type} -{" "}

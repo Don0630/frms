@@ -26,6 +26,9 @@ export default function AddSubsidyModal({
   // ================= PROGRAM SEARCH =================
   const [searchProgram, setSearchProgram] = useState("");
   const [selectedProgram, setSelectedProgram] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const wrapperRef = useRef(null);
+
 
   // ================= FORM STATE =================
   const [form, setForm] = useState({
@@ -35,9 +38,7 @@ export default function AddSubsidyModal({
   });
 
   const [error, setError] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
 
-  const wrapperRef = useRef(null);
 
   // ================= DEBOUNCE =================
   const debouncedSearch = useDebounce(searchProgram, 300);
@@ -187,7 +188,7 @@ const handleSubmit = async (e) => {
                 </span>
 
               ) : !loadingPrograms &&
-                !selectedProgram &&
+                !selectedProgram &&  
                 availablePrograms.length === 0 &&
                 searchProgram.length > 0 ? (
 
@@ -227,7 +228,6 @@ const handleSubmit = async (e) => {
 
           {/* RESULTS */}
           {showDropdown &&
-            !selectedProgram &&
             availablePrograms.length >
               0 && (
 

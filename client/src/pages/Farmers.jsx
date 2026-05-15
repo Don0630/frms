@@ -25,14 +25,18 @@ export default function Farmers() {
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
 
-  // ✅ USE FARMER HOOK (PRO WAY)
+
+  // ================= QUERY + MUTATION =================
   const {
     farmersQuery,
     createFarmerMutation,
     updateFarmerMutation,
   } = useFarmer();
 
+
+  // ================= DATA =================
   const farmers = farmersQuery.data?.data || [];
+
 
   // ================= TABLE FILTER =================
   const { search, setSearch, filteredData } = useTable({
@@ -42,6 +46,7 @@ export default function Farmers() {
       filter === "All" ||
       item.Gender?.toLowerCase() === filter.toLowerCase(),
   });
+
 
   // ================= PAGINATION =================
   const { currentPage, setCurrentPage, currentItems, totalPages } =
@@ -54,6 +59,7 @@ export default function Farmers() {
       return <Venus className="w-4 h-4 text-pink-500" />;
     return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
   };
+
 
   // ================= TABLE COLUMNS =================
   const columns = [
@@ -171,7 +177,6 @@ if (farmersQuery.isLoading) {
           onClose={() => setAddModal(false)}
           onSubmit={(data) =>
             createFarmerMutation.mutateAsync(data).then((res) => {
-              console.log(res);
               setAddModal(false);
               toast.success(res.message);
             }).catch((error) => { throw error;})

@@ -31,16 +31,6 @@ const MODAL_CONFIG = {
     iconStyle:
       "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400",
   },
-  delete: {
-    title: "Delete Record",
-    message:
-      "Are you sure you want to permanently delete this record?",
-    warning: "This action cannot be undone.",
-    confirmText: "Delete",
-    icon: AlertTriangle,
-    iconStyle:
-      "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400",
-  },
 };
 
 /* =========================
