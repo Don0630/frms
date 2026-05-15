@@ -1,36 +1,24 @@
 // src/api/staffApi.js
-import { apiFetch } from "./apiFetch.js";
-
+import api from "./api.js";
 
 // ------------ FETCH ALL STAFF ------------
 export async function fetchAllStaff() {
-  return apiFetch("/staff/staffsData");
+  return api.get("/staff/staffsData");
 }
-
 
 // ------------ ADD STAFF ------------
 export async function addStaff(staff) {
-  return apiFetch("/staff/addStaff", {
-    method: "POST",
-    body: JSON.stringify(staff),
-  });
+  return api.post("/staff/addStaff", staff);
 }
 
- 
 // ------------ UPDATE STAFF ------------
-export function updateStaff(staffId, staffData) {
-  return apiFetch(`/staff/updateStaff/${staffId}`, {
-    method: "PUT",
-    body: JSON.stringify(staffData),
-  });
+export async function updateStaff(staffId, staffData) {
+  return api.put(`/staff/updateStaff/${staffId}`, staffData);
 }
-
 
 // ------------ FETCH AVAILABLE STAFF ------------
 export async function fetchAvailableStaff(search = "") {
-  // Optional search query
-  const url = search
-    ? `/staff/availableStaff?search=${encodeURIComponent(search)}`
-    : "/staff/availableStaff";
-  return apiFetch(url);
+  return api.get("/staff/availableStaff", {
+    params: { search },
+  });
 }

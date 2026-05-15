@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -14,6 +15,7 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
     MiddleName: "",
     LastName: "",
     Gender: "",
+    DateOfBirth: "",
     Position: "",
     Department: "",
     ContactNumber: "",
@@ -25,59 +27,67 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
   };
 
- // ================= VALIDATION =================
+  // ================= VALIDATION =================
   const validate = () => {
-    // 1. Required fields check
     const requiredError = validators.validateRequiredFields(
       form,
-      [
-        "FirstName",
-        "MiddleName",
-        "LastName",
-        "Gender",
-        "Position",
-        "Department",
-        "ContactNumber",
-        "Email", 
-      ],
+      ["FirstName", "MiddleName", "LastName", "Gender", "DateOfBirth", "Position", "Department", "ContactNumber", "Email"],
       {
         FirstName: "First name",
         MiddleName: "Middle name",
         LastName: "Last name",
         Gender: "Gender",
+        DateOfBirth: "Date of birth",
         Position: "Position",
         Department: "Department",
         ContactNumber: "Contact number",
         Email: "Email",
       }
-      );
+    );
     if (requiredError) return requiredError;
 
-    // phone validation
-    const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
-    if (phoneError) return phoneError;
- 
-    // email validation
     const emailError = validators.validateEmail(form.Email);
     if (emailError) return emailError;
+
+    const ageError = validators.validatePHAge(form.DateOfBirth);
+    if (ageError) return ageError;
 
     const genderError = validators.validateGender(form.Gender);
     if (genderError) return genderError;
 
+    const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
+    if (phoneError) return phoneError;
+
+
     return "";
   };
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const err = validate();
     if (err) return setError(err);
 
-    onSubmit(form);
+    try {
+      await onSubmit(form);
+    } catch (error) {
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || error.message;
+
+      if (status === 400 || status === 409) {
+        setError(message);
+      } else if (status === 500) {
+        toast.error("Something went wrong. Please try again.");
+      } else if (!error.response) {
+        toast.error("Network error. Please check your connection.");
+      } else {
+        toast.error(message);
+      }
+    }
   };
 
   return (
@@ -91,7 +101,6 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
 
         {/* NAME */}
         <div className="grid grid-cols-3 gap-2">
-
           <div>
             <label className={modalLabel}>First Name</label>
             <input
@@ -121,7 +130,6 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* EMAIL */}
@@ -136,9 +144,10 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
           />
         </div>
 
-        {/* GENDER + CONTACT */}
+   
+        
+        {/* GENDER + DOB */}
         <div className="grid grid-cols-2 gap-2">
-
           <div>
             <label className={modalLabel}>Gender</label>
             <select
@@ -154,22 +163,34 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
             </select>
           </div>
 
-          <div>
-            <label className={modalLabel}>Contact Number</label>
+        <div>
+            <label className={modalLabel}>Date of Birth</label>
             <input
-              name="ContactNumber"
-              value={form.ContactNumber}
+              type="date"
+              name="DateOfBirth"
+              value={form.DateOfBirth}
               onChange={handleChange}
-              className={modalInput}
-              maxLength={11}
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
-
+         
         </div>
+
+         {/* CONTACT */}
+        <div>
+          <label className={modalLabel}>Contact Number</label>
+          <input
+            name="ContactNumber"
+            value={form.ContactNumber}
+            onChange={handleChange}
+            className={modalInput}
+            maxLength={11}
+          />
+        </div>
+
 
         {/* POSITION + DEPARTMENT */}
         <div className="grid grid-cols-2 gap-2">
-
           <div>
             <label className={modalLabel}>Position</label>
             <input
@@ -189,12 +210,10 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* ACTIONS */}
         <div className="flex justify-end gap-2 pt-2">
-
           <button
             type="button"
             onClick={onClose}
@@ -210,7 +229,6 @@ export default function AddStaffModal({ onClose, onSubmit, loading }) {
           >
             {loading ? "Saving..." : "Save Staff"}
           </button>
-
         </div>
 
       </form>

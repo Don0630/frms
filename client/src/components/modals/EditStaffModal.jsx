@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -8,13 +9,14 @@ import {
 } from "../common/ModalUI";
 import * as validators from "../../utils/validators";
 
-export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loading,}) {
-  
+export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loading }) {
+
   const [form, setForm] = useState({
     FirstName: "",
     MiddleName: "",
     LastName: "",
     Gender: "",
+    DateOfBirth: "",
     Position: "",
     Department: "",
     ContactNumber: "",
@@ -23,9 +25,7 @@ export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loadi
 
   const [error, setError] = useState("");
 
-
-
-// ================= LOAD SELECTED DATA =================
+  // ================= LOAD SELECTED DATA =================
   useEffect(() => {
     if (selectedStaff) {
       setForm({
@@ -33,6 +33,7 @@ export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loadi
         MiddleName: selectedStaff.MiddleName || "",
         LastName: selectedStaff.LastName || "",
         Gender: selectedStaff.Gender || "",
+        DateOfBirth: selectedStaff.DateOfBirth?.split("T")[0] || "",
         Position: selectedStaff.Position || "",
         Department: selectedStaff.Department || "",
         ContactNumber: selectedStaff.ContactNumber || "",
@@ -41,87 +42,81 @@ export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loadi
     }
   }, [selectedStaff]);
 
+  // ================= HANDLE INPUT =================
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
+  };
 
-// ================= HANDLE INPUT =================
-const handleChange = (e) => {
-  const { name, value } = e.target;
-
-  setForm((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-
-  if (error) setError("");
-};
-
- // ================= VALIDATION =================
+  // ================= VALIDATION =================
   const validate = () => {
-    // 1. Required fields check
     const requiredError = validators.validateRequiredFields(
       form,
-      [
-        "FirstName",
-        "MiddleName",
-        "LastName",
-        "Gender",
-        "Position",
-        "Department",
-        "ContactNumber",
-        "Email", 
-      ],
+      ["FirstName", "MiddleName", "LastName", "Gender", "DateOfBirth", "Position", "Department", "ContactNumber", "Email"],
       {
         FirstName: "First name",
         MiddleName: "Middle name",
         LastName: "Last name",
         Gender: "Gender",
+        DateOfBirth: "Date of birth",
         Position: "Position",
         Department: "Department",
         ContactNumber: "Contact number",
         Email: "Email",
       }
-      );
-      if (requiredError) return requiredError;
+    );
+    if (requiredError) return requiredError;
 
-    // No Changes Check
     const noChangesError = validators.validateNoChanges(
-      selectedStaff,
+      {
+        ...selectedStaff,
+        DateOfBirth: selectedStaff.DateOfBirth?.split("T")[0] || "",  
+      },
       form,
-      [
-        "FirstName",
-            "MiddleName",
-            "LastName",
-            "Gender",
-            "Position",
-            "Department",
-            "ContactNumber",
-            "Email", 
-      ]
+      ["FirstName", "MiddleName", "LastName", "Gender", "DateOfBirth", "Position", "Department", "ContactNumber", "Email"]
     );
     if (noChangesError) return noChangesError;
 
-    // phone validation
     const phoneError = validators.validatePHMobileNumber(form.ContactNumber);
     if (phoneError) return phoneError;
- 
-    // email validation
+
     const emailError = validators.validateEmail(form.Email);
     if (emailError) return emailError;
 
     const genderError = validators.validateGender(form.Gender);
     if (genderError) return genderError;
 
+    const ageError = validators.validatePHAge(form.DateOfBirth);
+    if (ageError) return ageError;
+
     return "";
   };
 
-  const handleSubmit = (e) => {
+  // ================= SUBMIT =================
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const err = validate();
     if (err) return setError(err);
 
-    // 👇 SAME PATTERN AS USER MODAL
-    onSubmit(form);
+    try {
+      await onSubmit(form);
+    } catch (error) {
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || error.message;
+
+      if (status === 400 || status === 409) {
+        setError(message);
+      } else if (status === 500) {
+        toast.error("Something went wrong. Please try again.");
+      } else if (!error.response) {
+        toast.error("Network error. Please check your connection.");
+      } else {
+        toast.error(message);
+      }
+    }
   };
 
   return (
@@ -135,7 +130,6 @@ const handleChange = (e) => {
 
         {/* NAME */}
         <div className="grid grid-cols-3 gap-2">
-
           <div>
             <label className={modalLabel}>First Name</label>
             <input
@@ -165,7 +159,6 @@ const handleChange = (e) => {
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* EMAIL */}
@@ -180,9 +173,8 @@ const handleChange = (e) => {
           />
         </div>
 
-        {/* GENDER + CONTACT */}
+        {/* GENDER + DOB */}
         <div className="grid grid-cols-2 gap-2">
-
           <div>
             <label className={modalLabel}>Gender</label>
             <select
@@ -190,29 +182,40 @@ const handleChange = (e) => {
               value={form.Gender}
               onChange={handleChange}
               className={modalInput}
-            > 
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Others</option>
             </select>
           </div>
 
           <div>
-            <label className={modalLabel}>Contact Number</label>
+            <label className={modalLabel}>Date of Birth</label>
             <input
-              name="ContactNumber"
-              value={form.ContactNumber}
+              type="date"
+              name="DateOfBirth"
+              value={form.DateOfBirth}
               onChange={handleChange}
-              className={modalInput}
-              maxLength={11}
+              className={`${modalInput} dark:[color-scheme:dark]`}
             />
           </div>
+        </div>
 
+        {/* CONTACT */}
+        <div>
+          <label className={modalLabel}>Contact Number</label>
+          <input
+            name="ContactNumber"
+            value={form.ContactNumber}
+            onChange={handleChange}
+            className={modalInput}
+            maxLength={11}
+          />
         </div>
 
         {/* POSITION + DEPARTMENT */}
         <div className="grid grid-cols-2 gap-2">
-
           <div>
             <label className={modalLabel}>Position</label>
             <input
@@ -232,12 +235,10 @@ const handleChange = (e) => {
               className={modalInput}
             />
           </div>
-
         </div>
 
         {/* ACTIONS */}
         <div className="flex justify-end gap-2 pt-2">
-
           <button
             type="button"
             onClick={onClose}
@@ -251,9 +252,8 @@ const handleChange = (e) => {
             disabled={loading}
             className={modalButtonPrimary}
           >
-            {loading ? "Saving..." : "Save Changes"}
+            {loading ? "Updating..." : "Save Changes"}
           </button>
-
         </div>
 
       </form>

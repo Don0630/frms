@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Plus, Info, Edit, Venus, Mars, Users } from "lucide-react";
 
 import {
@@ -22,7 +23,6 @@ export default function Staff() {
   const [filter, setFilter] = useState("All");
   const [addModal, setAddModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
-  const [userModal, setUserModal] = useState(null);
   const [editModal, setEditModal] = useState(null);
 
   const {
@@ -200,33 +200,38 @@ if (staffsQuery.isError) {
   <AddStaffModal
     onClose={() => setAddModal(false)}
     onSubmit={(data) =>
-      createStaffMutation.mutate(data, {
-        onSuccess: () => setAddModal(false),
-      })
+      createStaffMutation.mutateAsync(data)
+        .then((res) => {
+          setAddModal(false);
+          toast.success(res.message);
+        })
+        .catch((error) => {
+          throw error;
+        })
     }
     loading={createStaffMutation.isPending}
   />
 )}
-
+ 
 {/* EDIT */}
 {editModal && (
   <EditStaffModal
     selectedStaff={editModal}
     onClose={() => setEditModal(null)}
     onSubmit={(data) =>
-      updateStaffMutation.mutate(
-        {
-          id: editModal.StaffID,
-          data,
-        },
-        {
-          onSuccess: () => setEditModal(null),
-        }
-      )
+      updateStaffMutation.mutateAsync({ id: editModal.StaffID, data })
+        .then((res) => {
+          setEditModal(null);
+          toast.success(res.message);
+        })
+        .catch((error) => {
+          throw error;
+        })
     }
     loading={updateStaffMutation.isPending}
   />
 )}
+
     </div>
   );
 }
