@@ -2,6 +2,7 @@ import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
 import { Plus, Eye, Edit } from "lucide-react"; 
 import { useNavigate } from "react-router-dom";
+import { formatDateNumeric } from "../utils/pageUtility";
 
 import { pageButtonPrimary } from "../components/common/PageUI";
 import useSubsidy from "../hooks/useSubsidy";
@@ -46,7 +47,10 @@ export default function Subsidy() {
       label: "Total Amount",
       render: (item) => `₱ ${Number(item.TotalAmount || 0).toLocaleString()}`,
     },
-    { key: "DistributionDate", label: "Date" },
+    { key: "DistributionDate", 
+      label: "Date",
+      render: (item) => `${formatDateNumeric(item.DistributionDate)}`,
+    },
     {
       key: "TotalDistributed",
       label: "Distributed",

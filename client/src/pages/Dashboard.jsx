@@ -1,4 +1,5 @@
 import { Users, UserCheck, User, Sprout, PawPrint, ClipboardList, BookOpen, Gift, UserCog, TrendingUp, Calendar, Wallet, MapPin } from "lucide-react";
+import { formatDateNumeric } from "../utils/pageUtility";
 import useFarmer from "../hooks/useFarmer";
 import useMonitoring from "../hooks/useMonitoring";
 import useCrop from "../hooks/useCrop";
@@ -217,7 +218,7 @@ export default function FarmersDashboard() {
                     <tr key={f.FarmerID} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
                       <td className="py-2 font-medium text-gray-800 dark:text-gray-100">{f.FirstName} {f.LastName}</td>
                       <td className="text-gray-600 dark:text-gray-400 text-xs">{f.Municipality || "-"}</td>
-                      <td className="text-gray-600 dark:text-gray-400 text-xs">{f.RegistrationDate}</td>
+                      <td className="text-gray-600 dark:text-gray-400 text-xs">{formatDateNumeric(f.RegistrationDate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -235,7 +236,7 @@ export default function FarmersDashboard() {
                     <th className="pb-2">Farmer</th>
                     <th className="pb-2">Crop / Livestock</th>
                     <th className="pb-2">Production</th>
-                    <th className="pb-2">Date</th>
+                    <th className="pb-2">Report Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -246,7 +247,7 @@ export default function FarmersDashboard() {
                       <td className="py-2 font-medium text-gray-800 dark:text-gray-100">{m.FirstName} {m.LastName}</td>
                       <td className="text-gray-600 dark:text-gray-400 text-xs">{m.CropName || m.Breed || "-"}</td>
                       <td className="text-gray-600 dark:text-gray-400 text-xs">{m.ProductionVolume || "-"}</td>
-                      <td className="text-gray-600 dark:text-gray-400 text-xs">{m.ReportDate}</td>
+                      <td className="text-gray-600 dark:text-gray-400 text-xs">{formatDateNumeric(m.ReportDate)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -269,7 +270,7 @@ export default function FarmersDashboard() {
                   <th className="pb-2">Total Amount</th>
                   <th className="pb-2">Distributed</th>
                   <th className="pb-2">Remaining</th>
-                  <th className="pb-2">Date</th>
+                  <th className="pb-2">Distribution Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -281,7 +282,7 @@ export default function FarmersDashboard() {
                     <td className="text-gray-600 dark:text-gray-400 text-xs">₱{Number(s.TotalAmount || 0).toLocaleString()}</td>
                     <td className="text-green-600 dark:text-green-400 text-xs">₱{Number(s.DistributedAmount || 0).toLocaleString()}</td>
                     <td className="text-red-600 dark:text-red-400 text-xs">₱{(Number(s.TotalAmount || 0) - Number(s.DistributedAmount || 0)).toLocaleString()}</td>
-                    <td className="text-gray-600 dark:text-gray-400 text-xs">{s.DistributionDate}</td>
+                    <td className="text-gray-600 dark:text-gray-400 text-xs">{formatDateNumeric(s.DistributionDate)}</td>
                   </tr>
                 ))}
               </tbody>

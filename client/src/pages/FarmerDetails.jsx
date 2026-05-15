@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { pageButtonPrimary } from "../components/common/PageUI";
 import toast from "react-hot-toast";
+import { formatDateNumeric } from "../utils/pageUtility";
 
 import { useFarmerDetails } from "../hooks/useFarmerDetails";
 import { useFarm } from "../hooks/useFarm";
@@ -156,7 +157,7 @@ export default function FarmerDetails() {
 
             <div className="flex items-center gap-2">
               <Calendar size={14} />
-              {farmer.DateOfBirth}
+              {formatDateNumeric(farmer.DateOfBirth)}
             </div>
 
           </div>

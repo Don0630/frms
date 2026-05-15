@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Mars, Venus, Edit, Eye, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
  pageButtonPrimary
@@ -78,6 +79,11 @@ export default function Farmers() {
     {
       key: "RegistrationDate",
       label: "Registration Date",
+      render: (item) => (
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+          {formatDateNumeric (item.RegistrationDate)} 
+        </div>
+      ),
     },
     {
       key: "actions",

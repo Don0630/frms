@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Plus, Info, Users, Mars, Venus, Edit } from "lucide-react";
 import { pageButtonPrimary } from "../components/common/PageUI";
 import toast from "react-hot-toast";
+import { formatDateNumeric } from "../utils/pageUtility";
 
 import useMonitoring from "../hooks/useMonitoring";
 
@@ -134,7 +135,7 @@ export default function Monitoring() {
       label: "Date",
       render: (item) => (
         <span>
-          {item.ReportDate || "-"}
+          {formatDateNumeric(item.ReportDate)}
         </span>
       ),
     }, 

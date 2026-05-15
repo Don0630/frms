@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
  pageButtonPrimary
@@ -227,7 +228,7 @@ const totalFarmers = selectedSubsidy.TotalFarmers;
             </p>
             <p className="font-medium text-gray-800 dark:text-gray-200 mt-1">
               {
-                selectedSubsidy.DistributionDate
+                formatDateNumeric(selectedSubsidy.DistributionDate)
               }
             </p>
           </div>

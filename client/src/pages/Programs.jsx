@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { Plus, Info, Edit } from "lucide-react";
+import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
  pageButtonPrimary
@@ -74,11 +75,15 @@ export default function Programs() {
     },
 
     { key: "StartDate", 
-      label: "Start", 
+      label: "Start",
+      render: (item) =>
+        `${formatDateNumeric(item.StartDate)}`,
       },
 
     { key: "EndDate", 
       label: "End",
+      render: (item) =>
+        `${formatDateNumeric(item.EndDate)}`,
       },
 
     {
