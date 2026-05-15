@@ -1,30 +1,22 @@
-import { apiFetch } from "./apiFetch";
+// src/api/userApi.js
+import api from "./api.js";
 
-// ------------ FETCH ALL USER ------------
+// ------------ FETCH ALL USERS ------------
 export function fetchAllUser() {
-  return apiFetch("/user/usersData");
+  return api.get("/user/usersData");
 }
 
 // ------------ REGISTER USER ------------
 export function registerUser(userData) {
-  return apiFetch("/user/createUser", {
-    method: "POST",
-    body: JSON.stringify(userData),
-  });
+  return api.post("/user/createUser", userData);
 }
-
 
 // ------------ UPDATE USER ------------
 export function updateUser(userId, userData) {
-  return apiFetch(`/user/updateUser/${userId}`, {
-    method: "PUT",
-    body: JSON.stringify(userData),
-  });
+  return api.put(`/user/updateUser/${userId}`, userData);
 }
 
-
+// ------------ DELETE USER ------------
 export function deleteUser(id) {
-  return apiFetch(`/user/deleteUser/${id}`, {
-    method: "DELETE",
-  });
+  return api.delete(`/user/deleteUser/${id}`);
 }

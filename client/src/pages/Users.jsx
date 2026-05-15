@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { Plus, Info, Edit, User, Trash2 } from "lucide-react";
 
 
@@ -54,7 +55,7 @@ const users = usersQuery.data?.data || [];
       render: (item) => (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           <User className="w-4 h-4 text-blue-500" />
-          {item.FirstName} {item.MiddleName} {item.LastName}
+          {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
 
           <button
             onClick={() => setViewModal(item)}
@@ -202,50 +203,57 @@ const users = usersQuery.data?.data || [];
         />
       )}
 
+{/* ADD */}
 {addModal && (
-<AddUserModal
-  onClose={() => setAddModal(false)}
-  onSubmit={(data) =>
-    createUserMutation.mutate(data, {
-      onSuccess: () => setAddModal(false),
-    })
-  }
-  loading={createUserMutation.isPending}
-/>
+  <AddUserModal
+    onClose={() => setAddModal(false)}
+    onSubmit={(data) =>
+      createUserMutation.mutateAsync(data)
+        .then((res) => {
+          setAddModal(false);
+          toast.success(res.message);
+        })
+        .catch((error) => {
+          throw error;
+        })
+    }
+    loading={createUserMutation.isPending}
+  />
 )}
 
-
+{/* EDIT */}
 {editModal && (
   <EditUserModal
     selectedUser={editModal}
     onClose={() => setEditModal(null)}
     onSubmit={(data) =>
-      updateUserMutation.mutate(
-        {
-          id: editModal.UserID,
-          data,
-        },
-        {
-          onSuccess: () => setEditModal(null),
-        }
-      )
+      updateUserMutation.mutateAsync({ id: editModal.UserID, data })
+        .then((res) => {
+          setEditModal(null);
+          toast.success(res.message);
+        })
+        .catch((error) => {
+          throw error;
+        })
     }
     loading={updateUserMutation.isPending}
   />
 )}
 
-
-
+{/* DELETE */}
 {deleteModal && (
   <DeleteUserModal
     user={deleteModal}
     onClose={() => setDeleteModal(null)}
     onConfirm={() =>
-      deleteUserMutation.mutate(deleteModal.UserID, {
-        onSuccess: () => {
-          setDeleteModal(null); // ✅ CLOSE MODAL AFTER SUCCESS
-        },
-      })
+      deleteUserMutation.mutateAsync(deleteModal.UserID)
+        .then((res) => {
+          setDeleteModal(null);
+          toast.success(res.message);
+        })
+        .catch(() => {
+          toast.error("Failed to delete user. Please try again.");
+        })
     }
     loading={deleteUserMutation.isPending}
   />

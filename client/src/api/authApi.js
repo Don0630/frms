@@ -1,14 +1,12 @@
-import { apiFetch } from "./apiFetch";
+// src/api/authApi.js
+import api from "./api.js";
 
+// ------------ LOGIN ------------
 export async function login({ identifier, password }) {
-  return apiFetch("/auth/login", {
-    method: "POST",
-    body: JSON.stringify({ identifier, password }),
-  });
+  return api.post("/auth/login", { identifier, password });
 }
 
+// ------------ LOGOUT ------------
 export async function logout() {
-  return apiFetch("/auth/logout", {
-    method: "POST",
-  });
+  return api.post("/auth/logout");
 }

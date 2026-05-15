@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import useStaff from "../../hooks/useStaff";
 import useDebounce from "../../hooks/useDebounce";
 
@@ -104,21 +105,36 @@ export default function AddUserModal({ onClose, onSubmit, loading, }) {
     return "";
   };
 
-  // ================= SUBMIT =================
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+// ================= SUBMIT =================
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    const err = validate();
-    if (err) return setError(err);
+  const err = validate();
+  if (err) return setError(err);
 
-    onSubmit({
+  try {
+    await onSubmit({
       staffId: selectedStaff.StaffID,
       username: form.Username,
       password: form.Password,
       role: form.Role,
     });
-  };
+  } catch (error) {
+    const status = error?.response?.status;
+    const message = error?.response?.data?.message || error.message;
+
+    if (status === 400 || status === 409) {
+      setError(message);
+    } else if (status === 500) {
+      toast.error("Something went wrong. Please try again.");
+    } else if (!error.response) {
+      toast.error("Network error. Please check your connection.");
+    } else {
+      toast.error(message);
+    }
+  }
+};
 
   return (
     <Modal
@@ -187,31 +203,22 @@ export default function AddUserModal({ onClose, onSubmit, loading, }) {
             availableStaff.length > 0 && (
               <div
                 className={`${modalDropdown} absolute z-50`}
-              >
-                {availableStaff.map(
-                  (staff) => (
-                    <div
-                      key={staff.StaffID}
-                      onClick={() => {
-                        setSelectedStaff(
-                          staff
-                        );
-                        setSearchStaff(
-                          `${staff.FirstName} ${staff.LastName}`
-                        );
-                        setShowDropdown(
-                          false
-                        );
-                      }}
-                      className={
-                        modalDropdownItem
-                      }
-                    >
-                      {staff.FirstName}{" "}
-                      {staff.LastName}
-                    </div>
-                  )
-                )}
+              > 
+              {availableStaff.map((staff) => (
+                <div
+                  key={staff.StaffID}
+                  onClick={() => {
+                    setSelectedStaff(staff);
+                    setSearchStaff(
+                      `${staff.LastName}, ${staff.FirstName}${staff.MiddleName ? ` ${staff.MiddleName}` : ""}`
+                    );
+                    setShowDropdown(false);
+                  }}
+                  className={modalDropdownItem}
+                >
+                  {staff.LastName}, {staff.FirstName}{staff.MiddleName ? ` ${staff.MiddleName}` : ""}
+                </div>
+              ))}
               </div>
             )}
         </div>

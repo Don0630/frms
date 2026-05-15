@@ -61,7 +61,7 @@ export default function Staff() {
       render: (item) => (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
-          {item.FirstName} {item.MiddleName} {item.LastName}
+          {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
 
           <button
             onClick={() => setViewModal(item)}

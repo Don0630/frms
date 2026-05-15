@@ -119,6 +119,7 @@ export async function updateStaff(id, staff) {
 }
 
 
+// --------------- SEARCH AVAILABLE STAFF (NOT YET USERS) ---------------
 export async function getAvailableStaff(search = "") {
   const searchPattern = `%${search}%`;
   const [rows] = await db.query(
@@ -126,20 +127,25 @@ export async function getAvailableStaff(search = "") {
     SELECT 
       s.StaffID,
       s.FirstName,
+      s.MiddleName,
       s.LastName
     FROM tblAgriculturalStaff s
     LEFT JOIN tblUsers u ON s.StaffID = u.StaffID
     WHERE u.StaffID IS NULL
-      AND (s.FirstName LIKE ? OR s.LastName LIKE ?)
+      AND (
+        CONCAT(s.FirstName, ' ', COALESCE(s.MiddleName, ''), ' ', s.LastName) LIKE ?
+        OR
+        CONCAT(s.LastName, ', ', s.FirstName, ' ', COALESCE(s.MiddleName, '')) LIKE ?
+        OR
+        CONCAT(s.LastName, ' ', s.FirstName) LIKE ?
+      )
     ORDER BY s.FirstName, s.LastName
-    LIMIT 3
+    LIMIT 10
     `,
-    [searchPattern, searchPattern]
+    [searchPattern, searchPattern, searchPattern]
   );
-
-  return rows;
+  return rows || [];
 }
-
 
 // --------- FIND DUPLICATE STAFF NAME ---------
 export async function findDuplicateStaff(FirstName, MiddleName, LastName, excludeId = null) {
@@ -158,6 +164,7 @@ export async function findDuplicateStaff(FirstName, MiddleName, LastName, exclud
   return rows[0] || null;
 }
 
+
 // --------- FIND DUPLICATE STAFF CONTACT ---------
 export async function findDuplicateStaffContact(ContactNumber, excludeId = null) {
   const [rows] = await db.query(
@@ -172,6 +179,7 @@ export async function findDuplicateStaffContact(ContactNumber, excludeId = null)
   );
   return rows[0] || null;
 }
+
 
 // --------- FIND DUPLICATE STAFF EMAIL ---------
 export async function findDuplicateStaffEmail(Email, excludeId = null) {
