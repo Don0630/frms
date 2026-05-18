@@ -62,3 +62,33 @@ export async function loginUser({ identifier, password }) {
   return { userSafe, accessToken, refreshToken };
 }
 
+ 
+
+// --------- REFRESH TOKEN ---------
+export async function refreshAccessToken(refreshToken) {
+  if (!refreshToken)
+    throwError("No refresh token provided.", "UNAUTHORIZED", 401);
+
+  try {
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET);
+
+    const payload = { id: decoded.id, role: decoded.role };
+    const accessToken = jwt.sign(payload, JWT_ACCESS_SECRET, {
+      expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+    });
+
+    return { accessToken };
+  } catch (err) {
+    if (err.name === "TokenExpiredError")
+      throwError("Refresh token expired. Please log in again.", "TOKEN_EXPIRED", 401);
+    throwError("Invalid refresh token.", "INVALID_TOKEN", 401);
+  }
+}
+
+ 
+
+export async function getMe(userId) {
+  const user = await authModel.getUserById(userId);
+  if (!user) throwError("User not found.", "NOT_FOUND", 404);
+  return user;
+}

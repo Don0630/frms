@@ -10,3 +10,10 @@ export async function login({ identifier, password }) {
 export async function logout() {
   return api.post("/auth/logout");
 }
+
+
+// ------------ ME ------------
+export async function me() {
+  const res = await api.get("/auth/me");
+  return res.data.user;
+}

@@ -91,9 +91,9 @@ export default function SubsidyDetails() {
   
 
   const getGenderIcon = (gender) => {
-    if (gender?.toLowerCase() === "male")
-      return <Mars className="w-4 h-4 text-blue-500" />;
-    if (gender?.toLowerCase() === "female")
+  if (gender?.toLowerCase() === "male")
+    return <Mars className="w-4 h-4 text-blue-500" />;
+  if (gender?.toLowerCase() === "female")
       return <Venus className="w-4 h-4 text-pink-500" />;
     return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
   };
@@ -113,13 +113,11 @@ export default function SubsidyDetails() {
   }
 
   // COMPUTED VALUES
-  const totalAmount = Number(
-    selectedSubsidy.TotalAmount || 0
-  );
-const distributed = Number(selectedSubsidy.DistributedAmount || 0);
-const remaining = Number(selectedSubsidy.RemainingBalance || 0);
-const unassigned = Number(selectedSubsidy.UnassignedAmount || 0);
-const totalFarmers = selectedSubsidy.TotalFarmers;
+  const totalAmount = Number(selectedSubsidy.TotalAmount || 0);
+  const distributed = Number(selectedSubsidy.DistributedAmount || 0);
+  const remaining = Number(selectedSubsidy.RemainingBalance || 0);
+  const unassigned = Number(selectedSubsidy.UnassignedAmount || 0);
+  const totalFarmers = selectedSubsidy.TotalFarmers;
 
 
   // TABLE COLUMNS

@@ -1,15 +1,14 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { login, logout } from "../api/authApi";
+// src/hooks/useAuth.js
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import * as authApi from "../api/authApi";
 
 export function useLogin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: login,
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.data.token);
-      localStorage.setItem("user", JSON.stringify(data.data.user));
-      queryClient.setQueryData(["authUser"], data.data.user);
+    mutationFn: authApi.login,
+    onSuccess: (res) => {
+      queryClient.setQueryData(["authUser"], res.data.user);
     },
   });
 }
@@ -18,12 +17,19 @@ export function useLogout() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: logout,
+    mutationFn: authApi.logout,
     onSuccess: () => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
       queryClient.clear();
+      window.location.href = "/login";
     },
+  });
+}
+
+export function useMe() {
+  return useQuery({
+    queryKey: ["authUser"],
+    queryFn: authApi.me,
+    retry: false,
+    staleTime: Infinity,
   });
 }

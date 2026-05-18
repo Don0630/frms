@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMe } from "../hooks/useAuth";
 import {
   Home,
   Users,
@@ -17,45 +17,15 @@ const menuItems = [
   { name: "Farmers", icon: <Users size={20} />, path: "/farmers" },
   { name: "Crops", icon: <Sprout size={20} />, path: "/crops" },
   { name: "Livestock", icon: <Activity size={20} />, path: "/livestock" },
-  {
-    name: "Programs & Subsidies",
-    icon: <FileText size={20} />,
-    path: "/programs",
-  },
-  {
-    name: "Subsidy Distribution",
-    icon: <Briefcase size={20} />,
-    path: "/subsidy",
-  },
-  {
-    name: "Reports & Monitoring",
-    icon: <Clipboard size={20} />,
-    path: "/monitoring",
-  },
-  {
-    name: "Agricultural Staffs",
-    icon: <Users size={20} />,
-    path: "/staffs",
-    roles: ["Admin", "Staff"],
-  },
-  {
-    name: "System Users",
-    icon: <UserCog size={20} />,
-    path: "/users",
-    roles: ["Admin"],
-  },
+  { name: "Programs & Subsidies", icon: <FileText size={20} />, path: "/programs" },
+  { name: "Subsidy Distribution", icon: <Briefcase size={20} />, path: "/subsidy" },
+  { name: "Reports & Monitoring", icon: <Clipboard size={20} />, path: "/monitoring" },
+  { name: "Agricultural Staffs", icon: <Users size={20} />, path: "/staffs", roles: ["Admin", "Staff"] },
+  { name: "System Users", icon: <UserCog size={20} />, path: "/users", roles: ["Admin"] },
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {
-  const queryClient = useQueryClient();
-
-  let user = queryClient.getQueryData(["authUser"]);
-
-  // fallback after refresh
-  if (!user) {
-    const storedUser = localStorage.getItem("user");
-    user = storedUser ? JSON.parse(storedUser) : null;
-  }
+  const { data: user } = useMe();
 
   return (
     <div
@@ -77,11 +47,7 @@ export default function Sidebar({ collapsed, mobile = false }) {
           ${collapsed ? "justify-center" : "gap-3"}
         `}
       >
-        <img
-          src={logo}
-          alt="Logo"
-          className="w-7 h-7 object-contain rounded-full"
-        />
+        <img src={logo} alt="Logo" className="w-7 h-7 object-contain rounded-full" />
 
         <h1
           className={`
@@ -98,9 +64,7 @@ export default function Sidebar({ collapsed, mobile = false }) {
       {/* MENU */}
       <nav className="flex-1 p-2 space-y-1">
         {menuItems
-          .filter(
-            (item) => !item.roles || item.roles.includes(user?.Role)
-          )
+          .filter((item) => !item.roles || item.roles.includes(user?.Role))
           .map((item, idx) => (
             <div key={idx}>
               <NavLink
@@ -123,11 +87,7 @@ export default function Sidebar({ collapsed, mobile = false }) {
                 <span
                   className={`
                     whitespace-nowrap transition-all duration-150
-                    ${
-                      collapsed
-                        ? "opacity-0 w-0 overflow-hidden"
-                        : "opacity-100"
-                    }
+                    ${collapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"}
                   `}
                 >
                   {item.name}

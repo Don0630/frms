@@ -4,13 +4,11 @@ import { errorResponse } from "../utils/response.js";
 const SECRET_KEY = process.env.JWT_ACCESS_SECRET;
 
 export function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
+  const token = req.cookies.accessToken; // 👈 from cookie instead of header
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  if (!token) {
     return errorResponse(res, "Access denied. No token provided.", "NO_TOKEN", null, 401);
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
@@ -24,8 +22,8 @@ export function authenticateToken(req, res, next) {
 
   } catch (err) {
     if (err.name === "TokenExpiredError") {
-      return errorResponse(res, "Token expired", "TOKEN_EXPIRED", null, 401);
+      return errorResponse(res, "Token expired.", "TOKEN_EXPIRED", null, 401);
     }
-      return errorResponse(res, "Invalid token", "INVALID_TOKEN", null, 403);
+    return errorResponse(res, "Invalid token.", "INVALID_TOKEN", null, 403);
   }
 }

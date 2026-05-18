@@ -21,24 +21,31 @@ export function validateUsername(username, fieldName = "Username") {
 
 
 export function validatePassword(password, confirmPassword, fieldName = "Password") {
-  if (!password || password.trim() === "") {
+  if (!password || password.trim() === "")
     return `${fieldName} is required.`;
-  }
 
   const value = password.trim();
 
-  // minimum length rule (you can adjust)
-  if (value.length < 6) {
-    return `${fieldName} must be at least 6 characters long.`;
-  }
+  if (value.length < 8)
+    return `${fieldName} must be at least 8 characters long.`;
 
-  if (!confirmPassword || confirmPassword.trim() === "") {
-    return `Confirm Password is required.`;
-  }
+  if (!/[A-Z]/.test(value))
+    return `${fieldName} must contain at least one uppercase letter.`;
 
-  if (value !== confirmPassword.trim()) {
-    return `Passwords do not match.`;
-  }
+  if (!/[a-z]/.test(value))
+    return `${fieldName} must contain at least one lowercase letter.`;
+
+  if (!/[0-9]/.test(value))
+    return `${fieldName} must contain at least one number.`;
+
+  if (!/[^a-zA-Z0-9]/.test(value))
+    return `${fieldName} must contain at least one special character.`;
+
+  if (!confirmPassword || confirmPassword.trim() === "")
+    return "Confirm Password is required.";
+
+  if (value !== confirmPassword.trim())
+    return "Passwords do not match.";
 
   return null;
 }

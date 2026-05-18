@@ -48,8 +48,8 @@ export default function EditUserModal({ selectedUser, onClose, onSubmit, loading
     if (requiredError) return requiredError;
 
 
-       // No Changes Check
-const noChangesError = validators.validateNoChanges(
+  // No Changes Check
+  const noChangesError = validators.validateNoChanges(
   selectedUser,
   form,
   [

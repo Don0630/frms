@@ -21,24 +21,22 @@ export default function Login() {
     setSuccessMessage("");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    loginMutation.mutate(form, {
-      onSuccess: () => {
-        setSuccessMessage("Login successful! Redirecting...");
-        setForm({ identifier: "", password: "" });
+  loginMutation.mutate(form, {
+    onSuccess: () => {
+      setSuccessMessage("Login successful! Redirecting...");
+      setForm({ identifier: "", password: "" });
+      setTimeout(() => navigate("/dashboard"), 1000);
+    },
 
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1000);
-      },
-
-      onError: (err) => {
-        setFormError(err.message || "Login failed");
-      },
-    });
-  };
+    onError: (err) => {
+      const message = err?.response?.data?.message || err.message || "Login failed.";
+      setFormError(message);
+    },
+  });
+};
 
   return (
     <div

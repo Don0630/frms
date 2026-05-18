@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -51,6 +52,7 @@ app.use(cors(corsOptions));
    📦 Middleware
 ------------------------------ */
 app.use(express.json());
+app.use(cookieParser());
 
 /* -----------------------------
    ❤️ Health Check

@@ -1,31 +1,31 @@
-import { Navigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { Navigate, Outlet } from "react-router-dom";
+import { useMe } from "../hooks/useAuth";
 
-export default function ProtectedRoute({ children, role }) {
-  const { data: user, isLoading } = useQuery({
-    queryKey: ["authUser"],
-    queryFn: () => {
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    },
-    staleTime: 1000 * 60 * 5,
-  });
+function LoadingScreen() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-950 transition-colors duration-200">
+      <div className="flex flex-col items-center gap-4">
 
-  // 🟡 IMPORTANT: wait until auth is ready
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+        {/* Spinner */}
+        <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 border-t-green-600 dark:border-t-green-400 rounded-full animate-spin" />
 
-  // ❌ not logged in
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+        {/* Text */}
+        <p className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">
+          Loading, please wait...
+        </p>
 
-  // ❌ role mismatch
-  if (role && user.Role !== role) {
-    return <Navigate to="/dashboard" replace />;
-  }
+      </div>
+    </div>
+  );
+}
 
-  // ✅ allow access
-  return children;
+export default function ProtectedRoute({ children, allowedRoles }) {
+  const { data: user, isLoading, isError } = useMe();
+
+  if (isLoading) return <LoadingScreen />;
+  if (isError || !user) return <Navigate to="/login" replace />;
+  if (allowedRoles && !allowedRoles.includes(user.Role))
+    return <Navigate to="/unauthorized" replace />;
+
+  return children ?? <Outlet />;
 }

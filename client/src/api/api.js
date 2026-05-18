@@ -2,31 +2,44 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
-  withCredentials: true,
+  withCredentials: true, // sends cookies automatically
 });
 
-// ✅ Attach token automatically
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  const isAuthEndpoint = config.url?.startsWith("/auth");
-  if (token && !isAuthEndpoint) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+// no request interceptor needed — cookie is sent automatically
 
 api.interceptors.response.use(
   (response) => response.data,
-  (error) => {
+  async (error) => {
     const status = error?.response?.status;
-    if (status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/sessionexpired";
+    const code = error?.response?.data?.code;
+    const originalRequest = error.config;
+
+    // retry on token expired (401) or invalid token (403)
+    if (
+      (status === 401 || status === 403) &&
+      code === "TOKEN_EXPIRED" &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+
+        return api(originalRequest);
+      } catch {
+        window.location.href = "/sessionexpired";
+      }
     }
-    if (status === 403) window.location.href = "/unauthorized";
+
+    if (status === 403 && code !== "TOKEN_EXPIRED") {
+      window.location.href = "/unauthorized";
+    }
+
     return Promise.reject(error);
   }
 );
-
 export default api;

@@ -1,31 +1,37 @@
 // server/src/services/userService.js
 import * as userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
+import { throwError } from "../utils/throwError.js";
 
 
 export async function fetchUsers() {
-   const user = await userModel.getAllUsers();
-   return user;
+  return await userModel.getAllUsers();
 }
 
 
 export async function addUser({ staffId, username, password, role }) {
-  // 1️⃣ Generate salt and hash password
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  // check if staff exists and is not already a user
+  const existingUser = await userModel.findUserByStaffId(staffId);
+  if (existingUser) throwError("This staff is already a user.", "DUPLICATE", 409);
 
-  // 2️⃣ Insert user with hashed password
-  const user = await userModel.insertUser({ staffId, username, hashedPassword, role });
-  return user;
+  // check duplicate username
+  const dupUsername = await userModel.findDuplicateUsername(username);
+  if (dupUsername) throwError("Username is already taken.", "DUPLICATE", 409);
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  return await userModel.insertUser({ staffId, username, hashedPassword, role });
 }
 
 
-export async function updateUser({ userId, username, role }) {
-  const user = await userModel.updateUser({ userId, username, role });
-  return user;
+export async function editUser(userId, { username, role }) {
+  // check duplicate username excluding current user
+  const dupUsername = await userModel.findDuplicateUsername(username, userId);
+  if (dupUsername) throwError("Username is already taken.", "DUPLICATE", 409);
+
+  return await userModel.updateUser({ userId, username, role });
 }
+
 
 export async function removeUser(userId) {
-  const user = await userModel.deleteUser(userId);
-  return user;
+  return await userModel.deleteUser(userId);
 }

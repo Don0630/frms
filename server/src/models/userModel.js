@@ -62,3 +62,28 @@ export async function deleteUser(userId) {
   const [result] = await db.query(query, [userId]);
   return result;
 }
+
+
+// check if staff is already a user
+export async function findUserByStaffId(staffId) {
+  const [rows] = await db.query(
+    `SELECT UserID FROM tblUsers WHERE StaffID = ? LIMIT 1`,
+    [staffId]
+  );
+  return rows[0] || null;
+}
+
+// check duplicate username
+export async function findDuplicateUsername(username, excludeId = null) {
+  const [rows] = await db.query(
+    `
+    SELECT UserID
+    FROM tblUsers
+    WHERE Username = ?
+      AND (? IS NULL OR UserID != ?)
+    LIMIT 1
+    `,
+    [username, excludeId, excludeId]
+  );
+  return rows[0] || null;
+}

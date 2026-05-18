@@ -76,3 +76,50 @@ export function validateID(value, fieldName = "ID") {
     throwError(`Invalid ${fieldName}`, "INVALID_ID", 400);
   }
 }
+
+
+// =============================== USERNAME VALIDATOR ===============================
+export function validateUsername(username, fieldName = "Username") {
+  if (!username?.trim())
+    throwError(`${fieldName} is required.`, "REQUIRED_FIELD_MISSING", 400);
+
+  const value = username.trim();
+
+  if (value.length < 5)
+    throwError(`${fieldName} must be at least 5 characters long.`, "INVALID_USERNAME", 400);
+
+  if (!/^[a-zA-Z0-9_]+$/.test(value))
+    throwError(`${fieldName} can only contain letters, numbers, and underscores.`, "INVALID_USERNAME", 400);
+}
+
+
+// =============================== PASSWORD VALIDATOR ===============================
+export function validatePassword(password, fieldName = "Password") {
+  if (!password?.trim())
+    throwError(`${fieldName} is required.`, "REQUIRED_FIELD_MISSING", 400);
+
+  const value = password.trim();
+
+  if (value.length < 8)
+    throwError(`${fieldName} must be at least 8 characters long.`, "INVALID_PASSWORD", 400);
+
+  if (!/[A-Z]/.test(value))
+    throwError(`${fieldName} must contain at least one uppercase letter.`, "INVALID_PASSWORD", 400);
+
+  if (!/[a-z]/.test(value))
+    throwError(`${fieldName} must contain at least one lowercase letter.`, "INVALID_PASSWORD", 400);
+
+  if (!/[0-9]/.test(value))
+    throwError(`${fieldName} must contain at least one number.`, "INVALID_PASSWORD", 400);
+
+  if (!/[^a-zA-Z0-9]/.test(value))
+    throwError(`${fieldName} must contain at least one special character.`, "INVALID_PASSWORD", 400);
+}
+
+
+// =============================== ROLE VALIDATOR ===============================
+export function validateRole(role) {
+  const allowedRoles = ["Admin", "Staff"];
+  if (!allowedRoles.includes(role))
+    throwError("Invalid role selected.", "INVALID_ROLE", 400);
+}
