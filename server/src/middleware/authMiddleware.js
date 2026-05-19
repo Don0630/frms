@@ -4,7 +4,7 @@ import { errorResponse } from "../utils/response.js";
 const SECRET_KEY = process.env.JWT_ACCESS_SECRET;
 
 export function authenticateToken(req, res, next) {
-  const token = req.cookies.accessToken; // 👈 from cookie instead of header
+  const token = req.cookies.accessToken;
 
   if (!token) {
     return errorResponse(res, "Access denied. No token provided.", "NO_TOKEN", null, 401);

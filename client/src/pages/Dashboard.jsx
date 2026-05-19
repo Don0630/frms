@@ -75,16 +75,11 @@ export default function FarmersDashboard() {
 
   // ================= STAT CARDS =================
   const statCards = [
-    { label: "Total Farmers", value: totalFarmers, icon: Users, color: "text-green-600", bg: "bg-green-50 dark:bg-green-900/20" },
-    { label: "Male Farmers", value: maleFarmers, icon: User, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
-    { label: "Female Farmers", value: femaleFarmers, icon: UserCheck, color: "text-pink-600", bg: "bg-pink-50 dark:bg-pink-900/20" },
-    { label: "Monitoring Reports", value: monitoring.length, icon: ClipboardList, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-900/20" },
-    { label: "Crops", value: crops.length, icon: Sprout, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
-    { label: "Livestock", value: livestock.length, icon: PawPrint, color: "text-yellow-600", bg: "bg-yellow-50 dark:bg-yellow-900/20" },
-    { label: "Programs", value: programs.length, icon: BookOpen, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-900/20" },
-    { label: "Subsidies", value: subsidies.length, icon: Gift, color: "text-red-600", bg: "bg-red-50 dark:bg-red-900/20" },
-    { label: "Users", value: users.length, icon: UserCog, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-900/20" },
-    { label: "Staff", value: staff.length, icon: TrendingUp, color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-900/20" },
+    { label: "Total Farmers", value: totalFarmers, icon: Users, color: "text-gray-100", cardbg: "bg-green-500 dark:bg-green-500"},  
+    { label: "Programs", value: programs.length, icon: BookOpen, color: "text-gray-100", cardbg: "bg-blue-500 dark:bg-blue-500"},
+    { label: "Subsidies", value: subsidies.length, icon: Gift, color: "text-gray-100", cardbg: "bg-purple-500 dark:bg-purple-500"},
+    { label: "Users", value: users.length, icon: UserCog, color: "text-gray-100", cardbg: "bg-red-500 dark:bg-red-500"},
+    { label: "Staff", value: staff.length, icon: TrendingUp, color: "text-gray-100", cardbg: "bg-orange-500 dark:bg-orange-500"},
   ];
 
   return (
@@ -102,13 +97,13 @@ export default function FarmersDashboard() {
 
         {/* STAT CARDS */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {statCards.map(({ label, value, icon: Icon, color, bg }) => (
-            <div key={label} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 rounded shadow">
-              <div className={`w-8 h-8 rounded flex items-center justify-center mb-2 ${bg}`}>
+          {statCards.map(({ label, value, icon: Icon, color, cardbg }) => (
+            <div key={label} className={`${cardbg} border border-gray-200 dark:border-gray-800 p-4 rounded-xl shadow`}>
+              <div className={`w-8 h-8 rounded flex items-center justify-center mb-2`}>
                 <Icon className={`w-4 h-4 ${color}`} />
               </div>
-              <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{value}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{label}</p>
+              <p className="text-2xl font-bold text-gray-100 dark:text-gray-100">{value}</p>
+              <p className="text-xs text-gray-100 dark:text-gray-100 mt-0.5">{label}</p>
             </div>
           ))}
         </div>
