@@ -12,6 +12,7 @@ export default function useLivestock(search = "") {
   const livestockQuery = useQuery({
     queryKey: ["livestock"],
     queryFn: fetchAllLivestock,
+    staleTime: 1000 * 60 * 5,
   });
 
 
@@ -19,8 +20,7 @@ export default function useLivestock(search = "") {
   const createLivestockMutation = useMutation({
     mutationFn: addLivestock,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["livestock"] });
-      queryClient.invalidateQueries({ queryKey: ["search-livestock"] });
+      queryClient.invalidateQueries({ queryKey: ["livestock"] }); 
     },
   });
 
@@ -33,8 +33,7 @@ export default function useLivestock(search = "") {
       }),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["livestock"] });
-      queryClient.invalidateQueries({ queryKey: ["search-livestock"] });
+      queryClient.invalidateQueries({ queryKey: ["livestock"] }); 
     },
   });
 

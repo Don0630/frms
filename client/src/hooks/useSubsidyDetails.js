@@ -6,5 +6,6 @@ export function useSubsidyDetails(id) {
     queryKey: ["subsidy", id],
     queryFn: () => fetchSubsidyDetails(id),
     enabled: !!id,
+    staleTime: 1000 * 60 * 5,
   });
 }

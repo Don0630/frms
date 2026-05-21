@@ -6,5 +6,6 @@ export function useFarmerDetails(id) {
     queryKey: ["farmer", id],
     queryFn: () => fetchFarmerById(id),
     enabled: !!id,
+    staleTime: 1000 * 60 * 5,
   });
 }

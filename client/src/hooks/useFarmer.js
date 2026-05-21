@@ -12,6 +12,7 @@ export default function useFarmer(search = "") {
   const farmersQuery = useQuery({
     queryKey: ["farmers"],
     queryFn: fetchAllFarmer,
+    staleTime: 1000 * 60 * 5,
   });
 
  

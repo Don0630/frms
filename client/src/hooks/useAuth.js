@@ -13,6 +13,15 @@ export function useLogin() {
   });
 }
 
+export function useMe() {
+  return useQuery({
+    queryKey: ["authUser"],
+    queryFn: authApi.me,
+    retry: false,
+    staleTime: Infinity,
+  });
+}
+
 export function useLogout() {
   const queryClient = useQueryClient();
 
@@ -25,11 +34,3 @@ export function useLogout() {
   });
 }
 
-export function useMe() {
-  return useQuery({
-    queryKey: ["authUser"],
-    queryFn: authApi.me,
-    retry: false,
-    staleTime: Infinity,
-  });
-}

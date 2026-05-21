@@ -1,32 +1,5 @@
 -- =========================
--- CREATE DATABASE
--- =========================
--- CREATE DATABASE IF NOT EXISTS farm_db;
--- USE farm_db;
-
-
--- =========================
--- 9. USERS (linked to Farmers and Staff)
--- =========================
-CREATE TABLE IF NOT EXISTS tblUsers (
-  UserID INT AUTO_INCREMENT PRIMARY KEY,
-  Username VARCHAR(50) NOT NULL UNIQUE,
-  PasswordHash VARCHAR(255) NOT NULL,
-  Email VARCHAR(100) UNIQUE,
-  Role ENUM('Admin', 'Staff') DEFAULT 'Staff',
-  StaffID INT NULL,
-  DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
-  LastLogin DATETIME NULL,
-  Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
-
-  -- Foreign keys
-  FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE SET NULL
-);
-
-
-
--- =========================
--- 1. FARMERS (UPDATED)
+-- 1. FARMERS
 -- =========================
 CREATE TABLE tblFarmers (
   FarmerID INT AUTO_INCREMENT PRIMARY KEY,
@@ -43,25 +16,21 @@ CREATE TABLE tblFarmers (
   RegistrationDate DATE DEFAULT (CURRENT_DATE)
 );
 
-
-
 -- =========================
--- 2. FARMS (NEW TABLE)
+-- 2. FARMS
 -- =========================
 CREATE TABLE tblFarms (
   FarmID INT AUTO_INCREMENT PRIMARY KEY,
-  FarmerID INT NOT NULL, 
+  FarmerID INT NOT NULL,
   FarmBarangay VARCHAR(100),
   FarmMunicipality VARCHAR(100),
   FarmProvince VARCHAR(100),
   FarmSize DECIMAL(10,2),
-
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID)
-  ON DELETE CASCADE
-);  j
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE
+);
 
 -- =========================
--- 2. CROPS
+-- 3. CROPS
 -- =========================
 CREATE TABLE tblCrops (
   CropID INT AUTO_INCREMENT PRIMARY KEY,
@@ -73,7 +42,7 @@ CREATE TABLE tblCrops (
 );
 
 -- =========================
--- 3. LIVESTOCK
+-- 4. LIVESTOCK
 -- =========================
 CREATE TABLE tblLivestock (
   LivestockID INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,7 +53,7 @@ CREATE TABLE tblLivestock (
 );
 
 -- =========================
--- 4. PROGRAMS
+-- 5. PROGRAMS
 -- =========================
 CREATE TABLE tblPrograms (
   ProgramID INT AUTO_INCREMENT PRIMARY KEY,
@@ -98,7 +67,7 @@ CREATE TABLE tblPrograms (
 );
 
 -- =========================
--- 5. FARMER PROGRAM PARTICIPATION
+-- 6. FARMER PROGRAM PARTICIPATION
 -- =========================
 CREATE TABLE tblFarmerProgramParticipation (
   ParticipationID INT AUTO_INCREMENT PRIMARY KEY,
@@ -106,13 +75,12 @@ CREATE TABLE tblFarmerProgramParticipation (
   ProgramID INT,
   DateJoined DATE,
   Status ENUM('Active', 'Completed', 'Dropped'),
-
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
 );
 
 -- =========================
--- 6. SUBSIDY DISTRIBUTION
+-- 7. SUBSIDY DISTRIBUTION
 -- =========================
 CREATE TABLE tblSubsidyDistribution (
   DistributionID INT AUTO_INCREMENT PRIMARY KEY,
@@ -120,29 +88,24 @@ CREATE TABLE tblSubsidyDistribution (
   TotalAmount DECIMAL(10,2),
   DistributionDate DATE,
   Remarks TEXT,
-
   FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
 );
 
-
-
 -- =========================
--- 7. SUBSIDY DISTRIBUTION DETAILS
+-- 8. SUBSIDY DISTRIBUTION DETAILS
 -- =========================
 CREATE TABLE tblSubsidyDistributionDetails (
   DistributionDetailsID INT AUTO_INCREMENT PRIMARY KEY,
   DistributionID INT,
-  FarmerID INT, 
+  FarmerID INT,
   Amount DECIMAL(10,2),
   IsDistributed TINYINT(1) NOT NULL DEFAULT 0,
-
-  FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE CASCADE
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
+  FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE CASCADE,
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE
 );
 
-
 -- =========================
--- 8. AGRICULTURAL STAFF
+-- 9. AGRICULTURAL STAFF
 -- =========================
 CREATE TABLE tblAgriculturalStaff (
   StaffID INT AUTO_INCREMENT PRIMARY KEY,
@@ -158,7 +121,23 @@ CREATE TABLE tblAgriculturalStaff (
 );
 
 -- =========================
--- 9. MONITORING REPORTS
+-- 10. USERS
+-- =========================
+CREATE TABLE tblUsers (
+  UserID INT AUTO_INCREMENT PRIMARY KEY,
+  Username VARCHAR(50) NOT NULL UNIQUE,
+  PasswordHash VARCHAR(255) NOT NULL,
+  Email VARCHAR(100) UNIQUE,
+  Role ENUM('Admin', 'Staff') DEFAULT 'Staff',
+  StaffID INT NULL,
+  DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
+  LastLogin DATETIME NULL,
+  Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
+  FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE SET NULL
+);
+
+-- =========================
+-- 11. MONITORING REPORTS
 -- =========================
 CREATE TABLE tblReportsAndMonitoring (
   ReportID INT AUTO_INCREMENT PRIMARY KEY,
@@ -169,7 +148,6 @@ CREATE TABLE tblReportsAndMonitoring (
   ProductionVolume VARCHAR(50),
   Issues TEXT,
   Remarks TEXT,
-
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
   FOREIGN KEY (CropID) REFERENCES tblCrops(CropID) ON DELETE SET NULL,
   FOREIGN KEY (LivestockID) REFERENCES tblLivestock(LivestockID) ON DELETE SET NULL

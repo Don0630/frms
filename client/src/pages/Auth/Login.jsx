@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../hooks/useAuth";
 import logo from "../../assets/logo.png";
+import bgImage from "../../assets/images/bg-login.jpeg";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const handleSubmit = (e) => {
       bg-cover bg-center"
       style={{
         backgroundImage:
-          "url('https://images.pexels.com/photos/36033665/pexels-photo-36033665.jpeg')",
+          `url(${bgImage})`,
       }}
     >
       {/* overlay */}
@@ -66,6 +67,7 @@ const handleSubmit = (e) => {
 
           {/* USERNAME / EMAIL */}
           <input
+            disabled={loginMutation.isPending}
             name="identifier"
             value={form.identifier}
             onChange={handleChange}
@@ -79,6 +81,7 @@ const handleSubmit = (e) => {
 
           {/* PASSWORD */}
           <input
+            disabled={loginMutation.isPending}
             name="password"
             type="password"
             value={form.password}
@@ -106,13 +109,16 @@ const handleSubmit = (e) => {
           </button>
 
           {/* MESSAGES */}
-          {formError && (
-            <p className="text-red-500 text-sm mt-3">{formError}</p>
-          )}
+        {/* MESSAGES - reserve fixed height so form doesn't resize */}
+<div className="h-5 mt-1">
+  {formError && (
+    <p className="text-red-500 text-sm">{formError}</p>
+  )}
+  {successMessage && (
+    <p className="text-green-500 text-sm">{successMessage}</p>
+  )}
+</div>
 
-          {successMessage && (
-            <p className="text-green-500 text-sm mt-3">{successMessage}</p>
-          )}
 
           {/* DIVIDER */}
           <div className="flex items-center my-4">
@@ -122,7 +128,7 @@ const handleSubmit = (e) => {
           {/* LINK */}
           <div className="text-center">
             <a
-              href="https:\\finder-rsbsa.da.gov.ph"
+              href="https://finder-rsbsa.da.gov.ph"
               className="text-sm text-green-600 hover:underline"
             >
               RSBSA Finder

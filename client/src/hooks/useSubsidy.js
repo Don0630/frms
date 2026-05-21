@@ -12,6 +12,7 @@ export default function useSubsidy() {
   const subsidyQuery = useQuery({
     queryKey: ["subsidies"],
     queryFn: fetchAllSubsidy,
+    staleTime: 1000 * 60 * 5,
   });
 
   // ================= ADD SUBSIDY =================

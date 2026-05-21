@@ -6,64 +6,24 @@ import { db } from "../config/db.js";
 export async function getAllFarmer() {
   const [rows] = await db.query(`
     SELECT 
-      f.FarmerID,
-      f.FirstName,
-      f.MiddleName,
-      f.LastName,
-      f.Gender,
-      DATE_FORMAT(f.DateOfBirth, '%Y-%m-%d') AS DateOfBirth,
-      f.Barangay,
-      f.Municipality,
-      f.Province,
-      f.ContactNumber,
-      f.Email,
-      DATE_FORMAT(f.RegistrationDate, '%Y-%m-%d') AS RegistrationDate,
-
-      fr.FarmID,
-      fr.FarmBarangay,
-      fr.FarmMunicipality,
-      fr.FarmProvince,
-      fr.FarmSize
-
-    FROM tblFarmers f
-    LEFT JOIN tblFarms fr 
-      ON f.FarmerID = fr.FarmerID
-    ORDER BY f.FarmerID
+      FarmerID,
+      FirstName,
+      MiddleName,
+      LastName,
+      Gender,
+      DATE_FORMAT(DateOfBirth, '%Y-%m-%d') AS DateOfBirth,
+      Barangay,
+      Municipality,
+      Province,
+      ContactNumber,
+      Email,
+      DATE_FORMAT(RegistrationDate, '%Y-%m-%d') AS RegistrationDate
+    FROM tblFarmers
+    ORDER BY FarmerID
   `);
 
-  const map = new Map();
 
-  for (const row of rows) {
-    if (!map.has(row.FarmerID)) {
-      map.set(row.FarmerID, {
-        FarmerID: row.FarmerID,
-        FirstName: row.FirstName,
-        MiddleName: row.MiddleName,
-        LastName: row.LastName,
-        Gender: row.Gender,
-        DateOfBirth: row.DateOfBirth,
-        Barangay: row.Barangay,
-        Municipality: row.Municipality,
-        Province: row.Province,
-        ContactNumber: row.ContactNumber,
-        Email: row.Email,
-        RegistrationDate: row.RegistrationDate,
-        Farms: [],
-      });
-    }
-
-    if (row.FarmID) {
-      map.get(row.FarmerID).Farms.push({
-        FarmID: row.FarmID,
-        FarmBarangay: row.FarmBarangay,
-        FarmMunicipality: row.FarmMunicipality,
-        FarmProvince: row.FarmProvince,
-        FarmSize: row.FarmSize,
-      });
-    }
-  }
-
-  return Array.from(map.values());
+  return rows || null;
 }
 
 

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import Modal from "../common/Modal";
 
 import useDebounce from "../../hooks/useDebounce";
-import useProgram from "../../hooks/useProgram";
+import { useAvailableProgram } from "../../hooks/useAvailableProgram";
 
 import * as validators from "../../utils/validators";
 import * as subsidyValidator from "../../utils/subsidyValidator";
@@ -43,7 +43,7 @@ export default function AddSubsidyModal({
   // ================= DEBOUNCE =================
   const debouncedSearch = useDebounce(searchProgram, 300);
 
-  const { availableProgramsQuery } = useProgram(debouncedSearch);
+  const availableProgramsQuery = useAvailableProgram(debouncedSearch);
 
   const availablePrograms = availableProgramsQuery.data?.data || [];
 

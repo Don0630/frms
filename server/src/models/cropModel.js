@@ -16,7 +16,7 @@ export async function createCrop(crop) {
 
   const query = `
     INSERT INTO tblCrops 
-    (CropName, Category, Season, AverageYieldPerHectare, MarketPrice)
+    (CropName, Ctegory, Season, AverageYieldPerHectare, MarketPrice)
     VALUES (?, ?, ?, ?, ?)
   `;
 

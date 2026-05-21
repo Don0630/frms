@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { Plus, Info, Edit } from "lucide-react";
 
 import {
@@ -41,6 +41,19 @@ export default function Crops() {
 
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
+
+
+// ================= ERROR =================
+useEffect(() => {
+  if (cropsQuery.isError) {
+    const code = cropsQuery.error?.response?.data?.code;
+    const message = cropsQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [cropsQuery.isError]);
+
 
   useEffect(() => {
     setCurrentPage(1);
@@ -123,15 +136,7 @@ export default function Crops() {
 }
 
 
-  // ================= ERROR =================
-  if (cropsQuery.isError) {
-    return (
-      <p className="text-red-600 dark:text-red-400 p-4">
-        Error: {cropsQuery.error?.message}
-      </p>
-    );
-  }
-
+ 
   return (
     <div className="w-full px-4">
 
@@ -205,7 +210,7 @@ export default function Crops() {
     onSubmit={(data) =>
       createCropMutation.mutateAsync(data).then((res) => {
         setShowAddModal(false);
-        toast.success(res.message);
+        showSuccessToast(res.message);
       }).catch((error) => {
         throw error;
       })
@@ -221,7 +226,7 @@ export default function Crops() {
     onSubmit={(data) =>
       updateCropMutation.mutateAsync({ id: editModal.CropID, data }).then((res) => {
         setEditModal(null);
-        toast.success(res.message);
+        showSuccessToast(res.message);
       }).catch((error) => {
         throw error;
       })

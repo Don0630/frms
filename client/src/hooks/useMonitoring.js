@@ -9,15 +9,14 @@ export default function useMonitoring() {
   const monitoringQuery = useQuery({
     queryKey: ["monitoring"],
     queryFn: fetchAllMonitoring,
+    staleTime: 1000 * 60 * 5,
   });
 
   // ================= CREATE MONITORING =================
   const createMonitoringMutation = useMutation({
     mutationFn: addMonitoring,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["monitoring"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["monitoring"] });
     },
   });
 

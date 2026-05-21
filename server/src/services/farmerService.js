@@ -4,12 +4,7 @@ import { throwError } from "../utils/throwError.js";
 
 // --------- FETCH ALL FARMER ---------
 export async function fetchFarmers() {
-  const farmers = await farmerModel.getAllFarmer();
-
-  if (!farmers || farmers.length === 0) {
-    throwError("No farmer records found!", "NOT_FOUND", 404);
-  }
-  return farmers;
+  return await farmerModel.getAllFarmer();
 }
 
 

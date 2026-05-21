@@ -1,4 +1,14 @@
 import { Users, UserCheck, User, Sprout, PawPrint, ClipboardList, BookOpen, Gift, UserCog, TrendingUp, Calendar, Wallet, MapPin } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { formatDateNumeric } from "../utils/pageUtility";
 import useFarmer from "../hooks/useFarmer";
 import useMonitoring from "../hooks/useMonitoring";
@@ -107,6 +117,76 @@ export default function FarmersDashboard() {
             </div>
           ))}
         </div>
+
+
+        {/* MONITORING LINE CHART */}
+<div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded shadow p-4">
+  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-1">
+    <TrendingUp className="w-4 h-4 text-blue-500" /> Production Volume Over Time
+  </h3>
+  {(() => {
+    // Group monitoring by ReportDate, sum ProductionVolume per date
+    const dateMap = monitoring.reduce((acc, m) => {
+      const date = m.ReportDate ? m.ReportDate.slice(0, 10) : null;
+      if (!date) return acc;
+      acc[date] = (acc[date] || 0) + (Number(m.ProductionVolume) || 0);
+      return acc;
+    }, {});
+
+    const chartData = Object.entries(dateMap)
+      .sort(([a], [b]) => new Date(a) - new Date(b))
+      .map(([date, volume]) => ({
+        date: new Date(date).toLocaleDateString("en-PH", { month: "short", day: "numeric" }),
+        Production: volume,
+      }));
+
+    if (chartData.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-40 text-gray-400 text-xs">
+          No monitoring data available
+        </div>
+      );
+    }
+
+    return (
+      <ResponsiveContainer width="100%" height={260}>
+        <LineChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" className="dark:stroke-gray-700" />
+          <XAxis
+            dataKey="date"
+            tick={{ fontSize: 11, fill: "#6b7280" }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: "#6b7280" }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) => v.toLocaleString()}
+          />
+          <Tooltip
+            contentStyle={{
+              fontSize: 12,
+              borderRadius: 8,
+              border: "1px solid #e5e7eb",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+            }}
+            formatter={(value) => [value.toLocaleString(), "Production Volume"]}
+          />
+          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Line
+            type="monotone"
+            dataKey="Production"
+            stroke="#10b981"
+            strokeWidth={2.5}
+            dot={{ r: 4, fill: "#10b981", strokeWidth: 0 }}
+            activeDot={{ r: 6, fill: "#059669" }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    );
+  })()}
+</div>
 
         {/* AGGREGATE HIGHLIGHTS */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

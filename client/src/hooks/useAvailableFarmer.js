@@ -6,5 +6,6 @@ export function useAvailableFarmer(distributionID, search) {
     queryKey: ["available-farmers", distributionID, search],
     queryFn: () => fetchAvailableFarmer(distributionID, search),
     enabled: !!distributionID,
+    staleTime: 0,
   });
 }

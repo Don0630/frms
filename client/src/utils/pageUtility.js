@@ -1,5 +1,3 @@
-// src/utils/formatters.js
-
 // January 15, 2025
 export function formatDate(dateString) {
   if (!dateString) return "N/A";

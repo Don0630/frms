@@ -4,69 +4,33 @@ import {
   fetchAllProgram,
   addProgram,
   updateProgram,
-  fetchAvailableProgram,
 } from "../api/programApi";
 
-export default function useProgram(search = "") {
+export default function useProgram() {
   const queryClient = useQueryClient();
 
-  // ================= FETCH ALL PROGRAMS =================
   const programsQuery = useQuery({
     queryKey: ["programs"],
     queryFn: fetchAllProgram,
+    staleTime: 1000 * 60 * 5,
   });
 
-  
-
-  // ================= CREATE PROGRAM =================
   const createProgramMutation = useMutation({
     mutationFn: addProgram,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["programs"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["available-programs"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["programs"] }); 
     },
   });
 
-  // ================= UPDATE PROGRAM =================
   const updateProgramMutation = useMutation({
-    mutationFn: ({ id, data }) =>
-      updateProgram({
-        ProgramID: id,
-        ...data,
-      }),
-
+    mutationFn: ({ id, data }) => updateProgram({ ProgramID: id, ...data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["programs"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: ["available-programs"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["programs"] }); 
     },
   });
-
-
-// ================= FETCH AVAILABLE PROGRAMS =================
-  const availableProgramsQuery = useQuery({
-    queryKey: ["available-programs", search],
-    queryFn: () => fetchAvailableProgram(search),
-    staleTime: 0,
-  });
-
-
-
-
-  
 
   return {
     programsQuery,
-    availableProgramsQuery,
     createProgramMutation,
     updateProgramMutation,
   };

@@ -13,6 +13,7 @@ export default function useUsers() {
   const usersQuery = useQuery({
     queryKey: ["users"],
     queryFn: fetchAllUser,
+    staleTime: 1000 * 60 * 5,
   });
 
   // ================= CREATE =================

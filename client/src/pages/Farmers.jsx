@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Mars, Venus, Edit, Eye, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom"; 
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
@@ -39,6 +39,8 @@ export default function Farmers() {
   const farmers = farmersQuery.data?.data || [];
 
 
+
+
   // ================= TABLE FILTER =================
   const { search, setSearch, filteredData } = useTable({
     data: farmers,
@@ -52,6 +54,20 @@ export default function Farmers() {
   // ================= PAGINATION =================
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
+
+
+ 
+// ================= ERROR =================
+useEffect(() => {
+  if (farmersQuery.isError) {
+    const code = farmersQuery.error?.response?.data?.code;
+    const message = farmersQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [farmersQuery.isError]);
+
 
   const getGenderIcon = (gender) => {
     if (gender?.toLowerCase() === "male")
@@ -108,19 +124,11 @@ export default function Farmers() {
     },
   ];
 
-  // ================= ERROR =================
-  if (farmersQuery.isError) {
-    return (
-      <p className="p-4 text-red-500">
-        {farmersQuery.error.message}
-      </p>
-    );
-  }
 
-  // ================= LOADING =================
-if (farmersQuery.isLoading) {
-  return <TablePageSkeleton />;
-}
+    // ================= LOADING =================
+    if (farmersQuery.isLoading) return <TablePageSkeleton />;
+
+
 
   return (
     <div className="w-full px-4">
@@ -184,7 +192,7 @@ if (farmersQuery.isLoading) {
           onSubmit={(data) =>
             createFarmerMutation.mutateAsync(data).then((res) => {
               setAddModal(false);
-              toast.success(res.message);
+              showSuccessToast(res.message);
             }).catch((error) => { throw error;})
           }
           loading={createFarmerMutation.isPending}
@@ -198,7 +206,7 @@ if (farmersQuery.isLoading) {
           onSubmit={(data) =>
             updateFarmerMutation.mutateAsync({ id: editModal.FarmerID, data }).then((res) => {
               setEditModal(null);
-              toast.success(res.message);
+              showSuccessToast(res.message);
             }).catch((error) => { throw error; })
           }
           loading={updateFarmerMutation.isPending}

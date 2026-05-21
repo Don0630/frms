@@ -13,6 +13,7 @@ export default function useCrop(search = "") {
   const cropsQuery = useQuery({
     queryKey: ["crops"],
     queryFn: fetchAllCrop,
+    staleTime: 1000 * 60 * 5,
   });
 
 
@@ -20,8 +21,7 @@ export default function useCrop(search = "") {
   const createCropMutation = useMutation({
     mutationFn: addCrop,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crops"] });
-      queryClient.invalidateQueries({ queryKey: ["search-crops"] });
+      queryClient.invalidateQueries({ queryKey: ["crops"] }); 
     },
   });
 
@@ -30,8 +30,7 @@ export default function useCrop(search = "") {
   mutationFn: ({ id, data }) => updateCrop({ CropID: id, ...data }),
 
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["crops"] });
-    queryClient.invalidateQueries({ queryKey: ["search-crops"] });
+    queryClient.invalidateQueries({ queryKey: ["crops"] }); 
   },
 });
 

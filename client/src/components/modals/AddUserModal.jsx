@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react"; 
 import toast from "react-hot-toast";
-import useStaff from "../../hooks/useStaff";
+import { useAvailableStaff } from "../../hooks/useAvailableStaff";
 import useDebounce from "../../hooks/useDebounce";
 
 import Modal from "../common/Modal";
@@ -39,7 +39,7 @@ export default function AddUserModal({ onClose, onSubmit, loading, }) {
   // ================= DEBOUNCE =================
   const debouncedSearch = useDebounce(searchStaff, 300);
 
-  const { availableStaffQuery } = useStaff(debouncedSearch);
+  const availableStaffQuery = useAvailableStaff(debouncedSearch);
 
   const availableStaff = availableStaffQuery.data?.data || [];
 
