@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 
 import useSearchFarmer from "../../hooks/useSearchFarmer";
@@ -228,15 +228,11 @@ export default function EditMonitoringModal({
         const status = error?.response?.status;
         const message = error?.response?.data?.message || error.message;
 
-        if (status === 400 || status === 409) {
-          setError(message);
-        } else if (status === 500) {
-          toast.error("Something went wrong. Please try again.");
-        } else if (!error.response) {
-          toast.error("Network error. Please check your connection.");
-        } else {
-          toast.error(message);
-        }
+         if (status === 400 || status === 409) {
+            setError(message);
+          } else {
+            showErrorToast(message);
+          }
       }
     };
 
@@ -246,16 +242,20 @@ export default function EditMonitoringModal({
   if (!monitoring) return null;
 
   return (
-    <Modal
-      title="Edit Monitoring"
-      onClose={onClose}
-      width="max-w-xl"
-    >
-      {error && (
-        <p className="text-red-500 text-sm mb-3">
-          {error}
-        </p>
-      )}
+    <Modal title="Edit Monitoring" onClose={onClose} width="max-w-xl">
+      
+      
+  {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Update the monitoring information below.
+  </p>
+
+  {/* ERROR */}
+  <div className="min-h-[24px] mb-2 text-center">
+    <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
+     {error || "​"}
+    </p>
+  </div>
 
       <form
         className="space-y-4 text-sm"

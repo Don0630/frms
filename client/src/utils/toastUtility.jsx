@@ -12,7 +12,7 @@ export const showErrorToast = (message) => {
       </button>
     </div>
   ), {
-    duration: 60000,
+    duration: 30000,
   });
 };
 

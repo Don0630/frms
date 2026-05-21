@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 
 import useDebounce from "../../hooks/useDebounce";
@@ -141,33 +141,26 @@ const handleSubmit = async (e) => {
 
     if (status === 400 || status === 409) {
       setError(message);
-    } else if (status === 500) {
-      toast.error("Something went wrong. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
     } else {
-      toast.error(message);
+      showErrorToast(message);
     }
   }
 };
 
   return (
-    <Modal
-      title="Add Subsidy"
-      onClose={onClose}
-      width="max-w-lg"
-    >
-      {/* ERROR */}
-      {error && (
-        <p className="text-red-500 text-sm mb-3">
-          {error}
-        </p>
-      )}
+    <Modal title="Add Subsidy" onClose={onClose} width="max-w-lg">
+  {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Fill in the required fields to register a new subsidy.
+  </p>
+ 
+  <div className="min-h-[20px] mb-2 text-center">
+    {error && (
+      <p className="text-red-500 font-medium text-sm">{error}</p>
+    )}
+  </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 text-sm"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm" >
 
         {/* ================= PROGRAM SEARCH ================= */}
         <div

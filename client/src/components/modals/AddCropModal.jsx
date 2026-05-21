@@ -1,5 +1,5 @@
 import { useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -8,8 +8,6 @@ import {
   modalButtonSecondary,
 } from "../common/ModalUI";
 import * as validators from "../../utils/validators";
-
-
 
 export default function AddCropModal({ onClose, onSubmit, loading }) {
   
@@ -23,7 +21,6 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
 
   const [error, setError] = useState("");
 
-
 // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +28,6 @@ export default function AddCropModal({ onClose, onSubmit, loading }) {
     if (error) setError("");
   };
 
-  
 // ================= VALIDATION =================
  const validate = () => {
     // 1. Required fields check
@@ -81,28 +77,32 @@ const handleSubmit = async (e) => {
     });
   } catch (error) {
     const status = error?.response?.status;
-    const message = error?.response?.data?.message || error.message;
+    const message = error?.response?.data?.message || "Network error. Please check your connection.";
 
     if (status === 400 || status === 409) {
       setError(message);
-    } else if (status === 500) {
-      toast.error("Something went wrong. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
     } else {
-      toast.error(message);
+      showErrorToast(message);
     }
   }
 };
 
   return (
-    <Modal title="Add Crop" onClose={onClose} width="max-w-lg">
+   <Modal title="Add Crop" onClose={onClose} width="max-w-lg">
 
-      {error && (
-        <p className="text-red-500 text-sm mb-3">{error}</p>
-      )}
+  {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Fill in the required fields to register a new crop.
+  </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+  {/* ERROR */}
+  <div className="min-h-[24px] mb-2 text-center">
+    <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
+      {error || "​"}
+    </p>
+  </div>
+
+  <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
         {/* CROP NAME */}
         <div>

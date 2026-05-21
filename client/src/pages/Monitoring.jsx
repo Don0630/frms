@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus, Info, Users, Mars, Venus, Edit } from "lucide-react";
 import { pageButtonPrimary } from "../components/common/PageUI";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import useMonitoring from "../hooks/useMonitoring";
@@ -35,35 +35,32 @@ export default function Monitoring() {
   const [ editMonitoringModal, setEditMonitoringModal ] = useState(null); 
 
   // ================= TABLE FILTER =================
-  const {
-    search,
-    setSearch,
-    filteredData,
-  } = useTable({
+  const { search, setSearch, filteredData } = useTable({
     data: monitoring,
-    searchFields: [
-      "FirstName",
-      "LastName",
-      "CropName",
-      "Breed",
-    ],
-    filterFn: (item) =>
-      filter === "All" ||
-      item.Gender?.toLowerCase() === filter.toLowerCase(),
+    searchFields: ["FirstName", "LastName", "CropName", "Breed"],
+    filterFn: (item) => filter === "All" || item.Gender?.toLowerCase() === filter.toLowerCase(),
   });
 
   // ================= PAGINATION =================
-  const {
-    currentPage,
-    setCurrentPage,
-    currentItems,
-    totalPages,
-  } = usePagination(filteredData, 10);
+  const { currentPage, setCurrentPage, currentItems, totalPages } = 
+  usePagination(filteredData, 10);
 
   // ================= RESET PAGE =================
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filter, setCurrentPage]);
+
+// ================= ERROR =================
+useEffect(() => {
+  if (monitoringQuery.isError) {
+    const code = monitoringQuery.error?.response?.data?.code;
+    const message = monitoringQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [monitoringQuery.isError]);
+
 
   // ================= GENDER ICON =================
   const getGenderIcon = (gender) => {
@@ -155,21 +152,9 @@ export default function Monitoring() {
       ),
     },
   ];
-
-  // ================= ERROR =================
-  if (monitoringQuery.isError) {
-    return (
-      <p className="p-4 text-red-500">
-        Failed to load monitoring
-        records.
-      </p>
-    );
-  }
-
+ 
   // ================= LOADING =================
-  if (monitoringQuery.isLoading) {
-    return <TablePageSkeleton />;
-  }
+  if (monitoringQuery.isLoading) return <TablePageSkeleton />;
 
   return (
     <div className="w-full px-4">
@@ -258,7 +243,7 @@ export default function Monitoring() {
             createMonitoringMutation.mutateAsync(data)
               .then((res) => {
                 setAddMonitoringModal(false);
-                toast.success(res.message);
+                showSuccessToast(res.message);
               })
               .catch((error) => {
                 throw error;
@@ -276,7 +261,7 @@ export default function Monitoring() {
     onSubmit={(data) =>
             updateMonitoringMutation.mutateAsync({ id: editMonitoringModal.ReportID, data }).then((res) => {
               setEditMonitoringModal(null);
-              toast.success(res.message);
+              showSuccessToast(res.message);
             }).catch((error) => { throw error; })
           }
     loading={updateMonitoringMutation.isPending}

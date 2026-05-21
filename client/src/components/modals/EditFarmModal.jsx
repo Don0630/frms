@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -9,12 +9,7 @@ import {
 } from "../common/ModalUI";
 import * as validators from "../../utils/validators";
 
-export default function EditFarmModal({
-  onClose,
-  onSubmit,
-  loading,
-  selectedFarm,
-}) {
+export default function EditFarmModal({ onClose, onSubmit, loading, selectedFarm }) {
   const [form, setForm] = useState({
     FarmBarangay: "",
     FarmMunicipality: "",
@@ -24,7 +19,6 @@ export default function EditFarmModal({
 
   const [error, setError] = useState("");
 
-  // ✅ Load selected farm into form
   useEffect(() => {
     if (selectedFarm) {
       setForm({
@@ -36,25 +30,15 @@ export default function EditFarmModal({
     }
   }, [selectedFarm]);
 
-
-  // ================= HANDLE INPUT =================
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    if (error) setError("");
   };
 
-
-  // ================= VALIDATION =================
   const validate = () => {
-    // 1. Required fields check
-    const requiredError = validators.validateRequiredFields(
-      form,
-      [
-        "FarmBarangay",
-        "FarmMunicipality",
-        "FarmProvince",
-        "FarmSize",
-      ],
+    const requiredError = validators.validateRequiredFields(form,
+      ["FarmBarangay", "FarmMunicipality", "FarmProvince", "FarmSize"],
       {
         FarmBarangay: "Barangay",
         FarmMunicipality: "Municipality",
@@ -62,20 +46,12 @@ export default function EditFarmModal({
         FarmSize: "Farm size",
       }
     );
-        if (requiredError) return requiredError;
+    if (requiredError) return requiredError;
 
-        // No Changes Check
-    const noChangesError = validators.validateNoChanges(
-      selectedFarm,
-      form,
-      [
-        "FarmBarangay",
-          "FarmMunicipality",
-          "FarmProvince",
-          "FarmSize", 
-      ]
+    const noChangesError = validators.validateNoChanges(selectedFarm, form,
+      ["FarmBarangay", "FarmMunicipality", "FarmProvince", "FarmSize"]
     );
-  if (noChangesError) return noChangesError;
+    if (noChangesError) return noChangesError;
 
     const farmSizeError = validators.validatePositiveNumber(form.FarmSize, "Farm Size");
     if (farmSizeError) return farmSizeError;
@@ -83,75 +59,58 @@ export default function EditFarmModal({
     return "";
   };
 
-
-  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  const err = validate();
-  if (err) return setError(err);
+    const err = validate();
+    if (err) return setError(err);
 
-  try {
-    await onSubmit(form);
-  } catch (error) {
-    const status = error?.response?.status;
-    const message = error?.response?.data?.message || error.message;
+    try {
+      await onSubmit(form);
+    } catch (error) {
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Network error. Please check your connection.";
 
-    if (status === 400 || status === 409) {
-      setError(message);
-    } else if (status === 500) {
-      toast.error("Something went wrong. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
-    } else {
-      toast.error(message);
+      if (status === 400 || status === 409) {
+        setError(message);
+      } else {
+        showErrorToast(message);
+      }
     }
-  }
-};
+  };
 
   return (
     <Modal title="Edit Farm" onClose={onClose} width="max-w-lg">
 
-      {error && (
-        <p className="text-red-500 text-sm mb-3">{error}</p>
-      )}
+      {/* INFO TEXT */}
+      <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+        Update the farm's information below.
+      </p>
+
+      {/* ERROR */}
+      <div className="min-h-[24px] mb-2 text-center">
+        <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
+           {error || "​"}
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
         {/* LOCATION */}
         <div className="grid grid-cols-3 gap-2">
-
           <div>
             <label className={modalLabel}>Barangay</label>
-            <input
-              name="FarmBarangay"
-              value={form.FarmBarangay}
-              onChange={handleChange}
-              className={modalInput}
-            />
+            <input name="FarmBarangay" value={form.FarmBarangay} onChange={handleChange} className={modalInput} />
           </div>
-
           <div>
             <label className={modalLabel}>Municipality</label>
-            <input
-              name="FarmMunicipality"
-              value={form.FarmMunicipality}
-              onChange={handleChange}
-              className={modalInput}
-            />
+            <input name="FarmMunicipality" value={form.FarmMunicipality} onChange={handleChange} className={modalInput} />
           </div>
-
           <div>
             <label className={modalLabel}>Province</label>
-            <input
-              name="FarmProvince"
-              value={form.FarmProvince}
-              onChange={handleChange}
-              className={modalInput}
-            />
+            <input name="FarmProvince" value={form.FarmProvince} onChange={handleChange} className={modalInput} />
           </div>
-
         </div>
 
         {/* SIZE */}
@@ -163,29 +122,16 @@ export default function EditFarmModal({
             name="FarmSize"
             value={form.FarmSize}
             onChange={handleChange}
-             className={`${modalInput} dark:[color-scheme:dark]`}
+            className={`${modalInput} dark:[color-scheme:dark]`}
           />
         </div>
 
         {/* ACTIONS */}
         <div className="flex justify-end gap-2 pt-2">
-
-          <button
-            type="button"
-            onClick={onClose}
-            className={modalButtonSecondary}
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className={modalButtonPrimary}
-          >
+          <button type="button" onClick={onClose} className={modalButtonSecondary}>Cancel</button>
+          <button type="submit" disabled={loading} className={modalButtonPrimary}>
             {loading ? "Updating..." : "Update Farm"}
           </button>
-
         </div>
 
       </form>

@@ -26,7 +26,6 @@ export default function Farmers() {
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
 
-
   // ================= QUERY + MUTATION =================
   const {
     farmersQuery,
@@ -34,11 +33,8 @@ export default function Farmers() {
     updateFarmerMutation,
   } = useFarmer();
 
-
   // ================= DATA =================
   const farmers = farmersQuery.data?.data || [];
-
-
 
 
   // ================= TABLE FILTER =================
@@ -55,7 +51,10 @@ export default function Farmers() {
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
 
-
+  // ================= RESET PAGE =================
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, setCurrentPage]);
  
 // ================= ERROR =================
 useEffect(() => {

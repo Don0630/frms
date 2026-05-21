@@ -1,5 +1,5 @@
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { Plus, Info, Edit, Venus, Mars, Users } from "lucide-react";
 
 import {
@@ -25,22 +25,45 @@ export default function Staff() {
   const [viewModal, setViewModal] = useState(null);
   const [editModal, setEditModal] = useState(null);
 
+    // ================= QUERY + MUTATION =================
   const {
     staffsQuery,
     createStaffMutation,
     updateStaffMutation,
   } = useStaff();
 
+    // ================= DATA =================
   const staff = staffsQuery.data?.data || [];
 
+
+  // ================= TABLE FILTER =================
   const { search, setSearch, filteredData } = useTable({
     data: staff,
     searchFields: ["FirstName", "MiddleName", "LastName"],
     filterFn: (item) => filter === "All" || item.Gender === filter,
   });
 
+   // ================= PAGINATION =================
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
+
+  // ================= RESET PAGE =================
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, setCurrentPage]);
+
+
+// ================= ERROR =================
+useEffect(() => {
+  if (staffsQuery.isError) {
+    const code = staffsQuery.error?.response?.data?.code;
+    const message = staffsQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [staffsQuery.isError]);
+
 
   const getGenderIcon = (gender) => {
     if (gender?.toLowerCase() === "male") {
@@ -117,19 +140,9 @@ export default function Staff() {
 
     
   // ================= LOADING (SAME AS USERS STYLE) =================
-  if (staffsQuery.isLoading) {
-  return <TablePageSkeleton />;
-}
+  if (staffsQuery.isLoading) return <TablePageSkeleton />;
 
 
-
-if (staffsQuery.isError) {
-  return (
-    <p className="p-4 text-red-500">
-      {staffsQuery.error?.message || "Something went wrong"}
-    </p>
-  );
-}
 
 
   return (
@@ -203,7 +216,7 @@ if (staffsQuery.isError) {
       createStaffMutation.mutateAsync(data)
         .then((res) => {
           setAddModal(false);
-          toast.success(res.message);
+          showSuccessToast(res.message);
         })
         .catch((error) => {
           throw error;
@@ -222,7 +235,7 @@ if (staffsQuery.isError) {
       updateStaffMutation.mutateAsync({ id: editModal.StaffID, data })
         .then((res) => {
           setEditModal(null);
-          toast.success(res.message);
+          showSuccessToast(res.message);
         })
         .catch((error) => {
           throw error;

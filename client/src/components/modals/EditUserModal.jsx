@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -70,26 +71,46 @@ export default function EditUserModal({ selectedUser, onClose, onSubmit, loading
   };
 
   // ================= SUBMIT =================
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     const err = validate();
     if (err) return setError(err);
 
-    onSubmit({username: form.Username, role: form.Role});
+    try {
+      await onSubmit({username: form.Username, role: form.Role});
+      } catch (error) {
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message || "Network error. Please check your connection.";
+    
+        if (status === 400 || status === 409) {
+          setError(message);
+        } else {
+          showErrorToast(message);
+        }
+      }
   };
-
-  if (!selectedUser) return null;
+ 
 
   return (
     <Modal title="Edit User" onClose={onClose} width="max-w-md">
-      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+      
+    
+  {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Update the user's information below.
+  </p>
 
-        {/* ERROR */}
-        {error && (
-          <p className="text-red-500 text-sm mb-3">{error}</p>
-        )}
+  {/* ERROR */}
+  <div className="min-h-[24px] mb-2 text-center">
+    <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
+     {error || "​"}
+    </p>
+  </div>
+
+      
+      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
         {/* USERNAME */}
         <div>

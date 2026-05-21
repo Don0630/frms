@@ -36,27 +36,12 @@ export async function createUser(req, res, next) {
 // ------------- UPDATE USER -------------
 export async function updateUser(req, res, next) {
   try {
-    const userId = req.params.id;
-    const { username, role } = req.body;
+    const userId = req.params.id; 
 
-    if (!userId || !username || !role) {
-      return errorResponse(res, "Missing required fields", 400);
-    }
+    const updatedUser = await userService.editUser(userId, req.body);
 
-    const updatedUser = await userService.updateUser({
-      userId,
-      username,
-      role,
-    });
-
-    return successResponse(
-      res,
-      "User updated successfully",
-      updatedUser,
-      200
-    );
-  } catch (err) {
-    console.error("Error updating user:", err);
+    return successResponse(res, "User updated successfully", updatedUser, 200);
+  } catch (err) { 
     return next(err);
   }
 }

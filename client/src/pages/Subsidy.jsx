@@ -14,6 +14,7 @@ import usePagination from "../hooks/usePagination";
 import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
+import { showSuccessToast } from "../utils/toastUtility";
 
 export default function Subsidy() {
   const navigate = useNavigate();
@@ -38,6 +39,17 @@ export default function Subsidy() {
   useEffect(() => {
     setCurrentPage(1);
   }, [search]);
+
+// ================= ERROR =================
+useEffect(() => {
+  if (subsidyQuery.isError) {
+    const code = subsidyQuery.error?.response?.data?.code;
+    const message = subsidyQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [subsidyQuery.isError]);
 
   // ================= COLUMNS =================
   const columns = [
@@ -82,12 +94,7 @@ export default function Subsidy() {
 
   // ================= LOADING =================
   if (subsidyQuery.isLoading) return <TablePageSkeleton />;
-
-  // ================= ERROR =================
-  if (subsidyQuery.isError) {
-    return <p className="p-4 text-red-500">{subsidyQuery.error.message}</p>;
-  }
-
+ 
   return (
     <div className="w-full px-4">
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
@@ -123,7 +130,7 @@ export default function Subsidy() {
           onSubmit={(data) =>
             createSubsidyMutation.mutateAsync(data).then((res) => {
               setAddSubsidyModal(false);
-              toast.success(res.message);
+              showSuccessToast(res.message);
             }).catch((error) => { throw error; })
           }
           loading={createSubsidyMutation.isPending}
@@ -138,7 +145,7 @@ export default function Subsidy() {
           onSubmit={(data) =>
             updateSubsidyMutation.mutateAsync({ id: editModal.DistributionID, data }).then((res) => {
               setEditModal(null);
-              toast.success(res.message);
+              showSuccessToast(res.message);
             }).catch((error) => { throw error; })
           }
           loading={updateSubsidyMutation.isPending}

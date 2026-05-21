@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -9,12 +9,8 @@ import {
 } from "../common/ModalUI";
 import * as validators from "../../utils/validators"; 
 
-export default function EditFarmerModal({
-  onClose,
-  selectedFarmer,
-  onSubmit,
-  loading,
-}) {
+export default function EditFarmerModal({ onClose, selectedFarmer, onSubmit, loading,}) {
+  
   const [form, setForm] = useState({});
   const [error, setError] = useState("");
 
@@ -42,7 +38,6 @@ export default function EditFarmerModal({
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError("");
   };
-
 
   // ================= VALIDATION =================
 const validate = () => {
@@ -124,28 +119,32 @@ const requiredError = validators.validateRequiredFields(
     await onSubmit(form);
   } catch (error) {
     const status = error?.response?.status;
-    const message = error?.response?.data?.message || error.message;
+    const message = error?.response?.data?.message || "Network error. Please check your connection.";
 
     if (status === 400 || status === 409) {
       setError(message);
-    } else if (status === 500) {
-      toast.error("Something went wrong. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
     } else {
-      toast.error(message);
+      showErrorToast(message);
     }
   }
 };
 
   return (
-    <Modal title="Edit Farmer" onClose={onClose} width="max-w-lg">
-      {/* ERROR */}
-      {error && (
-        <p className="text-red-500 text-sm mb-3">{error}</p>
-      )}
+   <Modal title="Edit Farmer" onClose={onClose} width="max-w-lg">
 
-      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+  {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Update the farmer's information below.
+  </p>
+
+  {/* ERROR */}
+  <div className="min-h-[24px] mb-2 text-center">
+    <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
+     {error || "​"}
+    </p>
+  </div>
+
+  <form onSubmit={handleSubmit} className="space-y-4 text-sm">
 
         {/* NAME */}
         <div className="grid grid-cols-3 gap-2">

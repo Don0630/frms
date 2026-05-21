@@ -1,5 +1,5 @@
-import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { Plus, Info, Edit } from "lucide-react";
 
 import {
@@ -32,9 +32,10 @@ export default function Livestock() {
     updateLivestockMutation,
   } = useLivestock();
 
+  // ================= DATA =================
   const livestock = livestockQuery.data?.data || [];
 
-  // ================= FILTER + SEARCH =================
+  // ================= TABLE FILTER  =================
   const { search, setSearch, filteredData } = useTable({
     data: livestock,
     searchFields: ["Breed", "Type"],
@@ -43,17 +44,26 @@ export default function Livestock() {
   });
 
   // ================= PAGINATION =================
-  const {
-    currentPage,
-    setCurrentPage,
-    currentItems,
-    totalPages,
-  } = usePagination(filteredData, 10);
+  const { currentPage, setCurrentPage, currentItems, totalPages } 
+  = usePagination(filteredData, 10);
 
-  // reset page when filter/search changes
+  // ================= RESET PAGE =================
 useEffect(() => {
   setCurrentPage(1);
 }, [search, filter]);
+
+
+// ================= ERROR =================
+useEffect(() => {
+  if (livestockQuery.isError) {
+    const code = livestockQuery.error?.response?.data?.code;
+    const message = livestockQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [livestockQuery.isError]);
+
 
   // ================= TABLE COLUMNS =================
   const columns = [
@@ -110,18 +120,8 @@ useEffect(() => {
   ];
 
   // ================= LOADING =================
-  if (livestockQuery.isLoading) {
-    return <TablePageSkeleton />;
-  }
+  if (livestockQuery.isLoading) return <TablePageSkeleton />;
 
-  // ================= ERROR =================
-  if (livestockQuery.isError) {
-    return (
-      <p className="p-4 text-red-500">
-        {livestockQuery.error.message}
-      </p>
-    );
-  }
 
   return (
     <div className="w-full px-4">
@@ -198,7 +198,7 @@ useEffect(() => {
     onSubmit={(data) =>
       createLivestockMutation.mutateAsync(data).then((res) => {
         setAddModal(false);
-        toast.success(res.message);
+        showSuccessToast(res.message);
       }).catch((error) => {
         throw error;
       })
@@ -215,7 +215,7 @@ useEffect(() => {
     onSubmit={(data) =>
       updateLivestockMutation.mutateAsync({ id: editModal.LivestockID, data }).then((res) => {
         setEditModal(null);
-        toast.success(res.message);
+        showSuccessToast(res.message);
       }).catch((error) => {
         throw error;
       })

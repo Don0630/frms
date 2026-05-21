@@ -1,5 +1,5 @@
-import { useState } from "react";
-import toast from "react-hot-toast";
+import { useState, useEffect } from "react";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { Plus, Info, Edit, User, Trash2 } from "lucide-react";
 
 
@@ -22,13 +22,9 @@ import Pagination from "../components/common/Pagination";
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function Users() {
-  const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null);
-  const [addModal, setAddModal] = useState(false);
-  const [editModal, setEditModal] = useState(null);
-  const [deleteModal, setDeleteModal] = useState(null);
 
-  // ✅ ONLY CHANGE: data comes from hook now
+
+  // ================= QUERY + MUTATION =================
   const {
     usersQuery,
     createUserMutation,
@@ -36,17 +32,44 @@ export default function Users() {
     deleteUserMutation,
   } = useUser();
 
-
+  // ================= DATA =================
 const users = usersQuery.data?.data || [];
 
+// ================= UI STATE =================
+  const [filter, setFilter] = useState("All");
+  const [viewModal, setViewModal] = useState(null);
+  const [addModal, setAddModal] = useState(false);
+  const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
+
+
+  // ================= TABLE FILTER =================
   const { search, setSearch, filteredData } = useTable({
     data: users,
     searchFields: ["FirstName", "MiddleName", "LastName", "Username"],
     filterFn: (item) => filter === "All" || item.Role === filter,
   });
 
+  // ================= PAGINATION =================
   const { currentPage, setCurrentPage, currentItems, totalPages } =
     usePagination(filteredData, 10);
+
+  // ================= RESET PAGE =================
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, filter, setCurrentPage]);
+
+
+// ================= ERROR =================
+useEffect(() => {
+  if (usersQuery.isError) {
+    const code = usersQuery.error?.response?.data?.code;
+    const message = usersQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [usersQuery.isError]);
 
   const columns = [
     {
@@ -125,22 +148,9 @@ const users = usersQuery.data?.data || [];
       ),
     },
   ];
-
-  // LOADING (UNCHANGED STYLE PRESERVED)
-  if (usersQuery.isLoading) {
-  return <TablePageSkeleton />;
-}
-
-
-
-  if (usersQuery.isError) {
-    return (
-      <p className="text-red-600 dark:text-red-400 p-4">
-        Error: {usersQuery.error.message}
-      </p>
-    );
-  }
-
+ 
+  if (usersQuery.isLoading) return <TablePageSkeleton />;
+ 
   return (
     <div className="w-full px-4">
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
@@ -211,7 +221,7 @@ const users = usersQuery.data?.data || [];
       createUserMutation.mutateAsync(data)
         .then((res) => {
           setAddModal(false);
-          toast.success(res.message);
+          showSuccessToast(res.message);
         })
         .catch((error) => {
           throw error;
@@ -230,7 +240,7 @@ const users = usersQuery.data?.data || [];
       updateUserMutation.mutateAsync({ id: editModal.UserID, data })
         .then((res) => {
           setEditModal(null);
-          toast.success(res.message);
+          showSuccessToast(res.message);
         })
         .catch((error) => {
           throw error;
@@ -249,10 +259,10 @@ const users = usersQuery.data?.data || [];
       deleteUserMutation.mutateAsync(deleteModal.UserID)
         .then((res) => {
           setDeleteModal(null);
-          toast.success(res.message);
+          showSuccessToast(res.message);
         })
         .catch(() => {
-          toast.error("Failed to delete user. Please try again.");
+          showErrorToast("Failed to delete user. Please try again.");
         })
     }
     loading={deleteUserMutation.isPending}

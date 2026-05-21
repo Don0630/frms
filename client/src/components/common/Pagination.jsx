@@ -34,7 +34,7 @@ export default function Pagination({
             onClick={() => setCurrentPage(i + 1)}
             className={`px-3 py-1 rounded transition-colors ${
               currentPage === i + 1
-                ? "bg-blue-600 text-white dark:bg-blue-500"
+                ? "bg-green-600 text-white dark:bg-green-500"
                 : "bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-700"
             }`}
           >

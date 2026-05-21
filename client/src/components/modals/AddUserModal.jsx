@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"; 
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
 import { useAvailableStaff } from "../../hooks/useAvailableStaff";
 import useDebounce from "../../hooks/useDebounce";
 
@@ -124,27 +124,27 @@ const handleSubmit = async (e) => {
     const status = error?.response?.status;
     const message = error?.response?.data?.message || error.message;
 
-    if (status === 400 || status === 409) {
-      setError(message);
-    } else if (status === 500) {
-      toast.error("Something went wrong. Please try again.");
-    } else if (!error.response) {
-      toast.error("Network error. Please check your connection.");
-    } else {
-      toast.error(message);
-    }
+     if (status === 400 || status === 409) {
+             setError(message);
+           } else {
+             showErrorToast(message);
+           }
   }
 };
 
   return (
-    <Modal
-      title="Create User"
-      onClose={onClose}
-      width="max-w-lg"
-    >
-      {error && (
-        <p className="text-red-500 text-sm mb-3">{error}</p>
-      )}
+    <Modal title="Create User" onClose={onClose} width="max-w-lg">
+      
+      {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Fill in the required fields to register a new user.
+  </p>
+ 
+  <div className="min-h-[20px] mb-2 text-center">
+    {error && (
+      <p className="text-red-500 font-medium text-sm">{error}</p>
+    )}
+  </div>
 
       <form
         onSubmit={handleSubmit}

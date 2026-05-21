@@ -7,7 +7,7 @@ import {
   Mars, Venus, Users 
 } from "lucide-react";
 import { useParams } from "react-router-dom";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
@@ -29,42 +29,34 @@ import DeleteDistributionModal from "../components/modals/DeleteDistributionModa
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function SubsidyDetails() {
-  const { id } = useParams(); 
+  const { id } = useParams();  
 
-  // QUERY
-  const { data, isLoading, isError } = useSubsidyDetails(id);
-
-  // MUTATIONS
-  const {
-    createDistributionMutation,
-    updateDistributionMutation,
-    deleteDistributionMutation,
-  } = useDistribution(id);
-
-  // NORMALIZE
-  const selectedSubsidy = data?.data ?? data ?? null;
-
-  const farmers = selectedSubsidy?.Farmers ?? [];
-
-  // UI STATE
   const [filter, setFilter] = useState("All");
   const [addModal, setAddModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(null);
   const [actionModal, setActionModal] = useState(null); 
   const [actionType, setActionType] = useState(null);
 
-  // SEARCH + FILTER
-  const {
-    search,
-    setSearch,
-    filteredData,
-  } = useTable({
+ // ================= DATA =================
+  const subsidyDetailsQuery = useSubsidyDetails(id);
+  const { createDistributionMutation, 
+          updateDistributionMutation, 
+          deleteDistributionMutation,
+  } = useDistribution(id);
+  
+  const subsidy = subsidyDetailsQuery?.data?.data ?? null;
+  const farmers = subsidy?.Farmers ?? [];
+  
+  const totalAmount = Number(subsidy?.TotalAmount || 0);
+  const distributed = Number(subsidy?.DistributedAmount || 0);
+  const remaining = Number(subsidy?.RemainingBalance || 0);
+  const unassigned = Number(subsidy?.UnassignedAmount || 0);
+  const totalFarmers = subsidy?.TotalFarmers;
+
+ // ================= TABLE =================
+  const { search, setSearch, filteredData } = useTable({
     data: farmers,
-    searchFields: [
-      "FirstName",
-      "LastName",
-      "ContactNumber",
-    ],
+    searchFields: ["FirstName", "LastName", "ContactNumber"],
     filterFn: (f) => {
       if (filter === "All") return true;
       if (filter === "Distributed")
@@ -75,20 +67,24 @@ export default function SubsidyDetails() {
     },
   });
 
-  // PAGINATION
-  const {
-    currentPage,
-    setCurrentPage,
-    currentItems,
-    totalPages,
-  } = usePagination(filteredData, 10);
-
-  // RESET PAGE
+// ================= PAGINATION =================
+  const { currentPage, setCurrentPage, currentItems, totalPages } = 
+  usePagination(filteredData, 10);
+ 
   useEffect(() => {
     setCurrentPage(1);
   }, [search, filter, setCurrentPage]);
 
-  
+  // ================= ERROR =================
+useEffect(() => {
+  if (subsidyDetailsQuery.isError) {
+    const code = subsidyDetailsQuery.error?.response?.data?.code;
+    const message = subsidyDetailsQuery.error?.response?.data?.message;
+
+    if (code === "NOT_FOUND") return;
+    showErrorToast(message);
+  }
+}, [subsidyDetailsQuery.isError]);
 
   const getGenderIcon = (gender) => {
   if (gender?.toLowerCase() === "male")
@@ -97,28 +93,6 @@ export default function SubsidyDetails() {
       return <Venus className="w-4 h-4 text-pink-500" />;
     return <Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />;
   };
-
-// ================= LOADING =================
-  if (isLoading) {
-    return <TablePageSkeleton />;
-  }
-
-  // ERROR
-  if (isError || !selectedSubsidy) {
-    return (
-      <div className="p-6 text-red-500">
-        Subsidy not found
-      </div>
-    );
-  }
-
-  // COMPUTED VALUES
-  const totalAmount = Number(selectedSubsidy.TotalAmount || 0);
-  const distributed = Number(selectedSubsidy.DistributedAmount || 0);
-  const remaining = Number(selectedSubsidy.RemainingBalance || 0);
-  const unassigned = Number(selectedSubsidy.UnassignedAmount || 0);
-  const totalFarmers = selectedSubsidy.TotalFarmers;
-
 
   // TABLE COLUMNS
   const columns = [
@@ -203,13 +177,18 @@ export default function SubsidyDetails() {
     },
   ];
 
+
+// ================= LOADING =================
+  if (subsidyDetailsQuery.isLoading) return <TablePageSkeleton />;
+
+
   return (
     <div className="w-full px-4">
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
         <div>
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            {selectedSubsidy.ProgramName}
+            {subsidy.ProgramName}
           </h1>
 
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -226,7 +205,7 @@ export default function SubsidyDetails() {
             </p>
             <p className="font-medium text-gray-800 dark:text-gray-200 mt-1">
               {
-                formatDateNumeric(selectedSubsidy.DistributionDate)
+                formatDateNumeric(subsidy.DistributionDate)
               }
             </p>
           </div>
@@ -358,7 +337,7 @@ export default function SubsidyDetails() {
   <AddDistributionModal
     distributionID={id}
     loading={createDistributionMutation.isPending}
-    remainingAmount={selectedSubsidy.UnassignedAmount}
+    remainingAmount={subsidy.UnassignedAmount}
     onClose={() => setAddModal(false)}
     onSubmit={(form) =>
       createDistributionMutation.mutateAsync({
@@ -366,7 +345,7 @@ export default function SubsidyDetails() {
         ...form,
       }).then((res) => {
         setAddModal(false);
-        toast.success(res.message);
+        showSuccessToast(res.message);
       }).catch((error) => {
         throw error;
       })
@@ -393,7 +372,7 @@ export default function SubsidyDetails() {
       }).then((res) => {
         setActionModal(null);
         setActionType(null);
-        toast.success(
+        showSuccessToast(
           actionType === "distribute"
             ? "Subsidy distributed successfully!"
             : "Distribution cancelled successfully!"
@@ -416,7 +395,7 @@ export default function SubsidyDetails() {
         deleteModal.DistributionDetailsID
       ).then((res) => {
         setDeleteModal(null);
-        toast.success(res.message);
+        showSuccessToast(res.message);
       }).catch((error) => {
         throw error;
       })

@@ -129,12 +129,7 @@ export async function getSubsidyDetails(req, res, next) {
       return errorResponse(res, "Subsidy not found", 404);
     }
 
-    return successResponse(
-      res,
-      "Subsidy fetched successfully",
-      subsidy,
-      200
-    );
+    return successResponse(res, "Subsidy fetched successfully", subsidy, 200);
   } catch (err) {
     console.error("Error fetching subsidy:", err);
     return next(err);

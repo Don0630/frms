@@ -97,18 +97,14 @@ export async function getSearchFarmer(req, res, next) {
  
 
 export async function getFarmerById(req, res, next) {
-  try {
-    const { id } = req.params;
-
-    const farmer = await farmerService.fetchFarmerById(id);
+  try { 
+    const farmer = await farmerService.fetchFarmerById(req.params.id);
 
     if (!farmer) {
-      return res.status(404).json({
-        message: "Farmer not found",
-      });
+      return errorResponse(res, "Farmer not found", 404);
     }
      
-    res.json(farmer);
+    return successResponse(res, "Farmer fetched successfully", farmer, 200);
   } catch (err) {
     console.error("Get Farmer By ID Error:", err);
     return next(err);

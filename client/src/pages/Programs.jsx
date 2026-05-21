@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Plus, Info, Edit } from "lucide-react";
 import { formatDateNumeric } from "../utils/pageUtility";
-import { showErrorToast, showSuccessToast } from "../utils/toastUtility"; // ✅ replace toast import
+import { showErrorToast, showSuccessToast } from "../utils/toastUtility"; 
 
 import { pageButtonPrimary } from "../components/common/PageUI";
 import useProgram from "../hooks/useProgram";
-import InfoProgramModal from "../components/modals/InfoProgramModal";
+import InfoModal from "../components/modals/InfoModal";
 import AddProgramModal from "../components/modals/AddProgramModal";
 import EditProgramModal from "../components/modals/EditProgramModal";
 import useTable from "../hooks/useTable";
@@ -16,7 +16,7 @@ import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function Programs() {
   const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null);
+  const [infoModal, setInfoModal] = useState(null);
   const [addProgramModal, setAddProgramModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
 
@@ -57,7 +57,7 @@ console.log("programsQuery", programsQuery);
       render: (item) => (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {item.ProgramName}
-          <button onClick={() => setViewModal(item)} className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded">
+          <button onClick={() => setInfoModal(item)} className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded">
             <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
           </button>
         </div>
@@ -141,7 +141,13 @@ console.log("programsQuery", programsQuery);
         />
       </div>
 
-      {viewModal && <InfoProgramModal program={viewModal} onClose={() => setViewModal(null)} />}
+      {infoModal && (
+  <InfoModal
+    title={infoModal.ProgramName}
+    content={infoModal.Description}
+    onClose={() => setInfoModal(null)}
+  />
+)}
 
       {addProgramModal && (
         <AddProgramModal

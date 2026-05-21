@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import toast from "react-hot-toast";
+import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -82,7 +82,6 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
   };
 
 
-
   // ================= SUBMIT =================
     const handleSubmit = async (e) => {
       e.preventDefault();
@@ -95,28 +94,31 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
         await onSubmit(form);
       } catch (error) {
         const status = error?.response?.status;
-        const message = error?.response?.data?.message || error.message;
+        const message = error?.response?.data?.message || "Network error. Please check your connection.";
 
         if (status === 400 || status === 409) {
-          setError(message);                          // inline
-        } else if (status === 500) {
-          toast.error("Something went wrong. Please try again.");
-        } else if (!error.response) {
-          toast.error("Network error. Please check your connection.");
+          setError(message);
         } else {
-          toast.error(message);
+          showErrorToast(message);
         }
       }
     };
 
   return (
     <Modal title="Add Farmer" onClose={onClose} width="max-w-lg">
-      {/* ERROR */}
-      {error && (
-        <p className="text-red-500 text-sm mb-3">{error}</p>
-      )}
 
-      <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+  {/* INFO TEXT */}
+  <p className="text-xs text-gray-500 dark:text-gray-400 -mt-4 mb-3">
+    Fill in the required fields to register a new farmer.
+  </p>
+ 
+  <div className="min-h-[20px] mb-2 text-center">
+    {error && (
+      <p className="text-red-500 font-medium text-sm">{error}</p>
+    )}
+  </div>
+
+  <form onSubmit={handleSubmit} className="space-y-4 text-sm">
         {/* NAME */}
         <div className="grid grid-cols-3 gap-2">
           <div>
