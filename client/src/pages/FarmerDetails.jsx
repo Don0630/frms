@@ -42,7 +42,7 @@ export default function FarmerDetails() {
   const farmerDetailsQuery = useFarmerDetails(id); 
   const { createFarmMutation, updateFarmMutation, deleteFarmMutation } = useFarm(id);
 
-  const farmer = farmerDetailsQuery?.data.data ?? null;
+  const farmer = farmerDetailsQuery?.data?.data ?? null;
   const farms = farmer?.Farms ?? [];
   
  const fullName = farmer

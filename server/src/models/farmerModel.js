@@ -22,7 +22,6 @@ export async function getAllFarmer() {
     ORDER BY FarmerID
   `);
 
-
   return rows || null;
 }
 

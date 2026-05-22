@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
-import { Plus, Info, Edit } from "lucide-react";
+import { Plus, Info, Edit, CloudRain, Sun, CalendarDays } from "lucide-react";
 
 import {
  pageButtonPrimary
@@ -61,12 +61,23 @@ useEffect(() => {
 
   const categories = ["All", ...new Set(crop.map((c) => c.Category))];
 
+
+  const getSeasonIcon = (season) => {
+    if (season?.toLowerCase() === "wet")
+      return <CloudRain className="w-4 h-4 text-blue-500" />;
+    if (season?.toLowerCase() === "dry")
+      return <Sun className="w-4 h-4 text-yellow-500" />;
+    return <CalendarDays className="w-4 h-4 text-green-500 dark:text-green-400" />;
+  };
+
+
+
   const columns = [
     {
       key: "CropName",
       label: "Crop Name",
       render: (item) => (
-        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200 font-medium">
           {item.CropName}
 
           <button
@@ -92,7 +103,9 @@ useEffect(() => {
       label: "Season",
       render: (item) => (
         <span className="text-gray-700 dark:text-gray-300">
-          {item.Season}
+          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
+          {getSeasonIcon(item.Season)} {item.Season}
+        </div>
         </span>
       ),
     },
@@ -100,7 +113,7 @@ useEffect(() => {
       key: "AverageYieldPerHectare",
       label: "Yield (ha)",
       render: (item) => (
-        <span className="text-gray-700 dark:text-gray-300">
+        <span className="text-green-600 dark:text-green-500 font-medium">
           {item.AverageYieldPerHectare}
         </span>
       ),
@@ -109,7 +122,7 @@ useEffect(() => {
       key: "MarketPrice",
       label: "Price",
       render: (item) => (
-        <span className="text-gray-700 dark:text-gray-300">
+        <span className="text-green-600 dark:text-green-500 font-medium">
           ₱ {item.MarketPrice}
         </span>
       ),

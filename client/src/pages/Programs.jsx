@@ -146,6 +146,7 @@ console.log("programsQuery", programsQuery);
     title={infoModal.ProgramName}
     content={infoModal.Description}
     onClose={() => setInfoModal(null)}
+    width="max-w-xl"
   />
 )}
 
