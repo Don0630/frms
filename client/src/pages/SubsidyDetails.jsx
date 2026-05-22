@@ -4,14 +4,14 @@ import {
   HandCoins,
   Trash2, 
   BanknoteX,
-  Mars, Venus, Users 
+  Mars, Venus, Users, ArrowLeft
 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
- pageButtonPrimary
+ pageButtonPrimary, pageButtonGhost
 } from "../components/common/PageUI";
 
 import { useSubsidyDetails } from "../hooks/useSubsidyDetails";
@@ -29,7 +29,8 @@ import DeleteDistributionModal from "../components/modals/DeleteDistributionModa
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 export default function SubsidyDetails() {
-  const { id } = useParams();  
+  const { id } = useParams(); 
+  const navigate = useNavigate();
 
   const [filter, setFilter] = useState("All");
   const [addModal, setAddModal] = useState(false);
@@ -186,16 +187,21 @@ useEffect(() => {
     <div className="w-full px-4">
       <div className="w-full rounded-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-md p-6 space-y-4">
 
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            {subsidy.ProgramName}
-          </h1>
-
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Financial overview &
-            distribution summary
-          </p>
-        </div>
+  <div className="flex justify-between items-start">
+  <div>
+    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+      {subsidy.ProgramName}
+    </h1>
+    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      Financial overview & distribution summary
+    </p>
+  </div>
+  <button onClick={() => navigate(-1)} className={pageButtonGhost}>
+    <ArrowLeft className="w-4 h-4" />
+    <span className="hidden sm:inline">Back</span>
+  </button>
+</div>
+ 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
 

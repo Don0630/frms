@@ -5,8 +5,7 @@ import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import useMonitoring from "../hooks/useMonitoring";
-
-import ViewMonitoringModal from "../components/modals/ViewMonitoringModal";
+ 
 import AddMonitoringModal from "../components/modals/AddMonitoringModal";
 import EditMonitoringModal from "../components/modals/EditMonitoringModal";
 
@@ -29,8 +28,7 @@ export default function Monitoring() {
   const monitoring = monitoringQuery.data?.data || [];
 
   // ================= UI STATE =================
-  const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null); 
+  const [filter, setFilter] = useState("All"); 
   const [ addMonitoringModal, setAddMonitoringModal ] = useState(false);
   const [ editMonitoringModal, setEditMonitoringModal ] = useState(null); 
 
@@ -88,15 +86,7 @@ useEffect(() => {
           {getGenderIcon(item.Gender)}
 
           {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
-
-          <button
-            onClick={() =>
-              setViewModal(item)
-            }
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
-          >
-            <Info className="w-4 h-4 text-green-500" />
-          </button>
+ 
         </div>
       ),
     },
@@ -226,14 +216,7 @@ useEffect(() => {
         />
 
       </div>
-
-      {/* VIEW MODAL */}
-      <ViewMonitoringModal
-        monitoring={viewModal}
-        onClose={() =>
-          setViewModal(null)
-        }
-      />
+ 
 
       {/* ADD MODAL */}
       {addMonitoringModal && (

@@ -13,8 +13,7 @@ import usePagination from "../hooks/usePagination";
 import DataTable from "../components/common/DataTable";
 import Pagination from "../components/common/Pagination";
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
-
-import ViewCropModal from "../components/modals/ViewCropModal";
+ 
 import AddCropModal from "../components/modals/AddCropModal";
 import EditCropModal from "../components/modals/EditCropModal";
 
@@ -27,8 +26,7 @@ export default function Crops() {
 
   const crop = cropsQuery.data?.data || [];
 
-  const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null);
+  const [filter, setFilter] = useState("All"); 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
 
@@ -77,15 +75,10 @@ useEffect(() => {
       key: "CropName",
       label: "Crop Name",
       render: (item) => (
-        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200 font-medium">
+        <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {item.CropName}
 
-          <button
-            onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
-          >
-            <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
-          </button>
+         
         </div>
       ),
     },
@@ -209,13 +202,7 @@ useEffect(() => {
       </div>
 
       {/* MODALS */}
-
-      {viewModal && (
-        <ViewCropModal
-          crop={viewModal}
-          onClose={() => setViewModal(null)}
-        />
-      )}
+ 
 
 {showAddModal && (
   <AddCropModal

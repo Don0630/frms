@@ -15,14 +15,12 @@ import Pagination from "../components/common/Pagination";
 import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 
-import AddStaffModal from "../components/modals/AddStaffModal";
-import ViewStaffModal from "../components/modals/ViewStaffModal"; 
+import AddStaffModal from "../components/modals/AddStaffModal"; 
 import EditStaffModal from "../components/modals/EditStaffModal";
 
 export default function Staff() {
   const [filter, setFilter] = useState("All");
-  const [addModal, setAddModal] = useState(false);
-  const [viewModal, setViewModal] = useState(null);
+  const [addModal, setAddModal] = useState(false); 
   const [editModal, setEditModal] = useState(null);
 
     // ================= QUERY + MUTATION =================
@@ -85,13 +83,7 @@ useEffect(() => {
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {getGenderIcon(item.Gender)}
           {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
-
-          <button
-            onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
-          >
-            <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
-          </button>
+ 
         </div>
       ),
     },
@@ -200,13 +192,7 @@ useEffect(() => {
 
       </div>
 
- {/* MODALS */}
-
-<ViewStaffModal
-  data={viewModal}
-  onClose={() => setViewModal(null)}
-/>
- 
+ {/* MODALS */} 
 
 {/* ADD */}
 {addModal && (

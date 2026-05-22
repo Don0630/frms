@@ -6,7 +6,6 @@ export default function InfoModal({ title, content, onClose, width = "max-w-sm" 
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Trigger fade-in after mount
     requestAnimationFrame(() => setVisible(true));
   }, []);
 
@@ -25,7 +24,7 @@ export default function InfoModal({ title, content, onClose, width = "max-w-sm" 
 
   const handleClose = () => {
     setVisible(false);
-    setTimeout(() => onClose?.(), 200); // wait for fade-out to finish
+    setTimeout(() => onClose?.(), 200);
   };
 
   if (!title && !content) return null;
@@ -48,11 +47,9 @@ export default function InfoModal({ title, content, onClose, width = "max-w-sm" 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <div className="bg-green-100 dark:bg-green-900 p-1.5 rounded-full">
-              <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
-            </div>
+           
             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100">
               {title}
             </h3>
@@ -70,16 +67,6 @@ export default function InfoModal({ title, content, onClose, width = "max-w-sm" 
           <p className="text-sm text-gray-600 dark:text-gray-400 text-justify leading-relaxed">
             {content || "No description available."}
           </p>
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 bg-gray-50 dark:bg-gray-800 flex justify-end border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={handleClose}
-            className="text-xs px-4 py-1.5 rounded-md bg-green-600 hover:bg-green-700 text-white transition-colors"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

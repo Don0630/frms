@@ -8,8 +8,7 @@ import {
 } from "../components/common/PageUI";
 
 import useUser from "../hooks/useUser";
-
-import ViewUserModal from "../components/modals/ViewUserModal.jsx";
+ 
 import AddUserModal from "../components/modals/AddUserModal.jsx";
 import EditUserModal from "../components/modals/EditUserModal.jsx";
 import DeleteUserModal from "../components/modals/DeleteUserModal.jsx";
@@ -36,8 +35,7 @@ export default function Users() {
 const users = usersQuery.data?.data || [];
 
 // ================= UI STATE =================
-  const [filter, setFilter] = useState("All");
-  const [viewModal, setViewModal] = useState(null);
+  const [filter, setFilter] = useState("All"); 
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
   const [deleteModal, setDeleteModal] = useState(null);
@@ -79,14 +77,7 @@ useEffect(() => {
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           <User className="w-4 h-4 text-blue-500" />
           {item.FirstName} {item.MiddleName ? `${item.MiddleName[0]}.` : ""} {item.LastName}
-
-          <button
-            onClick={() => setViewModal(item)}
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded"
-          >
-            <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
-
-          </button>
+ 
         </div>
       ),
     },
@@ -204,14 +195,7 @@ useEffect(() => {
         />
 
       </div>
-
-      {/* MODALS (UNCHANGED STRUCTURE) */}
-      {viewModal && (
-        <ViewUserModal
-          user={viewModal}
-          onClose={() => setViewModal(null)}
-        />
-      )}
+ 
 
 {/* ADD */}
 {addModal && (

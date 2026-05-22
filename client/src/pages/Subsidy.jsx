@@ -1,11 +1,12 @@
 import toast from "react-hot-toast";
 import { useState, useEffect } from "react";
-import { Plus, Eye, Edit } from "lucide-react"; 
+import { Plus, Eye, Edit, Info } from "lucide-react"; 
 import { useNavigate } from "react-router-dom";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import { pageButtonPrimary } from "../components/common/PageUI";
 import useSubsidy from "../hooks/useSubsidy";
+ 
 import AddSubsidyModal from "../components/modals/AddSubsidyModal";
 import EditSubsidyModal from "../components/modals/EditSubsidyModal";
 
@@ -18,7 +19,7 @@ import { showSuccessToast } from "../utils/toastUtility";
 
 export default function Subsidy() {
   const navigate = useNavigate();
-
+ 
   const [addSubsidyModal, setAddSubsidyModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
 
@@ -53,7 +54,8 @@ useEffect(() => {
 
   // ================= COLUMNS =================
   const columns = [
-    { key: "ProgramName", label: "Program" },
+    { key: "ProgramName", label: "Program"
+    },
     {
       key: "TotalAmount",
       label: "Total Amount",
@@ -122,6 +124,9 @@ useEffect(() => {
           totalItemsLength={filteredData.length}
         />
       </div>
+
+
+ 
 
       {/* ADD MODAL */}
       {addSubsidyModal && (

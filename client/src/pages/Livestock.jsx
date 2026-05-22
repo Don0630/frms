@@ -7,8 +7,7 @@ import {
 } from "../components/common/PageUI";
 
 import useLivestock from "../hooks/useLivestock";
-
-import ViewLivestockModal from "../components/modals/ViewLivestockModal";
+ 
 import AddLivestockModal from "../components/modals/AddLivestockModal";
 import EditLivestockModal from "../components/modals/EditLivestockModal";
 
@@ -22,8 +21,7 @@ import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 export default function Livestock() {
   const [filter, setFilter] = useState("All");
   const [addModal, setAddModal] = useState(false);
-  const [editModal, setEditModal] = useState(null);
-  const [viewModal, setViewModal] = useState(null);
+  const [editModal, setEditModal] = useState(null); 
 
   // ================= USE LIVESTOCK HOOK =================
   const {
@@ -75,10 +73,7 @@ useEffect(() => {
       render: (item) => (
         <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200">
           {item.Breed}
-
-          <button onClick={() => setViewModal(item)} className="hover:bg-gray-200 dark:hover:bg-gray-700 p-1 rounded">
-            <Info className="w-4 h-4 text-green-600 dark:text-green-400" />
-          </button>
+ 
         </div>
       ),
     },
@@ -87,7 +82,7 @@ useEffect(() => {
       key: "AverageProduction",
       label: "Avg Production",
       render: (item) => (
-        <span className="text-gray-700 dark:text-gray-300">
+        <span className="text-green-600 dark:text-green-500 font-medium">
           {item.AverageProduction}
         </span>
       ),
@@ -97,7 +92,7 @@ useEffect(() => {
       key: "MarketPrice",
       label: "Price",
       render: (item) => (
-        <span className="text-gray-700 dark:text-gray-300">
+        <span className="text-green-600 dark:text-green-500 font-medium">
           ₱ {item.MarketPrice}
         </span>
       ),
@@ -182,14 +177,7 @@ useEffect(() => {
       </div>
 
       {/* ================= MODALS ================= */}
-
-      {/* VIEW */}
-      {viewModal && (
-        <ViewLivestockModal
-          livestock={viewModal}
-          onClose={() => setViewModal(null)}
-        />
-      )}
+ 
 
 {/* ADD */}
 {addModal && (
