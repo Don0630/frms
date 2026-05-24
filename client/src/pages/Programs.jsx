@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Info, Edit } from "lucide-react";
+import { Plus, Info, Edit, Trash2 } from "lucide-react";
 import { formatDateNumeric } from "../utils/pageUtility";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtility"; 
 
@@ -8,6 +8,8 @@ import useProgram from "../hooks/useProgram";
 import InfoModal from "../components/modals/InfoModal";
 import AddProgramModal from "../components/modals/AddProgramModal";
 import EditProgramModal from "../components/modals/EditProgramModal";
+import DeleteProgramModal from "../components/modals/DeleteProgramModal";
+
 import useTable from "../hooks/useTable";
 import usePagination from "../hooks/usePagination";
 import DataTable from "../components/common/DataTable";
@@ -19,10 +21,10 @@ export default function Programs() {
   const [infoModal, setInfoModal] = useState(null);
   const [addProgramModal, setAddProgramModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
   // ================= PROGRAM HOOK =================
-  const { programsQuery, createProgramMutation, updateProgramMutation } = useProgram();
-console.log("programsQuery", programsQuery);
+  const { programsQuery, createProgramMutation, updateProgramMutation, deleteProgramMutation } = useProgram();
   const program = programsQuery.data?.data || [];
 
   // ================= TABLE FILTER =================
@@ -83,9 +85,15 @@ console.log("programsQuery", programsQuery);
       key: "actions",
       label: "",
       render: (item) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-1">
           <button onClick={() => setEditModal(item)} className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">
             <Edit className="w-3 h-3" />
+          </button>
+          <button
+            onClick={() => setDeleteModal(item)}
+            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+          >
+            <Trash2 className="w-3 h-3" />
           </button>
         </div>
       ),
@@ -150,32 +158,44 @@ console.log("programsQuery", programsQuery);
   />
 )}
 
-      {addProgramModal && (
-        <AddProgramModal
-          onClose={() => setAddProgramModal(false)}
-          onSubmit={(data) =>
-            createProgramMutation.mutateAsync(data).then((res) => {
-              setAddProgramModal(false);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error; })
-          }
-          loading={createProgramMutation.isPending}
-        />
-      )}
+{addProgramModal && (
+  <AddProgramModal
+    onClose={() => setAddProgramModal(false)}
+    loading={createProgramMutation.isPending}
+    onSubmit={(data) =>
+      createProgramMutation.mutate(data, {
+        onSuccess: (res) => { setAddProgramModal(false); showSuccessToast(res.message); }
+      })
+    }
+  />
+)}
 
-      {editModal && (
-        <EditProgramModal
-          selectedProgram={editModal}
-          onClose={() => setEditModal(null)}
-          onSubmit={(data) =>
-            updateProgramMutation.mutateAsync({ id: editModal.ProgramID, data }).then((res) => {
-              setEditModal(null);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error; })
-          }
-          loading={updateProgramMutation.isPending}
-        />
-      )}
+{editModal && (
+  <EditProgramModal
+    selectedProgram={editModal}
+    onClose={() => setEditModal(null)}
+    loading={updateProgramMutation.isPending}
+    onSubmit={(data) =>
+      updateProgramMutation.mutate({ id: editModal.ProgramID, data }, {
+        onSuccess: (res) => { setEditModal(null); showSuccessToast(res.message); }
+      })
+    }
+  />
+)}
+
+{deleteModal && (
+  <DeleteProgramModal
+    program={deleteModal}
+    onClose={() => setDeleteModal(null)}
+    loading={deleteProgramMutation.isPending}
+    onConfirm={() =>
+      deleteProgramMutation.mutateAsync(deleteModal.ProgramID)
+        .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
+        .catch(() => {})
+    }
+  />
+)}
+
     </div>
   );
 }

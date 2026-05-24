@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { showErrorToast } from "../../utils/toastUtility"; // ✅
+import { useEffect, useState } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -87,8 +86,6 @@ export default function EditCropModal({ onClose, onSubmit, loading, selectedCrop
 
       if (status === 400 || status === 409) {
         setError(message);
-      } else {
-        showErrorToast(message);
       }
     }
   };
@@ -102,7 +99,7 @@ export default function EditCropModal({ onClose, onSubmit, loading, selectedCrop
       </p>
 
       {/* ERROR */}
-      <div className="min-h-[24px] mb-2 text-center">
+      <div className="min-h-[12px] mb-2 text-center">
         <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
           {error || "​"}
         </p>

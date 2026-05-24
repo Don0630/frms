@@ -191,44 +191,42 @@ export default function FarmerDetails() {
       </div>
 
       {/* ================= MODALS ================= */}
-      {addModal && (
-        <AddFarmModal
-          farmer={farmer}
-          onClose={() => setAddModal(false)}
-          loading={createFarmMutation.isPending}
-          onSubmit={(data) =>
-            createFarmMutation.mutateAsync({ FarmerID: farmer.FarmerID, ...data })
-              .then((res) => { setAddModal(false); showSuccessToast(res.message); })
-              .catch((error) => { throw error; })
-          }
-        />
-      )}
+ {addModal && (
+  <AddFarmModal
+    farmer={farmer}
+    onClose={() => setAddModal(false)}
+    loading={createFarmMutation.isPending}
+    onSubmit={(data) =>
+      createFarmMutation.mutateAsync({ FarmerID: farmer.FarmerID, ...data })
+        .then((res) => { setAddModal(false); showSuccessToast(res.message); })
+    }
+  />
+)}
 
-      {editModal && (
-        <EditFarmModal
-          selectedFarm={editModal}
-          onClose={() => setEditModal(null)}
-          loading={updateFarmMutation.isPending}
-          onSubmit={(data) =>
-            updateFarmMutation.mutateAsync({ id: editModal.FarmID, data })
-              .then((res) => { setEditModal(null); showSuccessToast(res.message); })
-              .catch((error) => { throw error; })
-          }
-        />
-      )}
+{editModal && (
+  <EditFarmModal
+    selectedFarm={editModal}
+    onClose={() => setEditModal(null)}
+    loading={updateFarmMutation.isPending}
+    onSubmit={(data) =>
+      updateFarmMutation.mutateAsync({ id: editModal.FarmID, data })
+        .then((res) => { setEditModal(null); showSuccessToast(res.message); })
+    }
+  />
+)}
 
-      {deleteModal && (
-        <DeleteFarmModal
-          farm={deleteModal}
-          loading={deleteFarmMutation.isPending}
-          onClose={() => setDeleteModal(null)}
-          onConfirm={() =>
-            deleteFarmMutation.mutateAsync(deleteModal.FarmID)
-              .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
-              .catch((error) => { throw error; })
-          }
-        />
-      )}
+{deleteModal && (
+  <DeleteFarmModal
+    farm={deleteModal}
+    loading={deleteFarmMutation.isPending}
+    onClose={() => setDeleteModal(null)}
+    onConfirm={() =>
+      deleteFarmMutation.mutateAsync(deleteModal.FarmID)
+        .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
+        .catch(() => {})
+    }
+  />
+)}
 
     </div>
   );

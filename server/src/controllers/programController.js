@@ -46,6 +46,16 @@ export async function updateProgram(req, res, next) {
 }
 
 
+// ------------- DELETE PROGRAM -------------
+export async function deleteProgram(req, res, next) {
+  try {
+    await programService.removeProgram(req.params.id);
+    return successResponse(res, "Program deleted successfully", null, 200);
+  } catch (err) { 
+    return next(err);
+  }
+}
+
 
 
 // ------------- GET AVAILABLE PROGRAMS -------------

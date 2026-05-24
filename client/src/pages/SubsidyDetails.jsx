@@ -359,32 +359,42 @@ useEffect(() => {
   />
 )}
 
+{/* ADD MODAL */}
+{addModal && (
+  <AddDistributionModal
+    distributionID={id}
+    loading={createDistributionMutation.isPending}
+    remainingAmount={subsidy.UnassignedAmount}
+    onClose={() => setAddModal(false)}
+    onSubmit={(form) =>
+      createDistributionMutation.mutate({ DistributionID: id, ...form }, {
+        onSuccess: (res) => { setAddModal(false); showSuccessToast(res.message); }
+      })
+    }
+  />
+)}
+
 {/* ACTION MODAL */}
 {actionModal && (
   <ActionDistributionModal
     selectedDistribution={actionModal}
     actionType={actionType}
-    onClose={() => {
-      setActionModal(null);
-      setActionType(null);
-    }}
+    onClose={() => { setActionModal(null); setActionType(null); }}
     loading={updateDistributionMutation.isPending}
     onConfirm={() =>
-      updateDistributionMutation.mutateAsync({
+      updateDistributionMutation.mutate({
         id: actionModal.DistributionDetailsID,
-        data: {
-          IsDistributed: actionType === "distribute" ? 1 : 0,
-        },
-      }).then((res) => {
-        setActionModal(null);
-        setActionType(null);
-        showSuccessToast(
-          actionType === "distribute"
-            ? "Subsidy distributed successfully!"
-            : "Distribution cancelled successfully!"
-        );
-      }).catch((error) => {
-        throw error;
+        data: { IsDistributed: actionType === "distribute" ? 1 : 0 },
+      }, {
+        onSuccess: () => {
+          setActionModal(null);
+          setActionType(null);
+          showSuccessToast(
+            actionType === "distribute"
+              ? "Subsidy distributed successfully!"
+              : "Distribution cancelled successfully!"
+          );
+        }
       })
     }
   />
@@ -397,18 +407,12 @@ useEffect(() => {
     loading={deleteDistributionMutation.isPending}
     onClose={() => setDeleteModal(null)}
     onConfirm={() =>
-      deleteDistributionMutation.mutateAsync(
-        deleteModal.DistributionDetailsID
-      ).then((res) => {
-        setDeleteModal(null);
-        showSuccessToast(res.message);
-      }).catch((error) => {
-        throw error;
+      deleteDistributionMutation.mutate(deleteModal.DistributionDetailsID, {
+        onSuccess: (res) => { setDeleteModal(null); showSuccessToast(res.message); }
       })
     }
   />
 )}
-
 
     </div>
   );

@@ -1,13 +1,20 @@
-// src/hooks/useCrop.js
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchAllCrop,
-  addCrop,
-  updateCrop, 
-} from "../api/cropApi";
+import { fetchAllCrop, addCrop, updateCrop, deleteCrop } from "../api/cropApi";
+import { showErrorToast } from "../utils/toastUtility";
 
-export default function useCrop(search = "") {
+export default function useCrop() {
   const queryClient = useQueryClient();
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["crops"] });
+  const onError = (err) => {
+  const status = err?.response?.status;
+  if (status === 400 || status === 409) return;
+  showErrorToast(err?.response?.data?.message || "Something went wrong.");
+};
+
+const onDeleteError = (err) => {
+  showErrorToast(err?.response?.data?.message || "Something went wrong.");
+};
 
   // ================= FETCH ALL CROPS =================
   const cropsQuery = useQuery({
@@ -16,27 +23,31 @@ export default function useCrop(search = "") {
     staleTime: 1000 * 60 * 5,
   });
 
-
   // ================= CREATE CROP =================
   const createCropMutation = useMutation({
     mutationFn: addCrop,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crops"] }); 
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   // ================= UPDATE CROP =================
- const updateCropMutation = useMutation({
-  mutationFn: ({ id, data }) => updateCrop({ CropID: id, ...data }),
+  const updateCropMutation = useMutation({
+    mutationFn: ({ id, data }) => updateCrop({ CropID: id, ...data }),
+    onSuccess: invalidate,
+    onError,
+  });
 
-  onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: ["crops"] }); 
-  },
-});
+  // ================= DELETE CROP =================
+  const deleteCropMutation = useMutation({
+    mutationFn: (id) => deleteCrop(id),
+    onSuccess: invalidate,
+    onError: onDeleteError,
+  });
 
   return {
-    cropsQuery, 
+    cropsQuery,
     createCropMutation,
     updateCropMutation,
+    deleteCropMutation,
   };
 }

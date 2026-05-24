@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchAllSubsidy,
-  addSubsidy,
-  updateSubsidy,
-} from "../api/subsidyApi";
+import { showErrorToast } from "../utils/toastUtility";
+import { fetchAllSubsidy, addSubsidy, updateSubsidy } from "../api/subsidyApi";
 
 export default function useSubsidy() {
   const queryClient = useQueryClient();
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["subsidies"] });
+  const onError = (err) => showErrorToast(err?.response?.data?.message || "Something went wrong.");
 
   // ================= FETCH ALL SUBSIDY =================
   const subsidyQuery = useQuery({
@@ -18,17 +18,15 @@ export default function useSubsidy() {
   // ================= ADD SUBSIDY =================
   const createSubsidyMutation = useMutation({
     mutationFn: addSubsidy,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subsidies"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   // ================= UPDATE SUBSIDY =================
   const updateSubsidyMutation = useMutation({
     mutationFn: ({ id, data }) => updateSubsidy({ DistributionID: id, ...data }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subsidies"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   return {

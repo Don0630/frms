@@ -127,35 +127,32 @@ useEffect(() => {
 
 
  
+{/* ADD MODAL */}
+{addSubsidyModal && (
+  <AddSubsidyModal
+    onClose={() => setAddSubsidyModal(false)}
+    loading={createSubsidyMutation.isPending}
+    onSubmit={(data) =>
+      createSubsidyMutation.mutate(data, {
+        onSuccess: (res) => { setAddSubsidyModal(false); showSuccessToast(res.message); }
+      })
+    }
+  />
+)}
 
-      {/* ADD MODAL */}
-      {addSubsidyModal && (
-        <AddSubsidyModal
-          onClose={() => setAddSubsidyModal(false)}
-          onSubmit={(data) =>
-            createSubsidyMutation.mutateAsync(data).then((res) => {
-              setAddSubsidyModal(false);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error; })
-          }
-          loading={createSubsidyMutation.isPending}
-        />
-      )}
-
-      {/* EDIT MODAL */}
-      {editModal && (
-        <EditSubsidyModal
-          selectedSubsidy={editModal}
-          onClose={() => setEditModal(null)}
-          onSubmit={(data) =>
-            updateSubsidyMutation.mutateAsync({ id: editModal.DistributionID, data }).then((res) => {
-              setEditModal(null);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error; })
-          }
-          loading={updateSubsidyMutation.isPending}
-        />
-      )}
+{/* EDIT MODAL */}
+{editModal && (
+  <EditSubsidyModal
+    selectedSubsidy={editModal}
+    onClose={() => setEditModal(null)}
+    loading={updateSubsidyMutation.isPending}
+    onSubmit={(data) =>
+      updateSubsidyMutation.mutate({ id: editModal.DistributionID, data }, {
+        onSuccess: (res) => { setEditModal(null); showSuccessToast(res.message); }
+      })
+    }
+  />
+)}
 
     </div>
   );

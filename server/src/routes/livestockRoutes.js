@@ -10,6 +10,7 @@ const router = express.Router();
 router.get("/livestocksData", authenticateToken, livestockController.getAllLivestock);
 router.post("/addLivestock", authenticateToken, validateLivestock.validateAddLivestock, livestockController.saveLivestock);
 router.put("/updateLivestock/:id", authenticateToken, validateLivestock.validateEditLivestock, livestockController.updateLivestock);
+router.delete("/deleteLivestock/:id", authenticateToken, validateLivestock.validateDeleteLivestock, livestockController.deleteLivestock);
 router.get("/searchLivestock", authenticateToken, livestockController.getSearchLivestock);
 
 export default router;

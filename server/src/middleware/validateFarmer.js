@@ -65,7 +65,23 @@ export function validateEditFarmer(req, res, next) {
 }
 
 
+// ---------------------- DELETE FARMER ----------------------
+export function validateDeleteFarmer(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Farmer ID is required", "MISSING_ID", 400);
+    }
 
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      throwError("Invalid Farmer ID", "INVALID_ID", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
 
 // ---------------------- ADD FARM ----------------------
 export function validateAddFarm(req, res, next) {

@@ -5,7 +5,6 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 // ------------- GET ALL LIVESTOCK -------------
 export async function getAllLivestock(req, res, next) {
-
   try {
     const livestocksData = await livestockService.fetchLivestocks();
 
@@ -13,11 +12,9 @@ export async function getAllLivestock(req, res, next) {
       return errorResponse(res, "No active record found", 404);
     }
       return successResponse(res, "Livestocks record fetched successfully", livestocksData, 200);
-  } catch (err) {
-    console.error("Error fetching Livestocks Data:", err);
+  } catch (err) { 
     return next(err);
   }
-
 }
 
 
@@ -27,8 +24,7 @@ export async function saveLivestock(req, res, next) {
     // console.log("req.body:", req.body);
     const newLivestock = await livestockService.addLivestock(req.body);
     return successResponse(res, "Livestock added successfully", newLivestock, 201);
-  } catch (err) {
-    console.error("Error adding Livestock:", err);
+  } catch (err) { 
     return next(err);
   }
 }
@@ -39,8 +35,18 @@ export async function updateLivestock(req, res, next) {
   try {
     const updated = await livestockService.editLivestock(req.params.id, req.body);
     return successResponse(res, "Livestock updated successfully", updated);
-  } catch (err) {
-    console.error("Error updating Livestock:", err);
+  } catch (err) { 
+    return next(err);
+  }
+}
+
+
+// ------------- DELETE LIVESTOCK -------------
+export async function deleteLivestock(req, res, next) {
+  try {
+    await livestockService.removeLivestock(req.params.id);
+    return successResponse(res, "Livestock deleted successfully", null, 200);
+  } catch (err) { 
     return next(err);
   }
 }
@@ -51,11 +57,8 @@ export async function getSearchLivestock(req, res, next) {
   try { 
     const search = req.query.search || "";
     const searchedLivestock = await livestockService.fetchSearchLivestock(search);
-
-    
     return successResponse(res, "Livestock fetched successfully", searchedLivestock, 200);
-  } catch (err) {
-    console.error("Error fetching searched Livestock:", err);
+  } catch (err) { 
     return next(err);
   }
 }

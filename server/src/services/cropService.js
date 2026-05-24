@@ -30,6 +30,19 @@ export async function editCrop(id, crop) {
 }
 
 
+// --------- DELETE CROP ---------
+export async function removeCrop(id) {
+  const cropId = parseInt(id);
+
+  const existing = await cropModel.getCropById(cropId);
+  if (!existing) throwError("Crop not found", "NOT_FOUND", 404);
+ 
+  return await cropModel.deleteCrop(cropId);
+}
+
+
+
+// --------- FETCH SEARCH CROP ---------
 export async function fetchSearchCrop(search = "") {
   return await cropModel.getSearchCrop(search);
 }

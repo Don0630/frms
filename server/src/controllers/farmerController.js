@@ -36,6 +36,15 @@ export async function updateFarmer(req, res, next) {
   }
 }
 
+// ------------- DELETE FARMER -------------
+export async function deleteFarmer(req, res, next) {
+  try {
+    await farmerService.removeFarmer(req.params.id);
+    return successResponse(res, "Farmer deleted successfully", null, 200);
+  } catch (err) { 
+    return next(err);
+  }
+}
 
 
 // ------------- ADD Farm -------------
@@ -44,8 +53,7 @@ export async function saveFarm(req, res, next) {
     // console.log("req.body:", req.body);
     const newFarm = await farmerService.addFarm(req.body);
     return successResponse(res, "Farm added successfully", newFarm, 201);
-  } catch (err) {
-    console.error("Error adding Farm:", err);
+  } catch (err) { 
     return next(err);
   }
 }
@@ -56,8 +64,7 @@ export async function updateFarm(req, res, next) {
   try {
     const updated = await farmerService.editFarm(req.params.id, req.body);
     return successResponse(res, "Farm updated successfully", updated);
-  } catch (err) {
-    console.error("Error updating Farm:", err);
+  } catch (err) { 
     return next(err);
   }
 }
@@ -74,8 +81,7 @@ export async function deleteFarm(req, res, next) {
     }
 
     return successResponse(res, "Farm deleted successfully", deleted);
-  } catch (err) {
-    console.error("Error deleting Farm:", err);
+  } catch (err) { 
     return next(err);
   }
 }
@@ -88,8 +94,7 @@ export async function getSearchFarmer(req, res, next) {
     const searchedFarmer = await farmerService.fetchSearchFarmer(search);
 
     return successResponse(res, "Farmers fetched successfully", searchedFarmer, 200);
-  } catch (err) {
-    console.error("Error fetching searched farmer:", err);
+  } catch (err) { 
     return next(err);
   }
 }
@@ -105,8 +110,7 @@ export async function getFarmerById(req, res, next) {
     }
      
     return successResponse(res, "Farmer fetched successfully", farmer, 200);
-  } catch (err) {
-    console.error("Get Farmer By ID Error:", err);
+  } catch (err) { 
     return next(err);
   }
 }

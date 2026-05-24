@@ -58,6 +58,17 @@ export async function editFarmer(id, farmer) {
 }
 
 
+// --------- REMOVE FARMER ---------
+export async function removeFarmer(id) {
+  const farmerId = parseInt(id);
+
+  const existing = await farmerModel.getFarmerById(farmerId);
+  if (!existing) throwError("Farmer not found", "NOT_FOUND", 404);
+
+  return await farmerModel.deleteFarmer(farmerId);
+}
+
+
 // --------- ADD FARM ---------
 export async function addFarm(farm) {
   const duplicate = await farmerModel.findDuplicateFarm(
@@ -75,10 +86,11 @@ export async function editFarm(id, farm) {
 
   const existing = await farmerModel.getFarmById(farmId);
   if (!existing) throwError("Farm not found", "NOT_FOUND", 404);
+  const farmerId = parseInt(existing.FarmerID);
+  
+console.log(existing.FarmerID, farm.FarmBarangay, farm.FarmMunicipality, farm.FarmProvince, farmId);
 
-  const duplicate = await farmerModel.findDuplicateFarm(
-    farm.FarmerID, farm.FarmBarangay, farm.FarmMunicipality, farm.FarmProvince, farmId
-  );
+  const duplicate = await farmerModel.findDuplicateFarm(farmerId, farm.FarmBarangay, farm.FarmMunicipality, farm.FarmProvince, 0);
   if (duplicate) throwError("Farm already exists!", "DUPLICATE_FARM", 409);
 
   return await farmerModel.updateFarm(farmId, farm);

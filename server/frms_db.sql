@@ -26,7 +26,7 @@ CREATE TABLE tblFarms (
   FarmMunicipality VARCHAR(100),
   FarmProvince VARCHAR(100),
   FarmSize DECIMAL(10,2),
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT
 );
 
 -- =========================
@@ -75,8 +75,8 @@ CREATE TABLE tblFarmerProgramParticipation (
   ProgramID INT,
   DateJoined DATE,
   Status ENUM('Active', 'Completed', 'Dropped'),
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
-  FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT,
+  FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE RESTRICT
 );
 
 -- =========================
@@ -88,7 +88,7 @@ CREATE TABLE tblSubsidyDistribution (
   TotalAmount DECIMAL(10,2),
   DistributionDate DATE,
   Remarks TEXT,
-  FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE CASCADE
+  FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE RESTRICT
 );
 
 -- =========================
@@ -100,8 +100,8 @@ CREATE TABLE tblSubsidyDistributionDetails (
   FarmerID INT,
   Amount DECIMAL(10,2),
   IsDistributed TINYINT(1) NOT NULL DEFAULT 0,
-  FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE CASCADE,
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE
+  FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE RESTRICT,
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT
 );
 
 -- =========================
@@ -133,7 +133,7 @@ CREATE TABLE tblUsers (
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
   Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
-  FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE SET NULL
+  FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE RESTRICT
 );
 
 -- =========================
@@ -148,7 +148,7 @@ CREATE TABLE tblReportsAndMonitoring (
   ProductionVolume VARCHAR(50),
   Issues TEXT,
   Remarks TEXT,
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE CASCADE,
-  FOREIGN KEY (CropID) REFERENCES tblCrops(CropID) ON DELETE SET NULL,
-  FOREIGN KEY (LivestockID) REFERENCES tblLivestock(LivestockID) ON DELETE SET NULL
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT,
+  FOREIGN KEY (CropID) REFERENCES tblCrops(CropID) ON DELETE RESTRICT,
+  FOREIGN KEY (LivestockID) REFERENCES tblLivestock(LivestockID) ON DELETE RESTRICT
 );

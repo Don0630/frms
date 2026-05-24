@@ -218,36 +218,30 @@ useEffect(() => {
       </div>
  
 
-      {/* ADD MODAL */}
-      {addMonitoringModal && (
-        <AddMonitoringModal
-          onClose={() => setAddMonitoringModal(false)}
-          onSubmit={(data) =>
-            createMonitoringMutation.mutateAsync(data)
-              .then((res) => {
-                setAddMonitoringModal(false);
-                showSuccessToast(res.message);
-              })
-              .catch((error) => {
-                throw error;
-              })
-          }
-          loading={createMonitoringMutation.isPending}
-        />
-      )}
+  {/* ADD MODAL */}
+{addMonitoringModal && (
+  <AddMonitoringModal
+    onClose={() => setAddMonitoringModal(false)}
+    loading={createMonitoringMutation.isPending}
+    onSubmit={(data) =>
+      createMonitoringMutation.mutate(data, {
+        onSuccess: (res) => { setAddMonitoringModal(false); showSuccessToast(res.message); }
+      })
+    }
+  />
+)}
 
 {/* EDIT MODAL */}
 {editMonitoringModal && (
   <EditMonitoringModal
     monitoring={editMonitoringModal}
     onClose={() => setEditMonitoringModal(null)}
-    onSubmit={(data) =>
-            updateMonitoringMutation.mutateAsync({ id: editMonitoringModal.ReportID, data }).then((res) => {
-              setEditMonitoringModal(null);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error; })
-          }
     loading={updateMonitoringMutation.isPending}
+    onSubmit={(data) =>
+      updateMonitoringMutation.mutate({ id: editMonitoringModal.ReportID, data }, {
+        onSuccess: (res) => { setEditMonitoringModal(null); showSuccessToast(res.message); }
+      })
+    }
   />
 )}
 

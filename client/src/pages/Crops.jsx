@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
-import { Plus, Info, Edit, CloudRain, Sun, CalendarDays } from "lucide-react";
+import { Plus, Info, Edit, CloudRain, Sun, CalendarDays, Trash2 } from "lucide-react";
 
 import {
  pageButtonPrimary
@@ -16,12 +16,14 @@ import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
  
 import AddCropModal from "../components/modals/AddCropModal";
 import EditCropModal from "../components/modals/EditCropModal";
+import DeleteCropModal from "../components/modals/DeleteCropModal.jsx";
 
 export default function Crops() {
   const {
     cropsQuery,
     createCropMutation,
     updateCropMutation,
+    deleteCropMutation,
   } = useCrop();
 
   const crop = cropsQuery.data?.data || [];
@@ -29,6 +31,7 @@ export default function Crops() {
   const [filter, setFilter] = useState("All"); 
   const [showAddModal, setShowAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
   const { search, setSearch, filteredData } = useTable({
     data: crop,
@@ -124,12 +127,18 @@ useEffect(() => {
       key: "actions",
       label: "",
       render: (item) => (
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-1">
           <button
             onClick={() => setEditModal(item)}
             className="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
           >
             <Edit className="w-3 h-3" />
+          </button>
+                   <button
+            onClick={() => setDeleteModal(item)}
+            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+          >
+            <Trash2 className="w-3 h-3" />
           </button>
         </div>
       ),
@@ -162,7 +171,6 @@ useEffect(() => {
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Add Crop</span>
           </button>
-
         </div>
 
         {/* TABLE */}
@@ -203,19 +211,15 @@ useEffect(() => {
 
       {/* MODALS */}
  
-
 {showAddModal && (
   <AddCropModal
     onClose={() => setShowAddModal(false)}
-    onSubmit={(data) =>
-      createCropMutation.mutateAsync(data).then((res) => {
-        setShowAddModal(false);
-        showSuccessToast(res.message);
-      }).catch((error) => {
-        throw error;
-      })
-    }
     loading={createCropMutation.isPending}
+    onSubmit={(data) =>
+      createCropMutation.mutateAsync(data)
+        .then((res) => { setShowAddModal(false); showSuccessToast(res.message); })
+      
+    }
   />
 )}
 
@@ -223,17 +227,27 @@ useEffect(() => {
   <EditCropModal
     selectedCrop={editModal}
     onClose={() => setEditModal(null)}
-    onSubmit={(data) =>
-      updateCropMutation.mutateAsync({ id: editModal.CropID, data }).then((res) => {
-        setEditModal(null);
-        showSuccessToast(res.message);
-      }).catch((error) => {
-        throw error;
-      })
-    }
     loading={updateCropMutation.isPending}
+    onSubmit={(data) =>
+      updateCropMutation.mutateAsync({ id: editModal.CropID, data })
+        .then((res) => { setEditModal(null); showSuccessToast(res.message); }) 
+    }
   />
 )}
+
+{deleteModal && (
+  <DeleteCropModal
+    crop={deleteModal}
+    onClose={() => setDeleteModal(null)}
+    loading={deleteCropMutation.isPending}
+    onConfirm={() =>
+      deleteCropMutation.mutateAsync(deleteModal.CropID)
+        .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
+        .catch(() => {})
+    }
+  />
+)}
+
 
     </div>
   );

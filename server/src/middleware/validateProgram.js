@@ -107,3 +107,24 @@ export function validateEditProgram(req, res, next) {
     next(err);
   }
 }
+
+
+
+
+// ---------------------- DELETE PROGRAM ----------------------
+export function validateDeleteProgram(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Program ID is required", "MISSING_ID", 400);
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      throwError("Invalid Program ID", "INVALID_ID", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}

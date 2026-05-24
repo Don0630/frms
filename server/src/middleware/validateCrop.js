@@ -74,3 +74,22 @@ export function validateEditCrop(req, res, next) {
     next(err);
   }
 }
+
+
+// ---------------------- DELETE CROP ----------------------
+export function validateDeleteCrop(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Crop ID is required", "MISSING_ID", 400);
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      throwError("Invalid Crop ID", "INVALID_ID", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}

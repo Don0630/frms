@@ -1,45 +1,48 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchAllLivestock,
-  addLivestock,
-  updateLivestock, 
-} from "../api/livestockApi";
+import { showErrorToast } from "../utils/toastUtility";
+import { fetchAllLivestock, addLivestock, updateLivestock, deleteLivestock } from "../api/livestockApi";
 
-export default function useLivestock(search = "") {
+export default function useLivestock() {
   const queryClient = useQueryClient();
 
-  // ================= FETCH ALL =================
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["livestock"] });
+  const onError = (err) => {
+    const status = err?.response?.status;
+    if (status === 400 || status === 409) return;
+    showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  };
+  const onDeleteError = (err) => {
+    showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  };
+
   const livestockQuery = useQuery({
     queryKey: ["livestock"],
     queryFn: fetchAllLivestock,
     staleTime: 1000 * 60 * 5,
   });
 
-
-  // ================= CREATE =================
   const createLivestockMutation = useMutation({
     mutationFn: addLivestock,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["livestock"] }); 
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
-  // ================= UPDATE (FIXED PATTERN) =================
   const updateLivestockMutation = useMutation({
-    mutationFn: ({ id, data }) =>
-      updateLivestock({
-        LivestockID: id,
-        ...data,
-      }),
+    mutationFn: ({ id, data }) => updateLivestock({ LivestockID: id, ...data }),
+    onSuccess: invalidate,
+    onError,
+  });
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["livestock"] }); 
-    },
+  const deleteLivestockMutation = useMutation({
+    mutationFn: deleteLivestock,
+    onSuccess: invalidate,
+    onError: onDeleteError,
   });
 
   return {
-    livestockQuery, 
+    livestockQuery,
     createLivestockMutation,
     updateLivestockMutation,
+    deleteLivestockMutation,
   };
 }

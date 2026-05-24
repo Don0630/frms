@@ -16,6 +16,11 @@ export async function updateCrop(crop) {
   return api.put(`/crop/updateCrop/${crop.CropID}`, crop);
 }
 
+// ------------ DELETE CROP ------------
+export async function deleteCrop(id) {
+  return api.delete(`/crop/deleteCrop/${id}`);
+}
+
 // ------------ FETCH SEARCHED CROP ------------
 export async function fetchSearchCrop(search = "") {
   return api.get("/crop/searchCrop", {

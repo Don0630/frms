@@ -10,12 +10,13 @@ const router = express.Router();
 router.get("/farmersData", authenticateToken, farmerController.getAllFarmer);
 router.post("/addFarmer", authenticateToken, validateFarmer.validateAddFarmer, farmerController.saveFarmer);
 router.put("/updateFarmer/:id", authenticateToken, validateFarmer.validateEditFarmer, farmerController.updateFarmer);
+router.delete("/deleteFarmer/:id", authenticateToken, validateFarmer.validateDeleteFarmer, farmerController.deleteFarmer);
 
+router.get("/farmerById/:id", authenticateToken, farmerController.getFarmerById);
 router.post("/addFarm", authenticateToken, validateFarmer.validateAddFarm, farmerController.saveFarm);
 router.put("/updateFarm/:id", authenticateToken, validateFarmer.validateEditFarm, farmerController.updateFarm);
 router.delete("/farm/:id", authenticateToken, validateFarmer.validateDeleteFarm, farmerController.deleteFarm);
 
 router.get("/searchFarmer", authenticateToken, farmerController.getSearchFarmer);
-router.get("/farmerById/:id", authenticateToken, farmerController.getFarmerById);
 
 export default router;

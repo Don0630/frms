@@ -1,13 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  fetchAllUser,
-  updateUser,
-  deleteUser,
-  registerUser,
-} from "../api/userApi";
+import { showErrorToast } from "../utils/toastUtility";
+import { fetchAllUser, updateUser, deleteUser, registerUser } from "../api/userApi";
 
 export default function useUsers() {
   const queryClient = useQueryClient();
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["users"] });
+  const onError = (err) => showErrorToast(err?.response?.data?.message || "Something went wrong.");
 
   // ================= FETCH =================
   const usersQuery = useQuery({
@@ -19,25 +18,22 @@ export default function useUsers() {
   // ================= CREATE =================
   const createUserMutation = useMutation({
     mutationFn: registerUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   // ================= UPDATE =================
   const updateUserMutation = useMutation({
     mutationFn: ({ id, data }) => updateUser(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   // ================= DELETE =================
   const deleteUserMutation = useMutation({
     mutationFn: deleteUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   return {

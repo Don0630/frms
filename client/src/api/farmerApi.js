@@ -15,6 +15,16 @@ export async function updateFarmer(farmer) {
   return api.put(`/farmer/updateFarmer/${farmer.FarmerID}`, farmer);
 }
 
+// ------------ DELETE FARMER ------------
+export async function deleteFarmer(id) {
+  return api.delete(`/farmer/deleteFarmer/${id}`);
+}
+
+// ------------ FETCH FARMER BY ID ------------
+export async function fetchFarmerById(id) {
+  return api.get(`/farmer/farmerById/${id}`);
+}
+
 // ------------ ADD FARM ------------
 export async function addFarm(farm) {
   return api.post("/farmer/addFarm", farm);
@@ -33,11 +43,7 @@ export async function deleteFarm(id) {
 // ------------ FETCH SEARCHED FARMER ------------
 export async function fetchSearchFarmer(search = "") {
   return api.get("/farmer/searchFarmer", {
-    params: { search }, // 👈 axios handles query params cleanly
+    params: { search }, 
   });
 }
 
-// ------------ FETCH FARMER BY ID ------------
-export async function fetchFarmerById(id) {
-  return api.get(`/farmer/farmerById/${id}`);
-}

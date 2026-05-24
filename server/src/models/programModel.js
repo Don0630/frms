@@ -115,7 +115,14 @@ export async function updateProgram(id, program) {
   };
 }
 
-
+// --------- DELETE PROGRAM ---------
+export async function deleteProgram(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblPrograms WHERE ProgramID = ?`,
+    [id]
+  );
+  return result;
+}
 
 
 

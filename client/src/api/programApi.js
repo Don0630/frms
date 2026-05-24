@@ -16,6 +16,11 @@ export async function updateProgram(program) {
   return api.put(`/program/updateProgram/${program.ProgramID}`, program);
 }
 
+// ------------ DELETE PROGRAM ------------
+export async function deleteProgram(id) {
+  return api.delete(`/program/deleteProgram/${id}`);
+}
+
 // ------------ FETCH AVAILABLE PROGRAM ------------
 export async function fetchAvailableProgram(search = "") {
   return api.get("/program/availableProgram", {

@@ -16,6 +16,11 @@ export async function updateLivestock(livestock) {
   return api.put(`/livestock/updateLivestock/${livestock.LivestockID}`, livestock);
 }
 
+// ------------ DELETE LIVESTOCK ------------
+export async function deleteLivestock(id) {
+  return api.delete(`/livestock/deleteLivestock/${id}`);
+}
+
 // ------------ FETCH SEARCHED LIVESTOCK ------------
 export async function fetchSearchLivestock(search = "") {
   return api.get("/livestock/searchLivestock", {

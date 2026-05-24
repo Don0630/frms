@@ -34,6 +34,16 @@ export async function editLivestock(id, livestock) {
 }
 
 
+// --------- REMOVE LIVESTOCK ---------
+export async function removeLivestock(id) {
+  const livestockId = parseInt(id);
+
+  const existing = await livestockModel.getLivestockById(livestockId);
+  if (!existing) throwError("Livestock not found", "NOT_FOUND", 404);
+
+  return await livestockModel.deleteLivestock(livestockId);
+}
+
 export async function fetchSearchLivestock(search = "") {
   return await livestockModel.getSearchLivestock(search);
 }

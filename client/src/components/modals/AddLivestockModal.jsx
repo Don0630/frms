@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { showErrorToast } from "../../utils/toastUtility"; // ✅
+import React, { useState } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -64,8 +63,6 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
 
       if (status === 400 || status === 409) {
         setError(message);
-      } else {
-        showErrorToast(message); // ✅
       }
     }
   };
@@ -86,12 +83,17 @@ export default function AddLivestockModal({ onClose, onSubmit, loading }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 text-sm">
-
-        {/* TYPE */}
-        <div>
-          <label className={modalLabel}>Type</label>
-          <input name="Type" value={form.Type} onChange={handleChange} className={modalInput} placeholder="e.g. Cow, Goat" />
-        </div>
+ 
+{/* TYPE */}
+<div>
+  <label className={modalLabel}>Type</label>
+  <select name="Type" value={form.Type} onChange={handleChange} className={modalInput}>
+    <option value="">Select type</option>
+    {["Cattle", "Poultry", "Swine", "Goat"].map((type) => (
+      <option key={type} value={type}>{type}</option>
+    ))}
+  </select>
+</div>
 
         {/* BREED */}
         <div>

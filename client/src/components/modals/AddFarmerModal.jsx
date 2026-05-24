@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import React, { useState } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -98,8 +97,6 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
 
         if (status === 400 || status === 409) {
           setError(message);
-        } else {
-          showErrorToast(message);
         }
       }
     };
@@ -112,10 +109,11 @@ export default function AddFarmerModal({ onClose, onSubmit, loading }) {
     Fill in the required fields to register a new farmer.
   </p>
  
-  <div className="min-h-[20px] mb-2 text-center">
-    {error && (
-      <p className="text-red-500 font-medium text-sm">{error}</p>
-    )}
+  {/* ERROR */}
+  <div className="min-h-[12px] mb-2 text-center">
+    <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
+     {error || "​"}
+    </p>
   </div>
 
   <form onSubmit={handleSubmit} className="space-y-4 text-sm">

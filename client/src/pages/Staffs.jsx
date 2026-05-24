@@ -198,36 +198,26 @@ useEffect(() => {
 {addModal && (
   <AddStaffModal
     onClose={() => setAddModal(false)}
-    onSubmit={(data) =>
-      createStaffMutation.mutateAsync(data)
-        .then((res) => {
-          setAddModal(false);
-          showSuccessToast(res.message);
-        })
-        .catch((error) => {
-          throw error;
-        })
-    }
     loading={createStaffMutation.isPending}
+    onSubmit={(data) =>
+      createStaffMutation.mutate(data, {
+        onSuccess: (res) => { setAddModal(false); showSuccessToast(res.message); }
+      })
+    }
   />
 )}
- 
+
 {/* EDIT */}
 {editModal && (
   <EditStaffModal
     selectedStaff={editModal}
     onClose={() => setEditModal(null)}
-    onSubmit={(data) =>
-      updateStaffMutation.mutateAsync({ id: editModal.StaffID, data })
-        .then((res) => {
-          setEditModal(null);
-          showSuccessToast(res.message);
-        })
-        .catch((error) => {
-          throw error;
-        })
-    }
     loading={updateStaffMutation.isPending}
+    onSubmit={(data) =>
+      updateStaffMutation.mutate({ id: editModal.StaffID, data }, {
+        onSuccess: (res) => { setEditModal(null); showSuccessToast(res.message); }
+      })
+    }
   />
 )}
 

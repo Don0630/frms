@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { showErrorToast } from "../../utils/toastUtility";
+import React, { useState } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -95,8 +94,6 @@ const handleSubmit = async (e) => {
 
    if (status === 400 || status === 409) {
           setError(message);
-        } else {
-          showErrorToast(message);
         }
   }
 };

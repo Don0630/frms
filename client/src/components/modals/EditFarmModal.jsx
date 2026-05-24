@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { showErrorToast } from "../../utils/toastUtility";
+import React, { useState, useEffect } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -74,8 +73,6 @@ export default function EditFarmModal({ onClose, onSubmit, loading, selectedFarm
 
       if (status === 400 || status === 409) {
         setError(message);
-      } else {
-        showErrorToast(message);
       }
     }
   };

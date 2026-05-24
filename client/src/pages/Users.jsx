@@ -196,22 +196,16 @@ useEffect(() => {
 
       </div>
  
-
 {/* ADD */}
 {addModal && (
   <AddUserModal
     onClose={() => setAddModal(false)}
-    onSubmit={(data) =>
-      createUserMutation.mutateAsync(data)
-        .then((res) => {
-          setAddModal(false);
-          showSuccessToast(res.message);
-        })
-        .catch((error) => {
-          throw error;
-        })
-    }
     loading={createUserMutation.isPending}
+    onSubmit={(data) =>
+      createUserMutation.mutate(data, {
+        onSuccess: (res) => { setAddModal(false); showSuccessToast(res.message); }
+      })
+    }
   />
 )}
 
@@ -220,17 +214,12 @@ useEffect(() => {
   <EditUserModal
     selectedUser={editModal}
     onClose={() => setEditModal(null)}
-    onSubmit={(data) =>
-      updateUserMutation.mutateAsync({ id: editModal.UserID, data })
-        .then((res) => {
-          setEditModal(null);
-          showSuccessToast(res.message);
-        })
-        .catch((error) => {
-          throw error;
-        })
-    }
     loading={updateUserMutation.isPending}
+    onSubmit={(data) =>
+      updateUserMutation.mutate({ id: editModal.UserID, data }, {
+        onSuccess: (res) => { setEditModal(null); showSuccessToast(res.message); }
+      })
+    }
   />
 )}
 
@@ -239,17 +228,12 @@ useEffect(() => {
   <DeleteUserModal
     user={deleteModal}
     onClose={() => setDeleteModal(null)}
-    onConfirm={() =>
-      deleteUserMutation.mutateAsync(deleteModal.UserID)
-        .then((res) => {
-          setDeleteModal(null);
-          showSuccessToast(res.message);
-        })
-        .catch(() => {
-          showErrorToast("Failed to delete user. Please try again.");
-        })
-    }
     loading={deleteUserMutation.isPending}
+    onConfirm={() =>
+      deleteUserMutation.mutate(deleteModal.UserID, {
+        onSuccess: (res) => { setDeleteModal(null); showSuccessToast(res.message); }
+      })
+    }
   />
 )}
 

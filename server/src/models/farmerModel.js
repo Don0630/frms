@@ -132,6 +132,81 @@ export async function updateFarmer(id, farmer) {
 }
 
 
+// --------- DELETE FARMER ---------
+export async function deleteFarmer(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblFarmers WHERE FarmerID = ?`,
+    [id]
+  );
+  return result;
+}
+
+
+// -------------------------------------------------- FARM --------------------------------------------------
+
+// --------- GET FARMER BY ID ---------
+export async function getFarmerById(id) {
+  const [rows] = await db.query(
+    `
+    SELECT 
+      f.FarmerID,
+      f.FirstName,
+      f.MiddleName,
+      f.LastName,
+      f.Gender,
+      DATE_FORMAT(f.DateOfBirth, '%Y-%m-%d') AS DateOfBirth,
+      f.Barangay,
+      f.Municipality,
+      f.Province,
+      f.ContactNumber,
+      f.Email,
+      DATE_FORMAT(f.RegistrationDate, '%Y-%m-%d') AS RegistrationDate,
+      fr.FarmID,
+      fr.FarmBarangay,
+      fr.FarmMunicipality,
+      fr.FarmProvince,
+      fr.FarmSize
+    FROM tblFarmers f
+    LEFT JOIN tblFarms fr ON f.FarmerID = fr.FarmerID
+    WHERE f.FarmerID = ?
+    `,
+    [id]
+  );
+
+  if (rows.length === 0) return null;
+
+  const farmer = {
+    FarmerID: rows[0].FarmerID,
+    FirstName: rows[0].FirstName,
+    MiddleName: rows[0].MiddleName,
+    LastName: rows[0].LastName,
+    Gender: rows[0].Gender,
+    DateOfBirth: rows[0].DateOfBirth,
+    Barangay: rows[0].Barangay,
+    Municipality: rows[0].Municipality,
+    Province: rows[0].Province,
+    ContactNumber: rows[0].ContactNumber,
+    Email: rows[0].Email,
+    RegistrationDate: rows[0].RegistrationDate,
+    Farms: [],
+  };
+
+  for (const row of rows) {
+    if (row.FarmID) {
+      farmer.Farms.push({
+        FarmID: row.FarmID,
+        FarmerID: row.FarmerID,
+        FarmBarangay: row.FarmBarangay,
+        FarmMunicipality: row.FarmMunicipality,
+        FarmProvince: row.FarmProvince,
+        FarmSize: row.FarmSize,
+      });
+    }
+  }
+
+  return farmer;
+}
+
 // --------- CREATE FARM ---------
 export async function createFarm(farm) {
   const {
@@ -244,73 +319,13 @@ export async function getSearchFarmer(search = "") {
 }
 
 
-// --------- GET FARMER BY ID ---------
-export async function getFarmerById(id) {
-  const [rows] = await db.query(
-    `
-    SELECT 
-      f.FarmerID,
-      f.FirstName,
-      f.MiddleName,
-      f.LastName,
-      f.Gender,
-      DATE_FORMAT(f.DateOfBirth, '%Y-%m-%d') AS DateOfBirth,
-      f.Barangay,
-      f.Municipality,
-      f.Province,
-      f.ContactNumber,
-      f.Email,
-      DATE_FORMAT(f.RegistrationDate, '%Y-%m-%d') AS RegistrationDate,
-      fr.FarmID, 
-      fr.FarmBarangay,
-      fr.FarmMunicipality,
-      fr.FarmProvince,
-      fr.FarmSize
-    FROM tblFarmers f
-    LEFT JOIN tblFarms fr ON f.FarmerID = fr.FarmerID
-    WHERE f.FarmerID = ?
-    `,
-    [id]
-  );
-  if (rows.length === 0) return null;
-
-  const farmer = {
-    FarmerID: rows[0].FarmerID,
-    FirstName: rows[0].FirstName,
-    MiddleName: rows[0].MiddleName,
-    LastName: rows[0].LastName,
-    Gender: rows[0].Gender,
-    DateOfBirth: rows[0].DateOfBirth,
-    Barangay: rows[0].Barangay,
-    Municipality: rows[0].Municipality,
-    Province: rows[0].Province,
-    ContactNumber: rows[0].ContactNumber,
-    Email: rows[0].Email,
-    RegistrationDate: rows[0].RegistrationDate,
-    Farms: []
-  };
-
-  for (const row of rows) {
-    if (row.FarmID) {
-      farmer.Farms.push({
-        FarmID: row.FarmID,
-        FarmBarangay: row.FarmBarangay,
-        FarmMunicipality: row.FarmMunicipality,
-        FarmProvince: row.FarmProvince,
-        FarmSize: row.FarmSize
-      });
-    }
-  }
-
-  return farmer;
-}
 
 
 // --------- CHECK FARM EXISTS ---------
 export async function getFarmById(id) {
   const [rows] = await db.query(
     `
-    SELECT FarmID 
+    SELECT FarmID, FarmerID
     FROM tblFarms
     WHERE FarmID = ?
     LIMIT 1

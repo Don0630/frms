@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { Plus, Mars, Venus, Edit, Eye, Users } from "lucide-react";
+import { useState, useEffect } from "react"; 
+import { Plus, Mars, Venus, Edit, Eye, Users, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom"; 
 import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
 import { formatDateNumeric } from "../utils/pageUtility";
 
 import {
- pageButtonPrimary
+  pageButtonPrimary
 } from "../components/common/PageUI";
 
 import useFarmer from "../hooks/useFarmer";
@@ -18,6 +18,7 @@ import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 import AddFarmerModal from "../components/modals/AddFarmerModal";
 import EditFarmerModal from "../components/modals/EditFarmerModal";
+import DeleteFarmerModal from "../components/modals/DeleteFarmerModal";
 
 export default function Farmers() {
   const navigate = useNavigate();
@@ -25,13 +26,11 @@ export default function Farmers() {
   const [filter, setFilter] = useState("All");
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
   // ================= QUERY + MUTATION =================
-  const {
-    farmersQuery,
-    createFarmerMutation,
-    updateFarmerMutation,
-  } = useFarmer();
+  const { farmersQuery, createFarmerMutation, updateFarmerMutation, deleteFarmerMutation } = useFarmer();
+
 
   // ================= DATA =================
   const farmers = farmersQuery.data?.data || [];
@@ -111,7 +110,12 @@ useEffect(() => {
           >
             <Edit className="w-3 h-3" />
           </button>
-
+          <button
+            onClick={() => setDeleteModal(item)}
+            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
           <button
             onClick={() => navigate(`/farmers/${item.FarmerID}`)}
             className="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700"
@@ -185,32 +189,41 @@ useEffect(() => {
 
       {/* MODALS */}
 
-      {addModal && (
-        <AddFarmerModal
-          onClose={() => setAddModal(false)}
-          onSubmit={(data) =>
-            createFarmerMutation.mutateAsync(data).then((res) => {
-              setAddModal(false);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error;})
-          }
-          loading={createFarmerMutation.isPending}
-        />
-      )}
+{addModal && (
+  <AddFarmerModal
+    onClose={() => setAddModal(false)}
+    loading={createFarmerMutation.isPending}
+    onSubmit={(data) =>
+      createFarmerMutation.mutateAsync(data)
+        .then((res) => { setAddModal(false); showSuccessToast(res.message); })
+    }
+  />
+)}
 
-      {editModal && (
-        <EditFarmerModal
-          selectedFarmer={editModal}
-          onClose={() => setEditModal(null)}
-          onSubmit={(data) =>
-            updateFarmerMutation.mutateAsync({ id: editModal.FarmerID, data }).then((res) => {
-              setEditModal(null);
-              showSuccessToast(res.message);
-            }).catch((error) => { throw error; })
-          }
-          loading={updateFarmerMutation.isPending}
-        />
-      )}
+{editModal && (
+  <EditFarmerModal
+    selectedFarmer={editModal}
+    onClose={() => setEditModal(null)}
+    loading={updateFarmerMutation.isPending}
+    onSubmit={(data) =>
+      updateFarmerMutation.mutateAsync({ id: editModal.FarmerID, data })
+        .then((res) => { setEditModal(null); showSuccessToast(res.message); })
+    }
+  />
+)}
+
+{deleteModal && (
+  <DeleteFarmerModal
+    farmer={deleteModal}
+    onClose={() => setDeleteModal(null)}
+    loading={deleteFarmerMutation.isPending}
+    onConfirm={() =>
+      deleteFarmerMutation.mutateAsync(deleteModal.FarmerID)
+        .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
+        .catch(() => {})
+    }
+  />
+)}
 
     </div>
   );

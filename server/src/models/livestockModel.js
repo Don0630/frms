@@ -27,32 +27,6 @@ export async function createLivestock(livestock) {
   };
 }
 
- 
-// --------------- SEARCH LIVESTOCK (GENERAL) ---------------
-export async function getSearchLivestock(search = "") {
-  const searchPattern = `%${search}%`;
-  const [rows] = await db.query(
-    `
-    SELECT 
-      l.LivestockID,
-      l.Type,
-      l.Breed
-    FROM tblLivestock l
-    WHERE (
-      l.Type LIKE ?
-      OR l.Breed LIKE ?
-      OR CONCAT(l.Type, ' - ', l.Breed) LIKE ?
-      OR CONCAT(l.Type, ' ', l.Breed) LIKE ?
-    )
-    ORDER BY l.Type, l.Breed
-    LIMIT 10
-    `,
-    [searchPattern, searchPattern, searchPattern, searchPattern]
-  );
-  return rows || [];
-}
-
-
 // --------- UPDATE LIVESTOCK ---------
 export async function updateLivestock(id, livestock) {
   const {
@@ -87,6 +61,41 @@ export async function updateLivestock(id, livestock) {
     ...livestock
   };
 }
+
+// --------- DELETE LIVESTOCK ---------
+export async function deleteLivestock(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblLivestock WHERE LivestockID = ?`,
+    [id]
+  );
+  return result;
+}
+
+
+// --------------- SEARCH LIVESTOCK (GENERAL) ---------------
+export async function getSearchLivestock(search = "") {
+  const searchPattern = `%${search}%`;
+  const [rows] = await db.query(
+    `
+    SELECT 
+      l.LivestockID,
+      l.Type,
+      l.Breed
+    FROM tblLivestock l
+    WHERE (
+      l.Type LIKE ?
+      OR l.Breed LIKE ?
+      OR CONCAT(l.Type, ' - ', l.Breed) LIKE ?
+      OR CONCAT(l.Type, ' ', l.Breed) LIKE ?
+    )
+    ORDER BY l.Type, l.Breed
+    LIMIT 10
+    `,
+    [searchPattern, searchPattern, searchPattern, searchPattern]
+  );
+  return rows || [];
+}
+
 
 
 // --------- GET LIVESTOCK BY ID ---------

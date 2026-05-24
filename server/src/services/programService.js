@@ -72,6 +72,18 @@ export async function editProgram(id, program) {
 }
 
 
+// --------- REMOVE PROGRAM ---------
+export async function removeProgram(id) {
+  const programId = parseInt(id);
+
+  const existing = await programModel.getProgramById(programId);
+  if (!existing) throwError("Program not found", "NOT_FOUND", 404);
+
+  return await programModel.deleteProgram(programId);
+}
+
+
+
 // Fetch available programs (Active Programs), optional search
 export async function fetchAvailablePrograms(search = "") {
   return await programModel.getAvailablePrograms(search);

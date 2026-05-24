@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { showErrorToast } from "../../utils/toastUtility";
+import React, { useEffect, useState } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -117,9 +116,7 @@ export default function EditProgramModal({
 
        if (status === 400 || status === 409) {
           setError(message);
-        } else {
-          showErrorToast(message);
-        }
+        } 
       }
   };
 

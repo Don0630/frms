@@ -9,6 +9,7 @@ const router = express.Router();
 router.get("/cropsData", authenticateToken, cropController.getAllCrop);
 router.post("/addCrop", authenticateToken, validateCrop.validateAddCrop, cropController.saveCrop);
 router.put("/updateCrop/:id", authenticateToken, validateCrop.validateEditCrop, cropController.updateCrop);
+router.delete("/deleteCrop/:id", authenticateToken, validateCrop.validateDeleteCrop, cropController.deleteCrop);
 router.get("/searchCrop", authenticateToken, cropController.getSearchCrop);
 
 

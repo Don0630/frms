@@ -63,3 +63,23 @@ export function validateEditLivestock(req, res, next) {
     next(err);
   }
 }
+
+
+
+// ---------------------- DELETE LIVESTOCK ----------------------
+export function validateDeleteLivestock(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Livestock ID is required", "MISSING_ID", 400);
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      throwError("Invalid Livestock ID", "INVALID_ID", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}

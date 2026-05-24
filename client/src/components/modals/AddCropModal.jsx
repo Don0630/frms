@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import { useState } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -81,8 +80,6 @@ const handleSubmit = async (e) => {
 
     if (status === 400 || status === 409) {
       setError(message);
-    } else {
-      showErrorToast(message);
     }
   }
 };
@@ -96,7 +93,7 @@ const handleSubmit = async (e) => {
   </p>
 
   {/* ERROR */}
-  <div className="min-h-[24px] mb-2 text-center">
+  <div className="min-h-[12px] mb-2 text-center">
     <p className={`text-red-500 font-medium text-sm transition-opacity duration-200 ${error ? "opacity-100" : "opacity-0"}`}>
       {error || "​"}
     </p>

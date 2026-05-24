@@ -1,8 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { showErrorToast } from "../utils/toastUtility";
 import { fetchAllStaff, addStaff, updateStaff } from "../api/staffApi";
 
-export default function useStaff() { 
+export default function useStaff() {
   const queryClient = useQueryClient();
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["staffs"] });
+  const onError = (err) => showErrorToast(err?.response?.data?.message || "Something went wrong.");
 
   const staffsQuery = useQuery({
     queryKey: ["staffs"],
@@ -12,16 +16,14 @@ export default function useStaff() {
 
   const createStaffMutation = useMutation({
     mutationFn: addStaff,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["staffs"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   const updateStaffMutation = useMutation({
     mutationFn: ({ id, data }) => updateStaff(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["staffs"] });
-    },
+    onSuccess: invalidate,
+    onError,
   });
 
   return {

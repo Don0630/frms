@@ -72,6 +72,16 @@ export async function updateCrop(id, crop) {
 }
 
 
+// --------- DELETE CROP ---------
+export async function deleteCrop(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblCrops WHERE CropID = ?`,
+    [id]
+  );
+  return result;
+}
+
+
 // --------------- SEARCH CROP (GENERAL) ---------------
 export async function getSearchCrop(search = "") {
   const searchPattern = `%${search}%`;
@@ -117,3 +127,4 @@ export async function findDuplicateCrop(CropName, excludeId = null) {
   );
   return rows[0] || null;
 }
+ 
