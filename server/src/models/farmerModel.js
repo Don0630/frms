@@ -390,7 +390,7 @@ export async function findDuplicateEmail(Email, excludeId = null) {
 
 
 // --------- FIND DUPLICATE FARM ---------
-export async function findDuplicateFarm(FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, excludeId = null) {
+export async function findDuplicateFarm(FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, FarmSize, excludeId = null) {
   const [rows] = await db.query(
     `
     SELECT FarmID 
@@ -399,10 +399,11 @@ export async function findDuplicateFarm(FarmerID, FarmBarangay, FarmMunicipality
       AND FarmBarangay = ?
       AND FarmMunicipality = ?
       AND FarmProvince = ?
+      AND FarmSize = ?
       AND (? IS NULL OR FarmID != ?)
     LIMIT 1
     `,
-    [FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, excludeId, excludeId]
+    [FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, FarmSize, excludeId, excludeId]
   );
   return rows[0] || null;
 }

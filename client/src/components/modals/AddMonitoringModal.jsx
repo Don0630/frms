@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef, } from "react";
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import React, { useState, useEffect, useRef, } from "react"; 
 import Modal from "../common/Modal";
 
 import useSearchFarmer from "../../hooks/useSearchFarmer";
@@ -146,8 +145,8 @@ export default function AddMonitoringModal({
       setError("");
 
       const err = validate();
-      if (err) return setError(err);
-      console.log(form);
+      if (err) return setError(err); 
+
       try {
         await onSubmit({
           FarmerID: selectedFarmer.FarmerID,
@@ -161,12 +160,8 @@ export default function AddMonitoringModal({
       } catch (error) {
         const status = error?.response?.status;
         const message = error?.response?.data?.message || error.message;
-
-           if (status === 400 || status === 409) {
-              setError(message);
-            } else {
-              showErrorToast(message);
-            }
+        setError(message);
+          
       }
     };
 

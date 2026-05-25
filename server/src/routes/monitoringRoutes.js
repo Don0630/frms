@@ -9,5 +9,6 @@ const router = express.Router();
 router.get("/monitoringsData", authenticateToken, monitoringController.getAllMonitoring);
 router.post("/addMonitoring", authenticateToken, validateMonitoring.validateAddMonitoring, monitoringController.saveMonitoring);
 router.put("/updateMonitoring/:id", authenticateToken, validateMonitoring.validateEditMonitoring, monitoringController.updateMonitoring);
+router.delete("/deleteMonitoring/:id", authenticateToken, validateMonitoring.validateDeleteMonitoring, monitoringController.deleteMonitoring);
 
 export default router;

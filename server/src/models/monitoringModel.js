@@ -99,6 +99,29 @@ export async function updateMonitoring(id, monitoring) {
 }
 
 
+// --------- DELETE MONITORING ---------
+export async function deleteMonitoring(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblReportsAndMonitoring WHERE ReportID = ?`,
+    [id]
+  );
+  return result;
+}
+
+
+// --------- GET MONITORING BY ID ---------
+export async function getMonitoringById(id) {
+  const [rows] = await db.query(
+    `SELECT LivestockID, 
+            FarmerID 
+    FROM tblReportsAndMonitoring WHERE ReportID = ? LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+
+
 
 // --------- FIND DUPLICATE MONITORING ---------
 export async function findDuplicateMonitoring(FarmerID, ReportDate, excludeId = null) {

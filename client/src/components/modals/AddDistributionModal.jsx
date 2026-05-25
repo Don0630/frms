@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import React, { useState, useEffect, useRef } from "react"; 
 import Modal from "../common/Modal";
 
 import useDebounce from "../../hooks/useDebounce";
@@ -98,12 +97,8 @@ export default function AddDistributionModal({
     } catch (error) {
       const status = error?.response?.status;
       const message = error?.response?.data?.message || error.message;
-
-    if (status === 400 || status === 409) {
         setError(message);
-      } else {
-        showErrorToast(message);
-      }
+ 
     }
   };
 

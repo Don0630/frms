@@ -24,3 +24,14 @@ export async function editMonitoring(id, monitoring) {
   
   return await monitoringModel.updateMonitoring(id, monitoring);
 }
+
+
+// ------------------ REMOVE MONITORING ------------------
+export async function removeMonitoring(id) {
+  const monitoringId = parseInt(id);
+
+  const existing = await monitoringModel.getMonitoringById(monitoringId);
+  if (!existing) throwError("Report not found", "NOT_FOUND", 404);
+
+  return await monitoringModel.deleteMonitoring(monitoringId);
+}

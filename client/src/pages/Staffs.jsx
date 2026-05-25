@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtility";
-import { Plus, Info, Edit, Venus, Mars, Users } from "lucide-react";
+import { Plus, Edit, Venus, Mars, Users, Trash2 } from "lucide-react";
 
 import {
  pageButtonPrimary
@@ -17,17 +17,20 @@ import TablePageSkeleton from "../components/skeletons/TablePageSkeleton";
 
 import AddStaffModal from "../components/modals/AddStaffModal"; 
 import EditStaffModal from "../components/modals/EditStaffModal";
+import DeleteStaffModal from "../components/modals/DeleteStaffModal";
 
 export default function Staff() {
   const [filter, setFilter] = useState("All");
   const [addModal, setAddModal] = useState(false); 
   const [editModal, setEditModal] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(null);
 
     // ================= QUERY + MUTATION =================
   const {
     staffsQuery,
     createStaffMutation,
     updateStaffMutation,
+    deleteStaffMutation,
   } = useStaff();
 
     // ================= DATA =================
@@ -125,6 +128,13 @@ useEffect(() => {
           >
             <Edit className="w-3 h-3" />
           </button>
+          <button
+            onClick={() => setDeleteModal(item)}
+            className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+
         </div>
       ),
     },
@@ -200,9 +210,8 @@ useEffect(() => {
     onClose={() => setAddModal(false)}
     loading={createStaffMutation.isPending}
     onSubmit={(data) =>
-      createStaffMutation.mutate(data, {
-        onSuccess: (res) => { setAddModal(false); showSuccessToast(res.message); }
-      })
+      createStaffMutation.mutateAsync(data)
+        .then((res) => { setAddModal(false); showSuccessToast(res.message); })
     }
   />
 )}
@@ -214,11 +223,24 @@ useEffect(() => {
     onClose={() => setEditModal(null)}
     loading={updateStaffMutation.isPending}
     onSubmit={(data) =>
-      updateStaffMutation.mutate({ id: editModal.StaffID, data }, {
-        onSuccess: (res) => { setEditModal(null); showSuccessToast(res.message); }
-      })
+      updateStaffMutation.mutateAsync({ id: editModal.StaffID, data })
+        .then((res) => { setEditModal(null); showSuccessToast(res.message); })
     }
   />
+)}
+
+
+{deleteModal && (
+  <DeleteStaffModal
+    staff={deleteModal}
+    onClose={() => setDeleteModal(null)}
+    loading={deleteStaffMutation.isPending}
+    onConfirm={() =>
+      deleteStaffMutation.mutateAsync(deleteModal.StaffID)
+        .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
+        .catch(() => {})
+    }
+  /> 
 )}
 
     </div>

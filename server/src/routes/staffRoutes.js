@@ -11,5 +11,6 @@ router.get("/staffsData", authenticateToken, staffController.getAllStaff);
 router.post("/addStaff", authenticateToken, validateStaff.validateAddStaff, staffController.createStaff);
 router.put("/updateStaff/:id", authenticateToken, validateStaff.validateEditStaff, staffController.updateStaff);
 router.get("/availableStaff", authenticateToken, staffController.getAvailableStaff);
+router.delete("/deleteStaff/:id", authenticateToken, validateStaff.validateDeleteStaff, staffController.deleteStaff);
 
 export default router;

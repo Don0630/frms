@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import { useState, useEffect } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -106,12 +105,7 @@ export default function EditStaffModal({ selectedStaff, onClose, onSubmit, loadi
     } catch (error) {
       const status = error?.response?.status;
       const message = error?.response?.data?.message || error.message;
-
-       if (status === 400 || status === 409) {
-           setError(message);
-         } else {
-           showErrorToast(message);
-         }
+      setError(message);
     }
   };
 

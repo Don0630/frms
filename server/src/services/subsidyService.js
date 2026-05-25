@@ -115,6 +115,24 @@ export async function editSubsidy(id, subsidy) {
   return await subsidyModel.updateSubsidy(subsidyId, subsidy);
 }
 
+// ------------------ REMOVE SUBSIDY ------------------
+export async function removeSubsidy(id) {
+  const subsidyId = parseInt(id);
+
+  const existing = await subsidyModel.getSubsidyById(subsidyId);
+  if (!existing) throwError("Subsidy not found", "NOT_FOUND", 404);
+
+  if (existing.DistributedCount > 0) {
+    throwError(
+      "Cannot delete a subsidy that has already been partially or fully distributed.",
+      "INVALID_OPERATION",
+      400
+    );
+  }
+
+  return await subsidyModel.deleteSubsidy(subsidyId);
+}
+
 
 // ------------------ FETCH AVAILABLE FARMERS ------------------
 export async function fetchAvailableFarmer(distributionID, search = "") {

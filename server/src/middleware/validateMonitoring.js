@@ -59,3 +59,22 @@ export function validateEditMonitoring(req, res, next) {
     next(err);
   }
 }
+
+
+// ---------------------- DELETE MONITORING ----------------------
+export function validateDeleteMonitoring(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Report ID is required", "MISSING_ID", 400);
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      throwError("Invalid Report ID", "INVALID_ID", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}

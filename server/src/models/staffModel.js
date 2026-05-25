@@ -119,6 +119,26 @@ export async function updateStaff(id, staff) {
 }
 
 
+// --------- DELETE STAFF ---------
+export async function deleteStaff(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblAgriculturalStaff WHERE StaffID = ?`,
+    [id]
+  );
+  return result;
+}
+
+
+// --------- GET STAFF BY ID ---------
+export async function getStaffById(id) {
+  const [rows] = await db.query(
+    `SELECT StaffID FROM tblAgriculturalStaff WHERE StaffID = ? LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
+}
+
+
 // --------------- SEARCH AVAILABLE STAFF (NOT YET USERS) ---------------
 export async function getAvailableStaff(search = "") {
   const searchPattern = `%${search}%`;

@@ -10,7 +10,14 @@ export function useDistribution(subsidyId) {
   const queryClient = useQueryClient();
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["subsidy", subsidyId] });
-  const onError = (err) => showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  const onError = (err) => {
+    const status = err?.response?.status;
+    if (status === 400 || status === 409) return;
+    showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  };
+  const onDeleteError = (err) => {
+    showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  };
 
   // ================= CREATE DISTRIBUTION =================
   const createDistributionMutation = useMutation({
@@ -30,7 +37,7 @@ export function useDistribution(subsidyId) {
   const deleteDistributionMutation = useMutation({
     mutationFn: deleteDistribution,
     onSuccess: invalidate,
-    onError,
+    onError: onDeleteError,
   });
 
   return {

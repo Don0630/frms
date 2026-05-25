@@ -51,6 +51,26 @@ export function validateEditSubsidy(req, res, next) {
   }
 }
 
+
+// ---------------------- DELETE SUBSIDY ----------------------
+export function validateDeleteSubsidy(req, res, next) {
+  try {
+    if (!req.params.id) {
+      throwError("Subsidy ID is required", "MISSING_ID", 400);
+    }
+
+    const id = parseInt(req.params.id);
+    if (isNaN(id) || id <= 0) {
+      throwError("Invalid Subsidy ID", "INVALID_ID", 400);
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+
 // ---------------------- ADD DISTRIBUTION ----------------------
 export function validateAddDistribution(req, res, next) {
   try {

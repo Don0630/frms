@@ -48,3 +48,14 @@ export async function fetchAvailableStaff(search = "") {
   const staff = await staffModel.getAvailableStaff(search);
   return staff;
 }
+
+
+// --------- REMOVE STAFF ---------
+export async function removeStaff(id) {
+  const staffId = parseInt(id);
+
+  const existing = await staffModel.getStaffById(staffId);
+  if (!existing) throwError("Staff not found", "NOT_FOUND", 404);
+
+  return await staffModel.deleteStaff(staffId);
+}

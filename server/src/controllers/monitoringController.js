@@ -44,3 +44,15 @@ export async function updateMonitoring(req, res, next) {
     return next(err);
   }
 }
+
+
+// ------------- DELETE MONITORING -------------
+export async function deleteMonitoring(req, res, next) {
+  try {
+    await monitoringService.removeMonitoring(req.params.id);
+    return successResponse(res, "Report deleted successfully", null, 200);
+  } catch (err) {
+    console.error("Error deleting Monitoring:", err);
+    return next(err);
+  }
+}

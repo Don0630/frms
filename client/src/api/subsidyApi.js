@@ -17,10 +17,18 @@ export async function updateSubsidy(subsidy) {
   return api.put(`/subsidy/updateSubsidy/${subsidy.DistributionID}`, subsidy);
 }
 
+// ------------ DELETE SUBSIDY ------------
+export async function deleteSubsidy(id) {
+  return api.delete(`/subsidy/deleteSubsidy/${id}`);
+}
+
+
 // ------------ FETCH SUBSIDY DETAILS ------------
 export async function fetchSubsidyDetails(id) {
   return api.get(`/subsidy/subsidyDetails/${id}`);
 }
+
+
 
 // ------------ ADD DISTRIBUTION ------------
 export async function addDistribution(distribution) {

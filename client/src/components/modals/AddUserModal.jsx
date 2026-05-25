@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"; 
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import React, { useState, useEffect, useRef } from "react";  
 import { useAvailableStaff } from "../../hooks/useAvailableStaff";
 import useDebounce from "../../hooks/useDebounce";
 
@@ -123,12 +122,7 @@ const handleSubmit = async (e) => {
   } catch (error) {
     const status = error?.response?.status;
     const message = error?.response?.data?.message || error.message;
-
-     if (status === 400 || status === 409) {
-             setError(message);
-           } else {
-             showErrorToast(message);
-           }
+    setError(message);  
   }
 };
 

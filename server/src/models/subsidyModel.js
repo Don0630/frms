@@ -122,7 +122,16 @@ export async function updateSubsidy(id, subsidy) {
   };
 }
 
- 
+// --------- DELETE SUBSIDY ---------
+export async function deleteSubsidy(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblSubsidyDistribution WHERE DistributionID = ?`,
+    [id]
+  );
+  return result;
+}
+
+
 // --------------- SEARCH AVAILABLE FARMERS (NOT YET IN DISTRIBUTION) ---------------
 export async function getAvailableFarmer(distributionID, search = "") {
   const searchPattern = `%${search}%`;

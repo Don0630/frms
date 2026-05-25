@@ -140,7 +140,7 @@ useEffect(() => {
       key: "actions",
       label: "",
       render: (f) => (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-1">
           {!f.IsDistributed ? (
             <>
              <button
@@ -358,7 +358,7 @@ useEffect(() => {
     }
   />
 )}
-
+ 
 {/* ADD MODAL */}
 {addModal && (
   <AddDistributionModal
@@ -367,9 +367,8 @@ useEffect(() => {
     remainingAmount={subsidy.UnassignedAmount}
     onClose={() => setAddModal(false)}
     onSubmit={(form) =>
-      createDistributionMutation.mutate({ DistributionID: id, ...form }, {
-        onSuccess: (res) => { setAddModal(false); showSuccessToast(res.message); }
-      })
+      createDistributionMutation.mutateAsync({ DistributionID: id, ...form })
+        .then((res) => { setAddModal(false); showSuccessToast(res.message); })
     }
   />
 )}
@@ -382,11 +381,11 @@ useEffect(() => {
     onClose={() => { setActionModal(null); setActionType(null); }}
     loading={updateDistributionMutation.isPending}
     onConfirm={() =>
-      updateDistributionMutation.mutate({
+      updateDistributionMutation.mutateAsync({
         id: actionModal.DistributionDetailsID,
         data: { IsDistributed: actionType === "distribute" ? 1 : 0 },
-      }, {
-        onSuccess: () => {
+      })
+        .then(() => {
           setActionModal(null);
           setActionType(null);
           showSuccessToast(
@@ -394,8 +393,8 @@ useEffect(() => {
               ? "Subsidy distributed successfully!"
               : "Distribution cancelled successfully!"
           );
-        }
-      })
+        })
+        .catch(() => {})
     }
   />
 )}
@@ -407,9 +406,9 @@ useEffect(() => {
     loading={deleteDistributionMutation.isPending}
     onClose={() => setDeleteModal(null)}
     onConfirm={() =>
-      deleteDistributionMutation.mutate(deleteModal.DistributionDetailsID, {
-        onSuccess: (res) => { setDeleteModal(null); showSuccessToast(res.message); }
-      })
+      deleteDistributionMutation.mutateAsync(deleteModal.DistributionDetailsID)
+        .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
+        .catch(() => {})
     }
   />
 )}

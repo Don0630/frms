@@ -1,12 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { showErrorToast } from "../utils/toastUtility";
-import { fetchAllMonitoring, addMonitoring, updateMonitoring } from "../api/monitoringApi";
+import { fetchAllMonitoring, addMonitoring, updateMonitoring, deleteMonitoring } from "../api/monitoringApi";
 
 export default function useMonitoring() {
   const queryClient = useQueryClient();
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["monitoring"] });
-  const onError = (err) => showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  const onError = (err) => {
+    const status = err?.response?.status;
+    if (status === 400 || status === 409) return;
+    showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  };
+  const onDeleteError = (err) => {
+    showErrorToast(err?.response?.data?.message || "Something went wrong.");
+  };
 
   // ================= FETCH ALL MONITORING =================
   const monitoringQuery = useQuery({
@@ -29,9 +36,17 @@ export default function useMonitoring() {
     onError,
   });
 
+  // ================= DELETE MONITORING =================
+  const deleteMonitoringMutation = useMutation({
+    mutationFn: deleteMonitoring,
+    onSuccess: invalidate,
+    onError: onDeleteError,
+  });
+
   return {
     monitoringQuery,
     createMonitoringMutation,
     updateMonitoringMutation,
+    deleteMonitoringMutation,
   };
 }

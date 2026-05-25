@@ -21,6 +21,18 @@ export async function getAllSubsidy(req, res, next) {
 }
 
 
+// ------------- DELETE SUBSIDY -------------
+export async function deleteSubsidy(req, res, next) {
+  try {
+    await subsidyService.removeSubsidy(req.params.id);
+    return successResponse(res, "Subsidy deleted successfully", null, 200);
+  } catch (err) {
+    console.error("Error deleting Subsidy:", err);
+    return next(err);
+  }
+}
+
+
 // ------------- ADD SUBSIDY -------------
 export async function saveSubsidy(req, res, next) {
   try {
@@ -104,7 +116,7 @@ export async function updateDistribution(req, res, next) {
 
 
 // ------------- DELETE DISTRIBUTION -------------
-export async function deleteDistribution(req, res) {
+export async function deleteDistribution(req, res, next) {
   try {
     const deleted = await subsidyService.removeDistribution(req.params.id);
 

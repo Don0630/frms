@@ -15,3 +15,8 @@ export async function updateMonitoring(monitoring) {
   const { ReportID, ...data } = monitoring;
   return api.put(`/monitoring/updateMonitoring/${ReportID}`, data);
 }
+
+// ------------ DELETE MONITORING ------------
+export async function deleteMonitoring(id) {
+  return api.delete(`/monitoring/deleteMonitoring/${id}`);
+}

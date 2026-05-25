@@ -10,6 +10,7 @@ const router = express.Router();
 router.get("/subsidiesData", authenticateToken, subsidyController.getAllSubsidy); 
 router.post("/addSubsidy", authenticateToken, validateSubsidy.validateAddSubsidy, subsidyController.saveSubsidy); 
 router.put("/updateSubsidy/:id", authenticateToken, validateSubsidy.validateEditSubsidy, subsidyController.updateSubsidy);
+router.delete("/deleteSubsidy/:id", authenticateToken, validateSubsidy.validateDeleteSubsidy, subsidyController.deleteSubsidy);
 
 router.get("/availableFarmer", authenticateToken, subsidyController.getAvailableFarmer);
 router.post("/addDistribution", authenticateToken, subsidyController.saveDistribution);

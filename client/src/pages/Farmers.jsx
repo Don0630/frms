@@ -222,7 +222,7 @@ useEffect(() => {
         .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
         .catch(() => {})
     }
-  />
+  /> 
 )}
 
     </div>

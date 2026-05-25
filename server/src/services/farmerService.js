@@ -88,9 +88,7 @@ export async function editFarm(id, farm) {
   if (!existing) throwError("Farm not found", "NOT_FOUND", 404);
   const farmerId = parseInt(existing.FarmerID);
   
-console.log(existing.FarmerID, farm.FarmBarangay, farm.FarmMunicipality, farm.FarmProvince, farmId);
-
-  const duplicate = await farmerModel.findDuplicateFarm(farmerId, farm.FarmBarangay, farm.FarmMunicipality, farm.FarmProvince, 0);
+  const duplicate = await farmerModel.findDuplicateFarm(farmerId, farm.FarmBarangay, farm.FarmMunicipality, farm.FarmProvince, farm.farmSize, 0);
   if (duplicate) throwError("Farm already exists!", "DUPLICATE_FARM", 409);
 
   return await farmerModel.updateFarm(farmId, farm);

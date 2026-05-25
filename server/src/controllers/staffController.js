@@ -61,6 +61,17 @@ export async function updateStaff(req, res, next) {
 }
 
 
+// ------------- DELETE STAFF -------------
+export async function deleteStaff(req, res, next) {
+  try {
+    await staffService.removeStaff(req.params.id);
+    return successResponse(res, "Staff deleted successfully", null, 200);
+  } catch (err) { 
+    return next(err);
+  }
+}
+
+
 // ------------- GET AVAILABLE STAFF (not yet users) -------------
 export async function getAvailableStaff(req, res, next) {
   try {

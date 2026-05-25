@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { showErrorToast, showSuccessToast } from "../../utils/toastUtility";
+import React, { useState, useEffect } from "react"; 
 import Modal from "../common/Modal";
 import {
   modalInput,
@@ -83,12 +82,7 @@ export default function EditUserModal({ selectedUser, onClose, onSubmit, loading
       } catch (error) {
         const status = error?.response?.status;
         const message = error?.response?.data?.message || "Network error. Please check your connection.";
-    
-        if (status === 400 || status === 409) {
-          setError(message);
-        } else {
-          showErrorToast(message);
-        }
+        setError(message);
       }
   };
  
