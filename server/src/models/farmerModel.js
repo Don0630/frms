@@ -142,7 +142,7 @@ export async function deleteFarmer(id) {
 }
 
 
-// -------------------------------------------------- FARM --------------------------------------------------
+// -------------------------------------------------- FARMER DETAILS --------------------------------------------------
 
 // --------- GET FARMER BY ID ---------
 export async function getFarmerById(id) {
@@ -319,8 +319,6 @@ export async function getSearchFarmer(search = "") {
 }
 
 
-
-
 // --------- CHECK FARM EXISTS ---------
 export async function getFarmById(id) {
   const [rows] = await db.query(
@@ -334,77 +332,4 @@ export async function getFarmById(id) {
   );
   return rows[0] || null;
 }
-
-
-// ----------------------------------------- VALIDATIONS -----------------------------------------
-
-
-// --------- FIND DUPLICATE FARMER ---------
-export async function findDuplicateFarmer(FirstName, MiddleName, LastName, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT FarmerID 
-    FROM tblFarmers
-    WHERE FirstName = ?
-      AND MiddleName = ?
-      AND LastName = ?
-      AND (? IS NULL OR FarmerID != ?)
-    LIMIT 1
-    `,
-    [FirstName, MiddleName, LastName, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
-
-
-// --------- FIND DUPLICATE CONTACT ---------
-export async function findDuplicateContact(ContactNumber, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT FarmerID 
-    FROM tblFarmers
-    WHERE ContactNumber = ?
-      AND (? IS NULL OR FarmerID != ?)
-    LIMIT 1
-    `,
-    [ContactNumber, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
-
-
-// --------- FIND DUPLICATE EMAIL ---------
-export async function findDuplicateEmail(Email, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT FarmerID 
-    FROM tblFarmers
-    WHERE Email = ?
-      AND (? IS NULL OR FarmerID != ?)
-    LIMIT 1
-    `,
-    [Email, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
-
-
-// --------- FIND DUPLICATE FARM ---------
-export async function findDuplicateFarm(FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, FarmSize, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT FarmID 
-    FROM tblFarms
-    WHERE FarmerID = ?
-      AND FarmBarangay = ?
-      AND FarmMunicipality = ?
-      AND FarmProvince = ?
-      AND FarmSize = ?
-      AND (? IS NULL OR FarmID != ?)
-    LIMIT 1
-    `,
-    [FarmerID, FarmBarangay, FarmMunicipality, FarmProvince, FarmSize, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
-
+ 

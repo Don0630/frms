@@ -189,7 +189,6 @@ AND (
 }
 
 
-
 // --------- GET SUBSIDY DETAILS ---------
 export async function getSubsidyDetails(id) {
   const [rows] = await db.query(
@@ -288,7 +287,6 @@ export async function getSubsidyDetails(id) {
 }
 
 
-
 // --------- CREATE FARMER DISTRIBUTION ---------
 export async function createDistribution(distribution) {
   const {
@@ -335,8 +333,6 @@ export async function updateDistribution(id, distribution) {
 }
 
 
-
-
 // --------- DELETE DISTRIBUTION ---------
 export async function deleteDistribution(id) {
   const query = `
@@ -351,8 +347,6 @@ export async function deleteDistribution(id) {
     deleted: result.affectedRows > 0
   };
 }
-
-
 
 
 
@@ -418,18 +412,6 @@ export async function getTotalAssignedAmount(distributionID) {
   );
   return rows[0].TotalAssigned;
 }
-
-// --------- GET FARMER IN DISTRIBUTION ---------
-export async function getFarmerInDistribution(distributionID, farmerID) {
-  const [rows] = await db.query(
-    `SELECT DistributionDetailsID 
-     FROM tblSubsidyDistributionDetails 
-     WHERE DistributionID = ? AND FarmerID = ?`,
-    [distributionID, farmerID]
-  );
-  return rows[0] ?? null;
-}
-
 
 
 export async function getDistributionDetailById(id) {

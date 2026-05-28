@@ -4,34 +4,38 @@ import bcrypt from "bcrypt";
 import { throwError } from "../utils/throwError.js";
 
 
+// --------- GET ALL USER USER ---------
 export async function fetchUsers() {
   return await userModel.getAllUsers();
 }
 
+// --------- ADD USER ---------
+export async function addUser({ id, username, password, role }) {
 
-export async function addUser({ staffId, username, password, role }) {
   // check if staff exists and is not already a user
-  const existingUser = await userModel.findUserByStaffId(staffId);
+  const existingUser = await userModel.findUserByid(id);
   if (existingUser) throwError("This staff is already a user.", "DUPLICATE", 409);
-
-  // check duplicate username
-  const dupUsername = await userModel.findDuplicateUsername(username);
-  if (dupUsername) throwError("Username is already taken.", "DUPLICATE", 409);
 
   const hashedPassword = await bcrypt.hash(password, 10);
   return await userModel.insertUser({ staffId, username, hashedPassword, role });
 }
 
+// --------- EDIT USER ---------
+export async function editUser(id, { username, role }) {
+    const userId = parseInt(id);
+  
+    const existing = await userModel.getUserById(userId);
+    if (!existing) throwError("User not found", "NOT_FOUND", 404);
 
-export async function editUser(userId, { username, role }) {
-  // check duplicate username excluding current user
-  const dupUsername = await userModel.findDuplicateUsername(username, userId);
-  if (dupUsername) throwError("Username is already taken.", "DUPLICATE", 409);
-
-  return await userModel.updateUser({ userId, username, role });
+  return await userModel.updateUser({ id, username, role });
 }
 
-
-export async function removeUser(userId) {
-  return await userModel.deleteUser(userId);
+// --------- DELETE USER ---------
+export async function removeUser(id) {
+    const userId = parseInt(id);
+  
+    const existing = await userModel.getUserById(userId);
+    if (!existing) throwError("User not found", "NOT_FOUND", 404);
+    
+  return await userModel.deleteUser(id);
 }

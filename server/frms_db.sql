@@ -13,7 +13,10 @@ CREATE TABLE tblFarmers (
   Province VARCHAR(100),
   ContactNumber VARCHAR(20),
   Email VARCHAR(100),
-  RegistrationDate DATE DEFAULT (CURRENT_DATE)
+  RegistrationDate DATE DEFAULT (CURRENT_DATE),
+  UNIQUE KEY unique_farmer (FirstName, MiddleName, LastName),
+  UNIQUE KEY unique_contact (ContactNumber),
+  UNIQUE KEY unique_email (Email)
 );
 
 -- =========================
@@ -26,7 +29,8 @@ CREATE TABLE tblFarms (
   FarmMunicipality VARCHAR(100),
   FarmProvince VARCHAR(100),
   FarmSize DECIMAL(10,2),
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT,
+  UNIQUE KEY unique_farm (FarmerID, FarmBarangay, FarmMunicipality, FarmProvince)
 );
 
 -- =========================
@@ -38,7 +42,8 @@ CREATE TABLE tblCrops (
   Category VARCHAR(50),
   Season VARCHAR(50),
   AverageYieldPerHectare DECIMAL(10,2),
-  MarketPrice DECIMAL(10,2)
+  MarketPrice DECIMAL(10,2),
+  UNIQUE KEY unique_crop (CropName)
 );
 
 -- =========================
@@ -49,7 +54,8 @@ CREATE TABLE tblLivestock (
   Type VARCHAR(50),
   Breed VARCHAR(50),
   AverageProduction VARCHAR(50),
-  MarketPrice DECIMAL(10,2)
+  MarketPrice DECIMAL(10,2),
+  UNIQUE KEY unique_livestock (Type, Breed)
 );
 
 -- =========================
@@ -63,7 +69,8 @@ CREATE TABLE tblPrograms (
   EndDate DATE,
   Budget DECIMAL(12,2),
   TargetBeneficiaries INT,
-  Status ENUM('Active', 'Completed', 'Dropped') DEFAULT 'Active'
+  Status ENUM('Active', 'Completed', 'Dropped') DEFAULT 'Active',
+  UNIQUE KEY unique_program (ProgramName)
 );
 
 -- =========================
@@ -76,7 +83,8 @@ CREATE TABLE tblFarmerProgramParticipation (
   DateJoined DATE,
   Status ENUM('Active', 'Completed', 'Dropped'),
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT,
-  FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE RESTRICT
+  FOREIGN KEY (ProgramID) REFERENCES tblPrograms(ProgramID) ON DELETE RESTRICT,
+  UNIQUE KEY unique_participation (FarmerID, ProgramID)
 );
 
 -- =========================
@@ -101,7 +109,8 @@ CREATE TABLE tblSubsidyDistributionDetails (
   Amount DECIMAL(10,2),
   IsDistributed TINYINT(1) NOT NULL DEFAULT 0,
   FOREIGN KEY (DistributionID) REFERENCES tblSubsidyDistribution(DistributionID) ON DELETE RESTRICT,
-  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT
+  FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT,
+  UNIQUE KEY unique_distribution_farmer (DistributionID, FarmerID)
 );
 
 -- =========================
@@ -117,7 +126,10 @@ CREATE TABLE tblAgriculturalStaff (
   Position VARCHAR(50),
   Department VARCHAR(50),
   ContactNumber VARCHAR(20),
-  Email VARCHAR(100)
+  Email VARCHAR(100),
+  UNIQUE KEY unique_staff (FirstName, MiddleName, LastName),
+  UNIQUE KEY unique_staff_contact (ContactNumber),
+  UNIQUE KEY unique_staff_email (Email)
 );
 
 -- =========================
@@ -125,15 +137,17 @@ CREATE TABLE tblAgriculturalStaff (
 -- =========================
 CREATE TABLE tblUsers (
   UserID INT AUTO_INCREMENT PRIMARY KEY,
-  Username VARCHAR(50) NOT NULL UNIQUE,
+  Username VARCHAR(50) NOT NULL,
   PasswordHash VARCHAR(255) NOT NULL,
-  Email VARCHAR(100) UNIQUE,
+  Email VARCHAR(100),
   Role ENUM('Admin', 'Staff') DEFAULT 'Staff',
   StaffID INT NULL,
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
   Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
-  FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE RESTRICT
+  FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE RESTRICT,
+  UNIQUE KEY unique_username (Username),
+  UNIQUE KEY unique_user_email (Email)
 );
 
 -- =========================
@@ -150,5 +164,6 @@ CREATE TABLE tblReportsAndMonitoring (
   Remarks TEXT,
   FOREIGN KEY (FarmerID) REFERENCES tblFarmers(FarmerID) ON DELETE RESTRICT,
   FOREIGN KEY (CropID) REFERENCES tblCrops(CropID) ON DELETE RESTRICT,
-  FOREIGN KEY (LivestockID) REFERENCES tblLivestock(LivestockID) ON DELETE RESTRICT
+  FOREIGN KEY (LivestockID) REFERENCES tblLivestock(LivestockID) ON DELETE RESTRICT,
+  UNIQUE KEY unique_report (FarmerID, ReportDate)
 );

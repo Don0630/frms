@@ -35,7 +35,6 @@ export async function getAllStaff() {
   return rows || [];
 }
 
-
  // --------- CREATE STAFF ---------
 export async function insertStaff(staff) {
   const {
@@ -75,7 +74,6 @@ export async function insertStaff(staff) {
     ...staff,
   };
 }
-
 
 // --------- UPDATE STAFF ---------
 export async function updateStaff(id, staff) {
@@ -118,7 +116,6 @@ export async function updateStaff(id, staff) {
   };
 }
 
-
 // --------- DELETE STAFF ---------
 export async function deleteStaff(id) {
   const [result] = await db.query(
@@ -128,7 +125,6 @@ export async function deleteStaff(id) {
   return result;
 }
 
-
 // --------- GET STAFF BY ID ---------
 export async function getStaffById(id) {
   const [rows] = await db.query(
@@ -137,7 +133,6 @@ export async function getStaffById(id) {
   );
   return rows[0] || null;
 }
-
 
 // --------------- SEARCH AVAILABLE STAFF (NOT YET USERS) ---------------
 export async function getAvailableStaff(search = "") {
@@ -165,53 +160,4 @@ export async function getAvailableStaff(search = "") {
     [searchPattern, searchPattern, searchPattern]
   );
   return rows || [];
-}
-
-// --------- FIND DUPLICATE STAFF NAME ---------
-export async function findDuplicateStaff(FirstName, MiddleName, LastName, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT StaffID 
-    FROM tblAgriculturalStaff
-    WHERE FirstName = ?
-      AND MiddleName = ?
-      AND LastName = ?
-      AND (? IS NULL OR StaffID != ?)
-    LIMIT 1
-    `,
-    [FirstName, MiddleName, LastName, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
-
-
-// --------- FIND DUPLICATE STAFF CONTACT ---------
-export async function findDuplicateStaffContact(ContactNumber, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT StaffID 
-    FROM tblAgriculturalStaff
-    WHERE ContactNumber = ?
-      AND (? IS NULL OR StaffID != ?)
-    LIMIT 1
-    `,
-    [ContactNumber, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
-
-
-// --------- FIND DUPLICATE STAFF EMAIL ---------
-export async function findDuplicateStaffEmail(Email, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT StaffID 
-    FROM tblAgriculturalStaff
-    WHERE Email = ?
-      AND (? IS NULL OR StaffID != ?)
-    LIMIT 1
-    `,
-    [Email, excludeId, excludeId]
-  );
-  return rows[0] || null;
 }

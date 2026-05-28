@@ -125,7 +125,7 @@ export async function deleteProgram(id) {
 }
 
 
-
+// --------- SEARH - GET AVAILABLE PROGRAM ---------
 export async function getAvailablePrograms(search = "") {
   const searchPattern = `%${search}%`;
 
@@ -178,22 +178,6 @@ export async function getProgramById(id) {
     LIMIT 1
     `,
     [id]
-  );
-  return rows[0] || null;
-}
-
-
-// --------- FIND DUPLICATE PROGRAM ---------
-export async function findDuplicateProgram(ProgramName, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT ProgramID
-    FROM tblPrograms
-    WHERE ProgramName = ?
-      AND (? IS NULL OR ProgramID != ?)
-    LIMIT 1
-    `,
-    [ProgramName, excludeId, excludeId]
   );
   return rows[0] || null;
 }

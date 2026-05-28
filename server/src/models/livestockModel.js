@@ -107,20 +107,4 @@ export async function getLivestockById(id) {
   return rows[0] || null;
 }
 
-
-
-// --------- FIND DUPLICATE LIVESTOCK ---------
-export async function findDuplicateLivestock(Type, Breed, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT LivestockID
-    FROM tblLivestock
-    WHERE Type = ?
-      AND Breed = ?
-      AND (? IS NULL OR LivestockID != ?)
-    LIMIT 1
-    `,
-    [Type, Breed, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
+ 

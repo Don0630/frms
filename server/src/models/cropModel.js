@@ -111,20 +111,3 @@ export async function getCropById(id) {
   );
   return rows[0] || null;
 }
-
-
-// --------- FIND DUPLICATE CROP NAME ---------
-export async function findDuplicateCrop(CropName, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT CropID
-    FROM tblCrops
-    WHERE CropName = ?
-      AND (? IS NULL OR CropID != ?)
-    LIMIT 1
-    `,
-    [CropName, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
- 

@@ -2,7 +2,7 @@
 import { db } from "../config/db.js";
 
 
-// FETCH ALL USER
+// --------- GET ALL USER ---------
 export async function getAllUsers() {
   const [rows] = await db.query(`
     SELECT 
@@ -25,8 +25,7 @@ export async function getAllUsers() {
 }
 
 
-
-// INSERT USER
+// --------- ADD USER ---------
 export async function insertUser({ staffId, username, hashedPassword, role }) { 
     const query = `
     INSERT INTO tblUsers (StaffID, Username, PasswordHash, Role)
@@ -38,8 +37,7 @@ export async function insertUser({ staffId, username, hashedPassword, role }) {
 }
 
 
-
-// UPDATE USER
+// --------- UPDATE USER ---------
 export async function updateUser({ userId, username, role }) {
   const query = `
     UPDATE tblUsers
@@ -52,7 +50,7 @@ export async function updateUser({ userId, username, role }) {
   return { affectedRows: result.affectedRows, userId, };
 }
 
-
+// --------- DELETE USER ---------
 export async function deleteUser(userId) {
   const query = `
     DELETE FROM tblUsers
@@ -61,6 +59,15 @@ export async function deleteUser(userId) {
 
   const [result] = await db.query(query, [userId]);
   return result;
+}
+
+// --------- GET USER BY ID ---------
+export async function getUserById(id) {
+  const [rows] = await db.query(
+    `SELECT UserID FROM tblUSers WHERE UserID = ? LIMIT 1`,
+    [id]
+  );
+  return rows[0] || null;
 }
 
 
@@ -72,18 +79,4 @@ export async function findUserByStaffId(staffId) {
   );
   return rows[0] || null;
 }
-
-// check duplicate username
-export async function findDuplicateUsername(username, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT UserID
-    FROM tblUsers
-    WHERE Username = ?
-      AND (? IS NULL OR UserID != ?)
-    LIMIT 1
-    `,
-    [username, excludeId, excludeId]
-  );
-  return rows[0] || null;
-}
+ 

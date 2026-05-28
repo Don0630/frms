@@ -52,8 +52,6 @@ export async function createMonitoring(monitoring) {
 }
 
 
-
-
 // --------- UPDATE MONITORING ---------
 export async function updateMonitoring(id, monitoring) {
   const {
@@ -116,25 +114,6 @@ export async function getMonitoringById(id) {
             FarmerID 
     FROM tblReportsAndMonitoring WHERE ReportID = ? LIMIT 1`,
     [id]
-  );
-  return rows[0] || null;
-}
-
-
-
-
-// --------- FIND DUPLICATE MONITORING ---------
-export async function findDuplicateMonitoring(FarmerID, ReportDate, excludeId = null) {
-  const [rows] = await db.query(
-    `
-    SELECT ReportID
-    FROM tblReportsAndMonitoring
-    WHERE FarmerID = ?
-      AND ReportDate = ?
-      AND (? IS NULL OR ReportID != ?)
-    LIMIT 1
-    `,
-    [FarmerID, ReportDate, excludeId, excludeId]
   );
   return rows[0] || null;
 }

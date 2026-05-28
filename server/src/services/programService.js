@@ -9,9 +9,6 @@ export async function fetchPrograms() {
 
 // --------- ADD PROGRAM ---------
 export async function addProgram(program) {
-  const duplicate = await programModel.findDuplicateProgram(program.ProgramName);
-  if (duplicate) throwError("Program already exists!", "DUPLICATE_PROGRAM", 409);
-
   return await programModel.createProgram({...program, Status: "Active"});
 }
 
@@ -20,20 +17,16 @@ export async function addProgram(program) {
 export async function editProgram(id, program) {
   const programId = parseInt(id);
 
-  // 1. Exists check
+  // Exists check
   const existing = await programModel.getProgramById(programId);
   if (!existing) throwError("Program not found", "NOT_FOUND", 404);
 
-  // 2. Duplicate check
-  const duplicate = await programModel.findDuplicateProgram(program.ProgramName, programId);
-  if (duplicate) throwError("Program already exists!", "DUPLICATE_PROGRAM", 409);
-
-  // 3. Fetch once — reuse below
+  // Fetch once — reuse below
   const totalDistributed = await programModel.getTotalDistributed(programId);
   const pendingCount = await programModel.getActiveDistributions(programId);
   const currentStatus = existing.Status;
 
-  // 4. Budget validation
+  // Budget validation
   if (parseFloat(program.Budget) < totalDistributed) {
     throwError(
       `Budget cannot be less than the total already distributed (₱${totalDistributed.toLocaleString()})`,
@@ -41,7 +34,7 @@ export async function editProgram(id, program) {
     );
   }
 
-  // 5. Status transition rules
+  // Status transition rules
   if (currentStatus === "Dropped" && program.Status === "Completed") {
     throwError(`Cannot set to "Completed" — program was dropped`, "INVALID_STATUS_CHANGE", 400);
   }
@@ -81,7 +74,6 @@ export async function removeProgram(id) {
 
   return await programModel.deleteProgram(programId);
 }
-
 
 
 // Fetch available programs (Active Programs), optional search

@@ -10,17 +10,17 @@ export async function fetchSubsidies() {
 
 // ------------------ ADD SUBSIDY ------------------ 
 export async function addSubsidy(subsidy) {
-  // 1. Check program exists
+  // Check program exists
   const program = await programModel.getProgramById(subsidy.ProgramID);
   if (!program) throwError("Program not found", "NOT_FOUND", 404);
 
-  // 2. Check program is active
+  // Check program is active
   if (program.Status !== "Active") {
     throwError("Cannot add subsidy to a non-active program", "INVALID_PROGRAM", 400);
   }
 
 
-  // 3. Check available budget
+  // Check available budget
   const totalExisting = await subsidyModel.getTotalSubsidyByProgram(subsidy.ProgramID);
   const remaining = parseFloat(program.Budget) - parseFloat(totalExisting);
 
@@ -57,11 +57,11 @@ export async function addSubsidy(subsidy) {
 export async function editSubsidy(id, subsidy) {
   const subsidyId = parseInt(id);
 
-  // 1. Check subsidy exists
+  // Check subsidy exists
   const existing = await subsidyModel.getSubsidyById(subsidyId);
   if (!existing) throwError("Subsidy not found", "NOT_FOUND", 404);
 
-  // 2. Cannot edit if any farmer has already been distributed
+  // Cannot edit if any farmer has already been distributed
   if (existing.DistributedCount > 0) {
     throwError(
       "Cannot edit a subsidy that has already been partially or fully distributed",
@@ -70,10 +70,10 @@ export async function editSubsidy(id, subsidy) {
     );
   }
 
-  // 3. Get program for date and budget validation
+  // Get program for date and budget validation
   const program = await programModel.getProgramById(existing.ProgramID);
 
-  // 4. Validate distribution date against program dates
+  // Validate distribution date against program dates
   const distributionDate = new Date(subsidy.DistributionDate);
   const programStart = new Date(program.StartDate);
   const programEnd = new Date(program.EndDate);
@@ -90,7 +90,7 @@ export async function editSubsidy(id, subsidy) {
     throwError("Distribution date cannot exceed the program end date", "INVALID_DATE", 400);
   }
 
-  // 5. Check available budget (exclude current subsidy)
+  // Check available budget (exclude current subsidy)
   const totalExisting = await subsidyModel.getTotalSubsidyByProgram(existing.ProgramID, subsidyId);
   const remaining = parseFloat(program.Budget) - parseFloat(totalExisting);
 
@@ -102,7 +102,7 @@ export async function editSubsidy(id, subsidy) {
     );
   }
 
-  // 6. Cannot reduce amount below total already assigned to farmers
+  // Cannot reduce amount below total already assigned to farmers
   const totalAssigned = await subsidyModel.getTotalAssignedAmount(subsidyId);
   if (parseFloat(subsidy.TotalAmount) < parseFloat(totalAssigned)) {
     throwError(
@@ -133,7 +133,6 @@ export async function removeSubsidy(id) {
   return await subsidyModel.deleteSubsidy(subsidyId);
 }
 
-
 // ------------------ FETCH AVAILABLE FARMERS ------------------
 export async function fetchAvailableFarmer(distributionID, search = "") {
   return await subsidyModel.getAvailableFarmer(distributionID, search);
@@ -145,15 +144,11 @@ export async function addDistribution(distribution) {
   const farmerID = parseInt(distribution.FarmerID);
   const amount = parseFloat(distribution.Amount);
 
-  // 1. Check subsidy exists
+  // Check subsidy exists
   const subsidy = await subsidyModel.getSubsidyById(distributionID);
   if (!subsidy) throwError("Subsidy not found", "NOT_FOUND", 404);
 
-  // 2. Farmer not already in this distribution
-  const alreadyAdded = await subsidyModel.getFarmerInDistribution(distributionID, farmerID);
-  if (alreadyAdded) throwError("Farmer is already added to this distribution", "DUPLICATE_ENTRY", 400);
-
-  // 3. Amount cannot exceed unassigned budget (reuse existing model fn)
+  // Amount cannot exceed unassigned budget (reuse existing model fn)
   const totalAssigned = parseFloat(await subsidyModel.getTotalAssignedAmount(distributionID));
   const unassigned = parseFloat(subsidy.TotalAmount) - totalAssigned;
 
@@ -172,11 +167,11 @@ export async function addDistribution(distribution) {
 export async function editDistribution(id, distribution) {
   const distributionId = parseInt(id);
 
-  // 1. Check exists
+  // Check exists
   const existing = await subsidyModel.getDistributionDetailById(distributionId);
   if (!existing) throwError("Distribution record not found", "NOT_FOUND", 404);
 
-  // 2. Distribute action
+  // Distribute action
   if (distribution.IsDistributed === 1) {
     if (existing.IsDistributed === 1) {
       throwError("Already distributed", "INVALID_OPERATION", 400);
@@ -190,7 +185,7 @@ export async function editDistribution(id, distribution) {
     }
   }
 
-  // 3. Cancel action
+  // Cancel action
   if (distribution.IsDistributed === 0) {
     if (existing.IsDistributed === 0) {
       throwError("Distribution is already pending", "INVALID_OPERATION", 400);
@@ -199,7 +194,6 @@ export async function editDistribution(id, distribution) {
 
   return await subsidyModel.updateDistribution(distributionId, distribution);
 }
-   
 
 // ------------------ REMOVE DISTRIBUTION ------------------
 export async function removeDistribution(id) {
