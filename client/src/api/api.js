@@ -1,11 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 
-let refreshPromise = null; // shared across all requests
+let refreshPromise = null;
 
 api.interceptors.response.use(
   (response) => response.data,
@@ -19,22 +19,21 @@ api.interceptors.response.use(
     if (status === 401 && code === "NO_TOKEN" && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // if a refresh is already in progress, wait for it
       if (!refreshPromise) {
         refreshPromise = axios
           .post(
-            `${import.meta.env.VITE_API_BASE_URL || "http://localhost:5000"}/auth/refresh`,
+            `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
             {},
             { withCredentials: true }
           )
           .finally(() => {
-            refreshPromise = null; // reset after done
+            refreshPromise = null;
           });
       }
 
       try {
         await refreshPromise;
-        return api(originalRequest); // retry original request
+        return api(originalRequest);
       } catch {
         window.location.href = "/sessionexpired";
         return Promise.reject(error);

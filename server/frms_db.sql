@@ -140,7 +140,7 @@ CREATE TABLE tblUsers (
   Username VARCHAR(50) NOT NULL,
   PasswordHash VARCHAR(255) NOT NULL,
   Email VARCHAR(100),
-  Role ENUM('Admin', 'Staff') DEFAULT 'Staff',
+  Role ENUM('SuperAdmin', 'Admin', 'Staff') DEFAULT 'Staff',
   StaffID INT NULL,
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,

@@ -20,8 +20,8 @@ const menuItems = [
   { name: "Programs & Subsidies", icon: <FileText size={20} />, path: "/programs" },
   { name: "Subsidy Distribution", icon: <Briefcase size={20} />, path: "/subsidy" },
   { name: "Reports & Monitoring", icon: <Clipboard size={20} />, path: "/monitoring" },
-  { name: "Agricultural Staffs", icon: <Users size={20} />, path: "/staffs", roles: ["Admin", "Staff"] },
-  { name: "System Users", icon: <UserCog size={20} />, path: "/users", roles: ["Admin"] },
+  { name: "Agricultural Staffs", icon: <Users size={20} />, path: "/staffs", roles: ["SuperAdmin", "Admin"] },
+  { name: "System Users", icon: <UserCog size={20} />, path: "/users", roles: ["SuperAdmin", "Admin"] },
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {

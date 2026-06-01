@@ -28,7 +28,7 @@ export async function loginUser({ identifier, password }) {
   attempts.lastAttempt &&
   Date.now() - attempts.lastAttempt < LOCK_TIME
 ) {
-  throwError("Too many failed attempts. Try again later.", "AUTH_RATE_LIMIT", 429);
+  throwError("Too many failed attempts. Try again after 5 minutes.", "AUTH_RATE_LIMIT", 429);
 }
 
 

@@ -27,6 +27,8 @@ export async function getAllStaff() {
     LEFT JOIN tblUsers u
       ON s.StaffID = u.StaffID
 
+    WHERE u.Role != 'SuperAdmin' OR u.StaffID IS NULL
+
     ORDER BY s.StaffID
   `;
 

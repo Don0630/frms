@@ -1,8 +1,7 @@
 // server/src/models/userModel.js
 import { db } from "../config/db.js";
 
-
-// --------- GET ALL USER ---------
+// --------- GET ALL USERS ---------
 export async function getAllUsers() {
   const [rows] = await db.query(`
     SELECT 
@@ -18,60 +17,66 @@ export async function getAllUsers() {
       s.Email
     FROM tblUsers u
     JOIN tblAgriculturalStaff s ON u.StaffID = s.StaffID
+    WHERE u.Role != 'SuperAdmin'
     ORDER BY s.FirstName, s.LastName
   `);
-
   return rows;
 }
 
+// --------- INSERT USER ---------
+export async function insertUser(user) {
+  const { id, username, hashedPassword, role } = user;
 
-// --------- ADD USER ---------
-export async function insertUser({ staffId, username, hashedPassword, role }) { 
-    const query = `
+  const query = `
     INSERT INTO tblUsers (StaffID, Username, PasswordHash, Role)
-     VALUES (?, ?, ?, ?)
-    `;
-    const [result] = await db.query(query, [staffId, username, hashedPassword, role]);
+    VALUES (?, ?, ?, ?)
+  `;
 
-    return { id: result.insertId };
+  const [result] = await db.query(query, [id, username, hashedPassword, role]);
+
+  return {
+    UserID: result.insertId,
+    ...user,
+  };
 }
 
-
 // --------- UPDATE USER ---------
-export async function updateUser({ userId, username, role }) {
+export async function updateUser(id, user) {
+  const { username, role } = user;
+
   const query = `
     UPDATE tblUsers
     SET Username = ?, Role = ?
     WHERE UserID = ?
   `;
 
-  const [result] = await db.query(query, [username, role, userId,]);
+  await db.query(query, [username, role, id]);
 
-  return { affectedRows: result.affectedRows, userId, };
+  return {
+    UserID: id,
+    ...user,
+  };
 }
 
 // --------- DELETE USER ---------
-export async function deleteUser(userId) {
-  const query = `
-    DELETE FROM tblUsers
-    WHERE UserID = ?
-  `;
-
-  const [result] = await db.query(query, [userId]);
+export async function deleteUser(id) {
+  const [result] = await db.query(
+    `DELETE FROM tblUsers WHERE UserID = ?`,
+    [id]
+  );
   return result;
 }
 
 // --------- GET USER BY ID ---------
 export async function getUserById(id) {
   const [rows] = await db.query(
-    `SELECT UserID FROM tblUSers WHERE UserID = ? LIMIT 1`,
+    `SELECT UserID FROM tblUsers WHERE UserID = ? LIMIT 1`,
     [id]
   );
   return rows[0] || null;
 }
 
-
-// check if staff is already a user
+// --------- FIND USER BY STAFF ID ---------
 export async function findUserByStaffId(staffId) {
   const [rows] = await db.query(
     `SELECT UserID FROM tblUsers WHERE StaffID = ? LIMIT 1`,
@@ -79,4 +84,3 @@ export async function findUserByStaffId(staffId) {
   );
   return rows[0] || null;
 }
- 

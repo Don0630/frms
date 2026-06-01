@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { showErrorToast } from "../../utils/toastUtility";
 import { useLogin } from "../../hooks/useAuth";
 import logo from "../../assets/logo.png";
 import bgImage from "../../assets/images/bg-login.jpeg";
@@ -24,6 +25,8 @@ export default function Login() {
 
 const handleSubmit = (e) => {
   e.preventDefault();
+  setFormError("");
+  setSuccessMessage("");
 
   loginMutation.mutate(form, {
     onSuccess: () => {
@@ -31,11 +34,21 @@ const handleSubmit = (e) => {
       setForm({ identifier: "", password: "" });
       setTimeout(() => navigate("/dashboard"), 1000);
     },
+onError: (err) => {
+  const status = err?.response?.status;
+  const message = err?.response?.data?.message || "Login failed.";
 
-    onError: (err) => {
-      const message = err?.response?.data?.message || err.message || "Login failed.";
-      setFormError(message);
-    },
+  if (!err.response) {
+    showErrorToast("Unable to connect. Please check your internet connection.");
+    return;
+  }
+
+  if (status === 400 || status === 401 || status === 429) {
+    setFormError(message); // shows inline
+  } else {
+    showErrorToast(message); // toast for 500/network
+  }
+},
   });
 };
 
@@ -108,8 +121,7 @@ const handleSubmit = (e) => {
             {loginMutation.isPending ? "Logging in..." : "Login"}
           </button>
 
-          {/* MESSAGES */}
-        {/* MESSAGES - reserve fixed height so form doesn't resize */}
+{/* MESSAGES */}        
 <div className="h-5 mt-1">
   {formError && (
     <p className="text-red-500 text-sm">{formError}</p>
