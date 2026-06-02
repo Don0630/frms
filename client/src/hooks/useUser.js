@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { showErrorToast } from "../utils/toastUtility";
 import * as userApi from "../api/userApi";
 
-export default function useUsers() {
+export default function useUser() {
   const queryClient = useQueryClient();
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["users"] });

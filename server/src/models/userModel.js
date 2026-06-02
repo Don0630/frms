@@ -20,25 +20,26 @@ export async function getAllUsers() {
     WHERE u.Role != 'SuperAdmin'
     ORDER BY s.FirstName, s.LastName
   `);
-  return rows;
+  return rows || [];
 }
 
-// --------- INSERT USER ---------
-export async function insertUser(user) {
-  const { id, username, hashedPassword, role } = user;
+// --------- CREATE USER ---------
+export async function createUser(user) {
+  const { staffId, username, hashedPassword, role } = user;
 
   const query = `
-    INSERT INTO tblUsers (StaffID, Username, PasswordHash, Role)
+    INSERT INTO tblUsers (StaffId, Username, PasswordHash, Role)
     VALUES (?, ?, ?, ?)
   `;
 
-  const [result] = await db.query(query, [id, username, hashedPassword, role]);
+  const [result] = await db.query(query, [staffId, username, hashedPassword, role]);
 
   return {
     UserID: result.insertId,
     ...user,
   };
 }
+
 
 // --------- UPDATE USER ---------
 export async function updateUser(id, user) {

@@ -202,7 +202,7 @@ useEffect(() => {
     onClose={() => setAddModal(false)}
     loading={createUserMutation.isPending}
     onSubmit={(data) =>
-      createUserMutation.mutate(data)
+      createUserMutation.mutateAsync(data)
       .then((res) => { setAddModal(false); showSuccessToast(res.message); })
     }
   />
@@ -215,7 +215,7 @@ useEffect(() => {
     onClose={() => setEditModal(null)}
     loading={updateUserMutation.isPending}
     onSubmit={(data) =>
-      updateUserMutation.mutate({ id: editModal.UserID, data})
+      updateUserMutation.mutateAsync({ id: editModal.UserID, data})
         .then((res) => { setEditModal(null); showSuccessToast(res.message); })
     }
   />
@@ -228,7 +228,7 @@ useEffect(() => {
     onClose={() => setDeleteModal(null)}
     loading={deleteUserMutation.isPending}
     onConfirm={() =>
-      deleteUserMutation.mutate(deleteModal.UserID)
+      deleteUserMutation.mutateAsync(deleteModal.UserID)
       .then((res) => { setDeleteModal(null); showSuccessToast(res.message); })
       .catch(() => {})
     }

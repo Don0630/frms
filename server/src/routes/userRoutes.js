@@ -8,7 +8,7 @@ import { authorizeRole } from "../middleware/authRoleMiddleware.js";
 const router = express.Router();
 
 router.get("/usersData", authenticateToken,authorizeRole("SuperAdmin", "Admin"), userController.getAllUser);
-router.post("/createUser", authenticateToken,authorizeRole("SuperAdmin", "Admin"), validateUser.validateAddUser, userController.createUser);
+router.post("/createUser", authenticateToken,authorizeRole("SuperAdmin", "Admin"), validateUser.validateAddUser, userController.saveUser);
 router.put("/updateUser/:id", authenticateToken,authorizeRole("SuperAdmin", "Admin"), validateUser.validateEditUser, userController.updateUser);
 router.delete("/deleteUser/:id", authenticateToken,authorizeRole("SuperAdmin", "Admin"), validateUser.validateDeleteUser, userController.deleteUser);
 

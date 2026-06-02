@@ -14,7 +14,7 @@ export async function addUser(user) {
   if (existing) throwError("This staff is already a user.", "DUPLICATE", 409);
 
   const hashedPassword = await bcrypt.hash(user.password, 10);
-  return await userModel.insertUser({ ...user, hashedPassword });
+  return await userModel.createUser({ ...user, hashedPassword });
 }
 
 // --------- EDIT USER ---------
