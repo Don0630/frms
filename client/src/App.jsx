@@ -5,7 +5,7 @@ import useDarkMode from "./hooks/useDarkMode";
 
 import Sidebar from "./components/SideBar";
 import Navbar from "./components/NavBar";
-import Breadcrumbs from "./components/Breadcrumbs";
+import Breadcrumbs from "./components/Breadcrumbs"; 
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import { Toaster } from "react-hot-toast";
 
@@ -101,7 +101,7 @@ function App() {
 
         {/* ================= PROTECTED LAYOUT ================= */}
         <Route
-          element={
+          element={ 
             <ProtectedRoute>
               <Layout
                 sidebarOpen={sidebarOpen}
@@ -111,7 +111,7 @@ function App() {
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
               />
-            </ProtectedRoute>
+            </ProtectedRoute> 
           }
         >
           {/* Default inside layout */}

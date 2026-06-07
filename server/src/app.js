@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import cookieParser from "cookie-parser";
 
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import staffRoutes from "./routes/staffRoutes.js";
@@ -73,6 +74,7 @@ app.use(cookieParser());
 /* -----------------------------
    🚀 ROUTES
 ------------------------------ */
+app.use("/dashboard", dashboardRoutes);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/staff", staffRoutes);

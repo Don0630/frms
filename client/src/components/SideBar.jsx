@@ -1,15 +1,7 @@
 import { NavLink } from "react-router-dom";
-import { useMe } from "../hooks/useAuth";
-import {
-  Home,
-  Users,
-  Sprout,
-  Activity,
-  FileText,
-  UserCog,
-  Briefcase,
-  Clipboard,
-} from "lucide-react";
+import { Home, Users, Sprout, Activity, FileText, UserCog, Briefcase, Clipboard, } from "lucide-react";
+import useProfile from "../hooks/useProfile";
+
 import logo from "../assets/logo.png";
 
 const menuItems = [
@@ -25,7 +17,8 @@ const menuItems = [
 ];
 
 export default function Sidebar({ collapsed, mobile = false }) {
-  const { data: user } = useMe();
+const { userQuery } = useProfile(); 
+const user = userQuery.data?.data?.user;
 
   return (
     <div
@@ -47,7 +40,7 @@ export default function Sidebar({ collapsed, mobile = false }) {
           ${collapsed ? "justify-center" : "gap-3"}
         `}
       >
-        <img src={logo} alt="Logo" className="w-7 h-7 object-contain rounded-full" />
+        <img src={logo} alt="Logo" className="w-6 h-6 object-contain rounded-full" />
 
         <h1
           className={`

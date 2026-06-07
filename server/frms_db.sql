@@ -138,16 +138,14 @@ CREATE TABLE tblAgriculturalStaff (
 CREATE TABLE tblUsers (
   UserID INT AUTO_INCREMENT PRIMARY KEY,
   Username VARCHAR(50) NOT NULL,
-  PasswordHash VARCHAR(255) NOT NULL,
-  Email VARCHAR(100),
+  PasswordHash VARCHAR(255) NOT NULL, 
   Role ENUM('SuperAdmin', 'Admin', 'Staff') DEFAULT 'Staff',
   StaffID INT NULL,
   DateRegistered DATETIME DEFAULT CURRENT_TIMESTAMP,
   LastLogin DATETIME NULL,
   Status ENUM('Active', 'Inactive', 'Suspended') DEFAULT 'Active',
   FOREIGN KEY (StaffID) REFERENCES tblAgriculturalStaff(StaffID) ON DELETE RESTRICT,
-  UNIQUE KEY unique_username (Username),
-  UNIQUE KEY unique_user_email (Email)
+  UNIQUE KEY unique_username (Username)
 );
 
 -- =========================

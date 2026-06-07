@@ -1,5 +1,5 @@
 // server/src/controllers/authController.js
-import { loginUser, refreshAccessToken, getMe } from "../services/authService.js";
+import { loginUser, refreshAccessToken, getUser } from "../services/authService.js";
 import { successResponse } from "../utils/response.js";
 
 // LOGIN
@@ -74,9 +74,9 @@ export async function logout(req, res) {
 
 
 
-export async function me(req, res, next) {
+export async function user(req, res, next) {
   try {
-    const user = await getMe(req.user.id);
+    const user = await getUser(req.user.id);
     return successResponse(res, "Authenticated", { user });
   } catch (err) {
     return next(err);

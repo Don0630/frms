@@ -5,9 +5,9 @@ VALUES
 
 
 INSERT INTO tblUsers
-(Username, PasswordHash, Email, Role, StaffID, Status)
+(Username, PasswordHash, Role, StaffID, Status)
 VALUES
-('SuperAdmin', '$2b$10$/sHRmsuwncg3YsUm/ydMC.8CTFV9CHuuQCkqijN3yTLq/MGp41.w2', 'admin@example.com', 'SuperAdmin', 1, 'Active');
+('SuperAdmin', '$2b$10$/sHRmsuwncg3YsUm/ydMC.8CTFV9CHuuQCkqijN3yTLq/MGp41.w2', 'SuperAdmin', 1, 'Active');
 
 
 

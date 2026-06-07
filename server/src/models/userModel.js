@@ -23,6 +23,7 @@ export async function getAllUsers() {
   return rows || [];
 }
 
+
 // --------- CREATE USER ---------
 export async function createUser(user) {
   const { staffId, username, hashedPassword, role } = user;
@@ -59,6 +60,7 @@ export async function updateUser(id, user) {
   };
 }
 
+
 // --------- DELETE USER ---------
 export async function deleteUser(id) {
   const [result] = await db.query(
@@ -68,6 +70,7 @@ export async function deleteUser(id) {
   return result;
 }
 
+
 // --------- GET USER BY ID ---------
 export async function getUserById(id) {
   const [rows] = await db.query(
@@ -76,6 +79,7 @@ export async function getUserById(id) {
   );
   return rows[0] || null;
 }
+
 
 // --------- FIND USER BY STAFF ID ---------
 export async function findUserByStaffId(staffId) {

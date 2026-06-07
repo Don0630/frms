@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { showErrorToast } from "../../utils/toastUtility";
-import { useLogin } from "../../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
+
+
 import logo from "../../assets/logo.png";
 import bgImage from "../../assets/images/bg-login.jpeg";
 
 export default function Login() {
   const navigate = useNavigate();
-  const loginMutation = useLogin();
+  const { loginMutation } = useAuth();
 
   const [form, setForm] = useState({
     identifier: "",

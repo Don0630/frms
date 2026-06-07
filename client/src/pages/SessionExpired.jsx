@@ -5,10 +5,6 @@ export default function SessionExpired() {
   const navigate = useNavigate();
 
   const handleRedirect = () => {
-    // Optional: clear storage/session
-    localStorage.removeItem("token");
-    sessionStorage.clear();
-
     navigate("/login");
   };
 

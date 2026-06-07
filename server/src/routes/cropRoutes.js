@@ -11,7 +11,7 @@ const router = express.Router();
 router.get("/cropsData", authenticateToken, authorizeRole("SuperAdmin", "Admin", "Staff"), cropController.getAllCrop);
 router.post("/addCrop", authenticateToken, authorizeRole("SuperAdmin", "Admin", "Staff"), validateCrop.validateAddCrop, cropController.saveCrop);
 router.put("/updateCrop/:id", authenticateToken, authorizeRole("SuperAdmin", "Admin", "Staff"), validateCrop.validateEditCrop, cropController.updateCrop);
-router.delete("/deleteCrop/:id", authenticateToken, authorizeRole("SuperAdmin", "Admin", "Staff"), validateCrop.validateDeleteCrop, cropController.deleteCrop);
+router.delete("/deleteCrop/:id", authenticateToken, authorizeRole("SuperAdmin", "Admin"), validateCrop.validateDeleteCrop, cropController.deleteCrop);
 router.get("/searchCrop", authenticateToken, authorizeRole("SuperAdmin", "Admin", "Staff"), cropController.getSearchCrop);
 
 

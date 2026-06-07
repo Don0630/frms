@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useMe } from "../hooks/useAuth";
+import useProfile from "../hooks/useProfile";
 
 function LoadingScreen() {
   return (
@@ -20,7 +20,9 @@ function LoadingScreen() {
 }
 
 export default function ProtectedRoute({ children, allowedRoles }) {
-  const { data: user, isLoading, isError } = useMe();
+  const { userQuery } = useProfile();
+  const { data, isLoading, isError } = userQuery;
+  const user = userQuery.data?.data?.user;
 
   if (isLoading) return <LoadingScreen />;
   if (isError || !user) return <Navigate to="/login" replace />;

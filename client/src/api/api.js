@@ -13,10 +13,16 @@ api.interceptors.response.use(
     const status = error?.response?.status;
     const code = error?.response?.data?.code;
     const originalRequest = error.config;
+ 
+if (!originalRequest) return Promise.reject(error);
 
-    if (!originalRequest) return Promise.reject(error);
+// ✅ add this
+const isAuthRoute = 
+  originalRequest.url?.includes("/auth/login") ||
+  originalRequest.url?.includes("/auth/refresh")
 
-    if (status === 401 && code === "NO_TOKEN" && !originalRequest._retry) {
+if (status === 401 && code === "NO_TOKEN" && !originalRequest._retry && !isAuthRoute) {
+  // rest stays the same
       originalRequest._retry = true;
 
       if (!refreshPromise) {

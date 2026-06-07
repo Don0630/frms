@@ -1,4 +1,6 @@
 // middleware/authorizeRole.js
+import { errorResponse } from "../utils/response.js";
+
 export function authorizeRole(...roles) {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {

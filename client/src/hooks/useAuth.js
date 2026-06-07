@@ -1,36 +1,26 @@
 // src/hooks/useAuth.js
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as authApi from "../api/authApi";
 
-export function useLogin() {
+export default function useAuth() {
   const queryClient = useQueryClient();
 
-  return useMutation({
+  // ================= LOGIN =================
+  const loginMutation = useMutation({
     mutationFn: authApi.login,
     onSuccess: (res) => {
-      queryClient.setQueryData(["authUser"], res.data.user);
+      queryClient.setQueryData(["user"], res);
     },
   });
-}
 
-export function useMe() {
-  return useQuery({
-    queryKey: ["authUser"],
-    queryFn: authApi.me,
-    retry: false,
-    staleTime: Infinity,
-  });
-}
-
-export function useLogout() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
+  // ================= LOGOUT =================
+  const logoutMutation = useMutation({
     mutationFn: authApi.logout,
     onSuccess: () => {
       queryClient.clear();
       window.location.href = "/login";
     },
   });
-}
 
+  return { loginMutation, logoutMutation };
+}
